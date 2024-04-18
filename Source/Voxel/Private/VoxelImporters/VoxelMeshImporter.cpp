@@ -26,7 +26,7 @@ static void GetMergedSectionFromStaticMesh(
 {
 	VOXEL_FUNCTION_COUNTER();
 	
-	FStaticMeshRenderData* RenderData = UE_5_SWITCH(InMesh->RenderData.Get(), InMesh->GetRenderData());
+	FStaticMeshRenderData* RenderData = InMesh->GetRenderData();
 	if (!ensure(RenderData) || !ensure(RenderData->LODResources.IsValidIndex(LODIndex))) return;
 
 	const FStaticMeshLODResources& LODResources = RenderData->LODResources[LODIndex];
@@ -53,7 +53,7 @@ static void GetMergedSectionFromStaticMesh(
 			Vertices.SetNumUninitialized(PositionVertexBuffer.GetNumVertices());
 			for (uint32 Index = 0; Index < PositionVertexBuffer.GetNumVertices(); Index++)
 			{
-				Get(Vertices, Index) = UE_5_CONVERT(FVector, PositionVertexBuffer.VertexPosition(Index));
+				Get(Vertices, Index) = FVector(PositionVertexBuffer.VertexPosition(Index));
 			}
 		}
 		{
@@ -70,7 +70,7 @@ static void GetMergedSectionFromStaticMesh(
 			UVs.SetNumUninitialized(StaticMeshVertexBuffer.GetNumVertices());
 			for (uint32 Index = 0; Index < StaticMeshVertexBuffer.GetNumVertices(); Index++)
 			{
-				Get(UVs, Index) = UE_5_CONVERT(FVector2D, StaticMeshVertexBuffer.GetVertexUV(Index, 0));
+				Get(UVs, Index) = FVector2D(StaticMeshVertexBuffer.GetVertexUV(Index, 0));
 			}
 		}
 	}

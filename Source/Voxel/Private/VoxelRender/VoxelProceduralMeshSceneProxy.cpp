@@ -10,9 +10,6 @@
 
 #include "Engine/Engine.h"
 #include "Materials/Material.h"
-#if VOXEL_ENGINE_VERSION < 500
-#include "TessellationRendering.h"
-#endif
 #include "PhysicsEngine/BodySetup.h"
 #include "DistanceFieldAtlas.h"
 #include "PrimitiveSceneInfo.h"
@@ -172,10 +169,6 @@ FVoxelProceduralMeshSceneProxy::FVoxelProceduralMeshSceneProxy(UVoxelProceduralM
 	VOXEL_FUNCTION_COUNTER();
 	
 	// Proxy settings
-#if VOXEL_ENGINE_VERSION < 500
-	bSupportsDistanceFieldRepresentation = true;
-	DistanceFieldSelfShadowBias = Component->DistanceFieldSelfShadowBias;
-#endif
 	bVerifyUsedMaterials = false; // Fails with tool rendering
 
 	FinishSectionsUpdatesTime = Component->LastFinishSectionsUpdatesTime;
@@ -225,19 +218,6 @@ FVoxelProceduralMeshSceneProxy::FVoxelProceduralMeshSceneProxy(UVoxelProceduralM
 		check(
 			AdjacencyIndexBuffer.GetNumIndices() == 0 ||
 			AdjacencyIndexBuffer.GetNumIndices() == 4 * IndexBuffer.GetNumIndices());
-		
-#if VOXEL_ENGINE_VERSION < 500
-		const bool bTessellatedMaterial =
-			RequiresAdjacencyInformation(
-				NewSection.Material->GetMaterial(),
-				&FLocalVertexFactory::StaticType,
-				GetScene().GetFeatureLevel());
-		const bool bHasAdjacency = AdjacencyIndexBuffer.GetNumIndices() > 0;
-
-		ensure(SrcSection.Settings.bEnableTessellation == bHasAdjacency);
-		ensureMsgf(bTessellatedMaterial == bHasAdjacency, TEXT("Invalid tessellated material or non tessellated material is tessellated"));
-		NewSection.bRequiresAdjacencyInformation = bTessellatedMaterial && bHasAdjacency;
-#endif
 	}
 
 	{
@@ -278,14 +258,6 @@ void FVoxelProceduralMeshSceneProxy::CreateRenderThreadResources()
 			Section.RenderData = FVoxelProcMeshBuffersRenderData::GetRenderData(Section.Buffers.ToSharedRef(), GetScene().GetFeatureLevel());
 		}
 	}
-	
-#if VOXEL_ENGINE_VERSION < 500
-	if (DistanceFieldData.IsValid())
-	{
-		const_cast<FDistanceFieldVolumeTexture&>(DistanceFieldData->VolumeTexture).Initialize(reinterpret_cast<UStaticMesh*>(Component)); // Horrible hack, but w/e if it works :)
-		INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelMeshDistanceFieldMemory, DistanceFieldData->GetResourceSizeBytes());
-	}
-#endif
 }
 
 void FVoxelProceduralMeshSceneProxy::DestroyRenderThreadResources()
@@ -297,14 +269,6 @@ void FVoxelProceduralMeshSceneProxy::DestroyRenderThreadResources()
 	{
 		Section.RenderData.Reset();
 	}
-	
-#if VOXEL_ENGINE_VERSION < 500
-	if (DistanceFieldData.IsValid())
-	{
-		DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelMeshDistanceFieldMemory, DistanceFieldData->GetResourceSizeBytes());
-		const_cast<FDistanceFieldVolumeTexture&>(DistanceFieldData->VolumeTexture).Release();
-	}
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -630,7 +594,7 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingMa
 
 				RayTracingInstance.Materials.Add(MeshBatch);
 
-				RayTracingInstance.BuildInstanceMaskAndFlags(UE_5_ONLY(ERHIFeatureLevel::Type::SM6));
+				RayTracingInstance.BuildInstanceMaskAndFlags(ERHIFeatureLevel::Type::SM6);
 				OutRayTracingInstances.Add(RayTracingInstance);
 			}
 		}
@@ -669,7 +633,7 @@ FPrimitiveViewRelevance FVoxelProceduralMeshSceneProxy::GetViewRelevance(const F
 	Result.bRenderCustomDepth = ShouldRenderCustomDepth();
 	Result.bTranslucentSelfShadow = bCastVolumetricTranslucentShadow;
 	MaterialRelevance.SetPrimitiveViewRelevance(Result);
-	Result.bVelocityRelevance = IsMovable() && Result.UE_25_SWITCH(bOpaqueRelevance, bOpaque) && Result.bRenderInMainPass;
+	Result.bVelocityRelevance = IsMovable() && Result.bOpaque && Result.bRenderInMainPass;
 	
 	return Result;
 }
@@ -699,60 +663,6 @@ uint32 FVoxelProceduralMeshSceneProxy::GetAllocatedSize() const
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#if VOXEL_ENGINE_VERSION < 500
-void FVoxelProceduralMeshSceneProxy::GetDistancefieldAtlasData(
-	FBox& LocalVolumeBounds, 
-	FVector2D& OutDistanceMinMax, 
-	FIntVector& OutBlockMin, 
-	FIntVector& OutBlockSize, 
-	bool& bOutBuiltAsIfTwoSided, 
-	bool& bMeshWasPlane, 
-	float& SelfShadowBias,
-	TArray<FMatrix>& ObjectLocalToWorldTransforms,
-	bool& bOutThrottled) const
-{
-	if (DistanceFieldData.IsValid())
-	{
-		LocalVolumeBounds = DistanceFieldData->LocalBoundingBox;
-		OutDistanceMinMax = DistanceFieldData->DistanceMinMax;
-		OutBlockMin = DistanceFieldData->VolumeTexture.GetAllocationMin();
-		OutBlockSize = DistanceFieldData->VolumeTexture.GetAllocationSize();
-		bOutBuiltAsIfTwoSided = DistanceFieldData->bBuiltAsIfTwoSided;
-		bMeshWasPlane = DistanceFieldData->bMeshWasPlane;
-		ObjectLocalToWorldTransforms.Add(GetLocalToWorld());
-		SelfShadowBias = DistanceFieldSelfShadowBias;
-		bOutThrottled = DistanceFieldData->VolumeTexture.Throttled();
-	}
-	else
-	{
-		LocalVolumeBounds = FBox(ForceInit);
-		OutDistanceMinMax = FVector2D(0, 0);
-		OutBlockMin = FIntVector(-1, -1, -1);
-		OutBlockSize = FIntVector(0, 0, 0);
-		bOutBuiltAsIfTwoSided = false;
-		bMeshWasPlane = false;
-		SelfShadowBias = 0;
-		bOutThrottled = false;
-	}
-}
-
-void FVoxelProceduralMeshSceneProxy::GetDistanceFieldInstanceInfo(int32& NumInstances, float& BoundsSurfaceArea) const
-{
-	NumInstances = DistanceFieldData.IsValid() ? 1 : 0;
-	const FVector AxisScales = GetLocalToWorld().GetScaleVector();
-	const FVector BoxDimensions = GetBounds().BoxExtent * AxisScales * 2;
-
-	BoundsSurfaceArea =
-		2 * BoxDimensions.X * BoxDimensions.Y +
-		2 * BoxDimensions.Z * BoxDimensions.Y +
-		2 * BoxDimensions.X * BoxDimensions.Z;
-}
-
-bool FVoxelProceduralMeshSceneProxy::HasDistanceFieldRepresentation() const
-{
-	return CastsDynamicShadow() && AffectsDistanceFieldLighting() && DistanceFieldData.IsValid() && DistanceFieldData->VolumeTexture.IsValidDistanceFieldVolume();
-}
-#endif
 
 bool FVoxelProceduralMeshSceneProxy::HasDynamicIndirectShadowCasterRepresentation() const
 {

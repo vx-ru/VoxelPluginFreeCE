@@ -194,15 +194,11 @@ void FVoxelThreadPool::AbandonAllTasks()
 
 TUniquePtr<FVoxelThread> FVoxelThreadPool::CreateThread()
 {
-#if VOXEL_ENGINE_VERSION < 426
-	TRACE_THREAD_GROUP_SCOPE("VoxelThreadPool");
-#else
-	UE_5_ONLY(UE::)Trace::ThreadGroupBegin(TEXT("VoxelThreadPool"));
+	UE::Trace::ThreadGroupBegin(TEXT("VoxelThreadPool"));
 	ON_SCOPE_EXIT
 	{
-		UE_5_ONLY(UE::)Trace::ThreadGroupEnd();
+		UE::Trace::ThreadGroupEnd();
 	};
-#endif
 
 	static int32 ThreadIndex = 0;
 	const FString Name = FString::Printf(TEXT("Voxel Thread %d"), ThreadIndex++);

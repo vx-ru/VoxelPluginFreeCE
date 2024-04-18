@@ -65,13 +65,8 @@ void FVoxelMessagesEditor::LogMessage(const TSharedRef<FTokenizedMessage>& Messa
 		}
 	};
 
-#if VOXEL_ENGINE_VERSION < 426
-	FBlueprintExceptionTracker& BlueprintExceptionTracker = FBlueprintExceptionTracker::Get();
-	auto& ScriptStack =BlueprintExceptionTracker.ScriptStack;
-#else
 	const TArray<const FFrame*>& ScriptStack = FBlueprintContextTracker::Get().GetScriptStack();
-#endif
-	
+
 	TArray<TSharedPtr<IMessageToken>> ReversedTokens;
 	if (ScriptStack.Num() > 0)
 	{

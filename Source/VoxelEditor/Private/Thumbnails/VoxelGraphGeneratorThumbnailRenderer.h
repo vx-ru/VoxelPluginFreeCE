@@ -22,8 +22,8 @@ public:
 	{
 		UTextureThumbnailRenderer::GetThumbnailSize(CastChecked<UVoxelGraphGenerator>(Object)->GetPreviewTexture(), Zoom, OutWidth, OutHeight);
 	}
-	virtual void Draw(UObject* Object, int32 X, int32 Y, uint32 Width, uint32 Height, FRenderTarget* Target, FCanvas* Canvas ONLY_UE_25_AND_HIGHER(, bool bAdditionalViewFamily)) override
+	virtual void Draw(UObject* Object, int32 X, int32 Y, uint32 Width, uint32 Height, FRenderTarget* Target, FCanvas* Canvas, bool bAdditionalViewFamily) override
 	{
-		UTextureThumbnailRenderer::Draw(CastChecked<UVoxelGraphGenerator>(Object)->GetPreviewTexture(), X, Y, Width, Height, Target, Canvas ONLY_UE_25_AND_HIGHER(, bAdditionalViewFamily));
+		UTextureThumbnailRenderer::Draw(CastChecked<UVoxelGraphGenerator>(Object)->GetPreviewTexture(), X, Y, Width, Height, Target, Canvas, bAdditionalViewFamily);
 	}
 };

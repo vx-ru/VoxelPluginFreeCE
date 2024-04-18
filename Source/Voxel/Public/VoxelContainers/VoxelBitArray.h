@@ -146,7 +146,7 @@ public:
 	template<typename>
 	friend class TConstSetBitIterator;
 
-	template<typename,typename UE_26_ONLY(,bool)>
+	template<typename,typename,bool>
 	friend class TConstDualSetBitIterator;
 
 	template<typename>

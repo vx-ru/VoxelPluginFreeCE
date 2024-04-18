@@ -171,7 +171,7 @@ void UNiagaraDataInterfaceVoxelDataAsset::GetVMExternalFunction(const FVMExterna
 	}
 }
 
-void UNiagaraDataInterfaceVoxelDataAsset::GetAssetValue(UE_5_SWITCH(FVectorVMContext, FVectorVMExternalFunctionContext)& Context)
+void UNiagaraDataInterfaceVoxelDataAsset::GetAssetValue(FVectorVMExternalFunctionContext& Context)
 {
 	VectorVM::FUserPtrHandler<FNDIVoxelDataAsset_InstanceData> InstData(Context);
 	VectorVM::FExternalFuncInputHandler<float> XParam(Context);
@@ -180,7 +180,7 @@ void UNiagaraDataInterfaceVoxelDataAsset::GetAssetValue(UE_5_SWITCH(FVectorVMCon
 	VectorVM::FExternalFuncRegisterHandler<float> OutValue(Context);
 
 	auto& Data = *InstData->Data;
-	for (int32 i = 0; i < Context.UE_5_SWITCH(NumInstances, GetNumInstances()); ++i)
+	for (int32 i = 0; i < Context.GetNumInstances(); ++i)
 	{
 		const float X = XParam.GetAndAdvance();
 		const float Y = YParam.GetAndAdvance();
@@ -189,7 +189,7 @@ void UNiagaraDataInterfaceVoxelDataAsset::GetAssetValue(UE_5_SWITCH(FVectorVMCon
 	}
 }
 
-void UNiagaraDataInterfaceVoxelDataAsset::GetAssetColor(UE_5_SWITCH(FVectorVMContext, FVectorVMExternalFunctionContext)& Context)
+void UNiagaraDataInterfaceVoxelDataAsset::GetAssetColor(FVectorVMExternalFunctionContext& Context)
 {
 	VectorVM::FUserPtrHandler<FNDIVoxelDataAsset_InstanceData> InstData(Context);
 	VectorVM::FExternalFuncInputHandler<float> XParam(Context);
@@ -201,7 +201,7 @@ void UNiagaraDataInterfaceVoxelDataAsset::GetAssetColor(UE_5_SWITCH(FVectorVMCon
 	VectorVM::FExternalFuncRegisterHandler<float> OutA(Context);
 
 	auto& Data = *InstData->Data;
-	for (int32 i = 0; i < Context.UE_5_SWITCH(NumInstances, GetNumInstances()); ++i)
+	for (int32 i = 0; i < Context.GetNumInstances(); ++i)
 	{
 		const float X = XParam.GetAndAdvance();
 		const float Y = YParam.GetAndAdvance();
@@ -214,7 +214,7 @@ void UNiagaraDataInterfaceVoxelDataAsset::GetAssetColor(UE_5_SWITCH(FVectorVMCon
 	}
 }
 
-void UNiagaraDataInterfaceVoxelDataAsset::GetPositionFromAsset(UE_5_SWITCH(FVectorVMContext, FVectorVMExternalFunctionContext)& Context)
+void UNiagaraDataInterfaceVoxelDataAsset::GetPositionFromAsset(FVectorVMExternalFunctionContext& Context)
 {
 	VectorVM::FUserPtrHandler<FNDIVoxelDataAsset_InstanceData> InstData(Context);
 	VectorVM::FExternalFuncInputHandler<int32> IndexParam(Context);
@@ -223,7 +223,7 @@ void UNiagaraDataInterfaceVoxelDataAsset::GetPositionFromAsset(UE_5_SWITCH(FVect
 	VectorVM::FExternalFuncRegisterHandler<float> OutZ(Context);
 
 	auto& Positions = InstData->Positions;
-	for (int32 i = 0; i < Context.UE_5_SWITCH(NumInstances, GetNumInstances()); ++i)
+	for (int32 i = 0; i < Context.GetNumInstances(); ++i)
 	{
 		const int32 Index = IndexParam.GetAndAdvance();
 		FVector Position(0, 0, 0);
@@ -237,13 +237,13 @@ void UNiagaraDataInterfaceVoxelDataAsset::GetPositionFromAsset(UE_5_SWITCH(FVect
 	}
 }
 
-void UNiagaraDataInterfaceVoxelDataAsset::GetNumVoxels(UE_5_SWITCH(FVectorVMContext, FVectorVMExternalFunctionContext)& Context)
+void UNiagaraDataInterfaceVoxelDataAsset::GetNumVoxels(FVectorVMExternalFunctionContext& Context)
 {
 	VectorVM::FUserPtrHandler<FNDIVoxelDataAsset_InstanceData> InstData(Context);
 	VectorVM::FExternalFuncRegisterHandler<int32> OutNum(Context);
 
 	const int32 Num = InstData->Positions.Num();
-	for (int32 i = 0; i < Context.UE_5_SWITCH(NumInstances, GetNumInstances()); ++i)
+	for (int32 i = 0; i < Context.GetNumInstances(); ++i)
 	{
 		*OutNum.GetDestAndAdvance() = Num;
 	}

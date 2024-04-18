@@ -28,8 +28,8 @@ void UVoxelFoliage::PreEditChange(FProperty* PropertyAboutToChange)
 			{
 				continue;
 			}
-			
-			const TArray<FStaticMaterial>& StaticMaterials = Mesh.Mesh->UE_5_SWITCH(StaticMaterials, GetStaticMaterials());
+
+			const TArray<FStaticMaterial>& StaticMaterials = Mesh.Mesh->GetStaticMaterials();
 			if (StaticMaterials.Num() < Mesh.Materials.Num())
 			{
 				continue;
@@ -65,8 +65,8 @@ void UVoxelFoliage::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 			{
 				continue;
 			}
-			
-			const TArray<FStaticMaterial>& StaticMaterials = Mesh.Mesh->UE_5_SWITCH(StaticMaterials, GetStaticMaterials());
+
+			const TArray<FStaticMaterial>& StaticMaterials = Mesh.Mesh->GetStaticMaterials();
 			if (Mesh.Materials.Num() < StaticMaterials.Num())
 			{
 				Mesh.Materials.SetNum(StaticMaterials.Num());

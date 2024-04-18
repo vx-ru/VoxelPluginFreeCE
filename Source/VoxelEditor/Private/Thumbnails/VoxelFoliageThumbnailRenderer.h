@@ -22,9 +22,9 @@ public:
 	{
 		return Super::GetThumbnailSize(GetMesh(CastChecked<UVoxelFoliage>(Object)), Zoom, OutWidth, OutHeight);
 	}
-	virtual void Draw(UObject* Object, int32 X, int32 Y, uint32 Width, uint32 Height, FRenderTarget* Target, FCanvas* Canvas ONLY_UE_25_AND_HIGHER(, bool bAdditionalViewFamily)) override
+	virtual void Draw(UObject* Object, int32 X, int32 Y, uint32 Width, uint32 Height, FRenderTarget* Target, FCanvas* Canvas, bool bAdditionalViewFamily) override
 	{
-		return Super::Draw(GetMesh(CastChecked<UVoxelFoliage>(Object)), X, Y, Width, Height, Target, Canvas ONLY_UE_25_AND_HIGHER(, bAdditionalViewFamily));
+		return Super::Draw(GetMesh(CastChecked<UVoxelFoliage>(Object)), X, Y, Width, Height, Target, Canvas, bAdditionalViewFamily);
 	}
 
 private:

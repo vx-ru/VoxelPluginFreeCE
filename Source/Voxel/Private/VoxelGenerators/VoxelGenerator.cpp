@@ -41,22 +41,10 @@ TArray<FVoxelGeneratorParameter> UVoxelGenerator::GetParameters() const
 		Category = Property->GetMetaDataText(TEXT("Category")).ToString();
 		ToolTip = Property->GetToolTipText().ToString();
 
-#if VOXEL_ENGINE_VERSION  < 425
-		{
-			UPackage* Package = Property->GetOutermost();
-			check(Package);
-
-			UMetaData* PackageMetaData = Package->GetMetaData();
-			check(PackageMetaData);
-
-			MetaData = PackageMetaData->ObjectMetaDataMap.FindRef(Property);
-		}
-#else
 		if (Property->GetMetaDataMap())
 		{
 			MetaData = *Property->GetMetaDataMap();
 		}
-#endif
 #else
 		Name = Property->GetName();
 #endif
@@ -111,7 +99,7 @@ TMap<FName, FString> UVoxelGenerator::ApplyParametersInternal(const TMap<FName, 
 	
 	for (auto& It : Parameters)
 	{
-		auto* Property = UE_25_SWITCH(FindField, FindFProperty) < FProperty > (GetClass(), It.Key);
+		auto* Property = FindFProperty<FProperty>(GetClass(), It.Key);
 		if (!Property)
 		{
 			continue;

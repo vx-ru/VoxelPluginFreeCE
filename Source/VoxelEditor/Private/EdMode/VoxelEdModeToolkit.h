@@ -24,8 +24,8 @@ public:
 	virtual void OnToolPaletteChanged(FName PaletteName) override;
 
 	/** Modes Panel Header Information **/
-	virtual FText GetActiveToolDisplayName() const UE_25_SWITCH(,override);
-	virtual FText GetActiveToolMessage() const UE_25_SWITCH(,override);
+	virtual FText GetActiveToolDisplayName() const override;
+	virtual FText GetActiveToolMessage() const override;
 
 private:
 	FVoxelEditorToolsPanel& GetPanel() const;

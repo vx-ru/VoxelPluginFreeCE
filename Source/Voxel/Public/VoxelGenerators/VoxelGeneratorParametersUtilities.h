@@ -96,7 +96,7 @@ struct FVoxelGeneratorParametersUtilities
 	{
 		static_assert(TIsDerivedFrom<T, UObject>::IsDerived, "");
 
-		auto* ObjectProperty = UE_25_SWITCH(CastChecked, CastFieldChecked)<FObjectProperty>(&Property);
+		auto* ObjectProperty = CastFieldChecked<FObjectProperty>(&Property);
 		if (!ensure(ObjectProperty) ||
 			!ensure(ObjectProperty->PropertyClass->IsChildOf<T>()))
 		{

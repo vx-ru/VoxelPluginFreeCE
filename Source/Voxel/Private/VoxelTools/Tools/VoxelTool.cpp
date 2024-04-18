@@ -106,7 +106,7 @@ void UVoxelTool::AdvancedTick(UWorld* World, const FVoxelToolTickData& TickData,
 	FHitResult HitResult;
 	World->GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, TickData.CollisionChannel);
 	
-	AVoxelWorld* VoxelWorld = Cast<AVoxelWorld>(HitResult.UE_5_SWITCH(Actor, GetActor()));
+	AVoxelWorld* VoxelWorld = Cast<AVoxelWorld>(HitResult.GetActor());
 	if (!CanEditWorld(VoxelWorld))
 	{
 		VoxelWorld = nullptr;

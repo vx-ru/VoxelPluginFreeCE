@@ -21,7 +21,6 @@
 #include "Editor/EditorEngine.h"
 #include "Framework/Commands/GenericCommands.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
-#include "Launch/Resources/Version.h"
 
 void UVoxelGraphNode::SetVoxelNode(UVoxelNode* InNode)
 {
@@ -100,7 +99,7 @@ void UVoxelGraphNode::RemoveInputPin(UEdGraphPin* InGraphPin)
 	{
 		if (InGraphPin == InputPin)
 		{
-			InGraphPin->UE_5_SWITCH(MarkPendingKill(), MarkAsGarbage());
+			InGraphPin->MarkAsGarbage();
 			Pins.Remove(InGraphPin);
 
 			const int32 Increment = VoxelNode->GetInputPinsIncrement();

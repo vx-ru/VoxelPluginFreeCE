@@ -3,17 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "VoxelEngineVersionHelpers.h"
 
 struct VOXEL_API FVoxelDebug
 {
 	template<typename T>
-#if VOXEL_ENGINE_VERSION < 426
-	using TDelegate = TMulticastDelegate<void, FName, const FIntVector&, TArrayView<const T>>;
-#else
 	using TDelegate = TMulticastDelegate<void(FName, const FIntVector&, TArrayView<const T>)>;
-#endif
-	
+
 	template<typename T>
 	static TDelegate<T>& GetDelegate();
 	

@@ -29,24 +29,6 @@ void FVoxelErosionCS::ModifyCompilationEnvironment(const FGlobalShaderPermutatio
 	//OutEnvironment.CompilerFlags.Add(CFLAG_StandardOptimization);
 }
 
-#if VOXEL_ENGINE_VERSION  < 425
-bool FVoxelErosionCS::Serialize(FArchive& Ar)
-{
-	const bool bShaderHasOutdatedParams = FGlobalShader::Serialize(Ar);
-	Ar << RainMap;
-	Ar << TerrainHeight;
-	Ar << TerrainHeight1;
-	Ar << WaterHeight;
-	Ar << WaterHeight1;
-	Ar << WaterHeight2;
-	Ar << Sediment;
-	Ar << Sediment1;
-	Ar << Outflow;
-	Ar << Velocity;
-	return bShaderHasOutdatedParams;
-}
-#endif
-
 void FVoxelErosionCS::SetSurfaces(
 	FRHICommandList& RHICmdList,
 	FUnorderedAccessViewRHIRef RainMapUAV,
@@ -60,7 +42,7 @@ void FVoxelErosionCS::SetSurfaces(
 	FUnorderedAccessViewRHIRef OutflowUAV,
 	FUnorderedAccessViewRHIRef VelocityUAV)
 {
-#define PROCESS_SURFACE(Name) SetUAVParameter(RHICmdList, UE_25_SWITCH(GetComputeShader(), RHICmdList.GetBoundComputeShader()), Name, Name##UAV);
+#define PROCESS_SURFACE(Name) SetUAVParameter(RHICmdList.GetScratchShaderParameters(), Name, Name##UAV);
 	PROCESS_SURFACE(RainMap);
 	PROCESS_SURFACE(TerrainHeight);
 	PROCESS_SURFACE(TerrainHeight1);
@@ -77,7 +59,7 @@ void FVoxelErosionCS::SetSurfaces(
 void FVoxelErosionCS::SetUniformBuffers(FRHICommandList& RHICmdList, const FVoxelErosionParameters& Parameters)
 {
 	const FVoxelErosionParametersRef ParametersBuffer = FVoxelErosionParametersRef::CreateUniformBufferImmediate(Parameters, UniformBuffer_MultiFrame);
-	SetUniformBufferParameter(RHICmdList, UE_25_SWITCH(GetComputeShader(), RHICmdList.GetBoundComputeShader()), GetUniformBufferParameter<FVoxelErosionParameters>(), ParametersBuffer);
+	SetUniformBufferParameter(RHICmdList.GetScratchShaderParameters(), GetUniformBufferParameter<FVoxelErosionParameters>(), ParametersBuffer);
 }
 
 /* Unbinds buffers that will be used elsewhere */

@@ -8,9 +8,7 @@
 
 #include "Engine/Texture2D.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#if VOXEL_ENGINE_VERSION >= 426
 #include "Rendering/Texture2DResource.h"
-#endif
 
 DECLARE_DWORD_ACCUMULATOR_STAT(TEXT("Free Slots"), STAT_VoxelTexturePool_FreeSlots, STATGROUP_VoxelTexturePool);
 DECLARE_DWORD_ACCUMULATOR_STAT(TEXT("Used Slots"), STAT_VoxelTexturePool_UsedSlots, STATGROUP_VoxelTexturePool);
@@ -432,9 +430,9 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 	{
 		ENQUEUE_RENDER_COMMAND(UpdateVoxelTexturePoolRegionsData)(
         [
-		  Resource = UE_26_SWITCH(static_cast<FTexture2DResource*>(Texture->Resource), Texture->Resource->GetTexture2DResource()),
-          ColorData = ColorData, 
-		  Slot, 
+		  Resource = Texture->GetResource()->GetTexture2DResource(),
+          ColorData = ColorData,
+		  Slot,
 		  bJustClearData](FRHICommandListImmediate& RHICmdList)
         {
 			VOXEL_RENDER_SCOPE_COUNTER("Update Region");

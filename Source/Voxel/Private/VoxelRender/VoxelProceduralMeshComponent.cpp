@@ -130,30 +130,8 @@ void UVoxelProceduralMeshComponent::ClearInit()
 	bInit = false;
 }
 
-#if WITH_EDITOR && VOXEL_ENABLE_FOLIAGE_PAINT_HACK
-class FStaticLightingSystem
-{
-public:
-	static void SetModel(UModelComponent* Component)
-	{
-		static UModel* DummyModel = []()
-		{
-			auto* Memory = FMemory::Malloc(sizeof(UModel), alignof(UModel));
-			FMemory::Memzero(Memory, sizeof(UModel));
-			return reinterpret_cast<UModel*>(Memory);
-		}();
-		Component->Model = DummyModel;
-	}
-};
-#endif
-
 UVoxelProceduralMeshComponent::UVoxelProceduralMeshComponent()
 {
-#if WITH_EDITOR && VOXEL_ENABLE_FOLIAGE_PAINT_HACK
-	// Create a dummy model for foliage painting to work
-	FStaticLightingSystem::SetModel(this);
-#endif
-
 	Mobility = EComponentMobility::Movable;
 	
 	CastShadow = true;
@@ -674,7 +652,7 @@ bool UVoxelProceduralMeshComponent::DoCustomNavigableGeometryExport(FNavigableGe
 				Vertices.SetNumUninitialized(PositionBuffer.GetNumVertices());
 				for (int32 Index = 0; Index < Vertices.Num(); Index++)
 				{
-					Vertices[Index] = UE_5_CONVERT(FVector, PositionBuffer.VertexPosition(Index));
+					Vertices[Index] = FVector(PositionBuffer.VertexPosition(Index));
 				}
 			}
 			TArray<int32> Indices;

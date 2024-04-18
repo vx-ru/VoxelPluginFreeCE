@@ -162,7 +162,7 @@ public:
 		FHitResult OutHit;
 		for (auto& Hit : TraceData.OutHits)
 		{
-			if (Hit.UE_5_SWITCH(Actor, GetActor()) == VoxelWorld)
+			if (Hit.GetActor() == VoxelWorld)
 			{
 				bHit = true;
 				OutHit = Hit;

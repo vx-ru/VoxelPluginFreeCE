@@ -20,29 +20,20 @@ void FVoxelDistanceFieldBaseCS::ModifyCompilationEnvironment(const FGlobalShader
 	OutEnvironment.SetDefine(TEXT("NUM_THREADS_CS"), VOXEL_DISTANCE_FIELD_NUM_THREADS_CS);
 }
 
-#if VOXEL_ENGINE_VERSION  < 425
-bool FVoxelDistanceFieldBaseCS::Serialize(FArchive& Ar)
-{
-	const bool bShaderHasOutdatedParams = FGlobalShader::Serialize(Ar);
-	Ar << Src;
-	Ar << Dst;
-	return bShaderHasOutdatedParams;
-}
-#endif
-
 void FVoxelDistanceFieldBaseCS::SetBuffers(
 		FRHICommandList& RHICmdList,
 		const FRWBuffer& SrcBuffer,
 		const FRWBuffer& DstBuffer) const
 {
-	Src.SetBuffer(RHICmdList, UE_25_SWITCH(GetComputeShader(), RHICmdList.GetBoundComputeShader()), SrcBuffer);
-	Dst.SetBuffer(RHICmdList, UE_25_SWITCH(GetComputeShader(), RHICmdList.GetBoundComputeShader()), DstBuffer);
+	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
+	SetUAVParameter(BatchedParameters, Src, SrcBuffer.UAV);
+	SetUAVParameter(BatchedParameters, Dst, DstBuffer.UAV);
 }
 
 void FVoxelDistanceFieldBaseCS::SetUniformBuffers(FRHICommandList& RHICmdList, const FVoxelDistanceFieldParameters& Parameters) const
 {
 	const FVoxelDistanceFieldParametersRef ParametersBuffer = FVoxelDistanceFieldParametersRef::CreateUniformBufferImmediate(Parameters, UniformBuffer_MultiFrame);
-	SetUniformBufferParameter(RHICmdList, UE_25_SWITCH(GetComputeShader(), RHICmdList.GetBoundComputeShader()), GetUniformBufferParameter<FVoxelDistanceFieldParameters>(), ParametersBuffer);
+	SetUniformBufferParameter(RHICmdList.GetScratchShaderParameters(), GetUniformBufferParameter<FVoxelDistanceFieldParameters>(), ParametersBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,8 +92,8 @@ void FVoxelDistanceFieldShaderHelper::Compute_RenderThread(
 		
 		AllocatedSize = Size;
 		
-		SrcBuffer.Initialize(UE_5_ONLY(TEXT("SrcBuffer"),) sizeof(float), 3 * Num, PF_R32_FLOAT);
-		DstBuffer.Initialize(UE_5_ONLY(TEXT("DstBuffer"),) sizeof(float), 3 * Num, PF_R32_FLOAT);
+		SrcBuffer.Initialize(RHICmdList, TEXT("SrcBuffer"), sizeof(float), 3 * Num, PF_R32_FLOAT);
+		DstBuffer.Initialize(RHICmdList, TEXT("DstBuffer"), sizeof(float), 3 * Num, PF_R32_FLOAT);
 	}
 	
 	{
@@ -126,12 +117,8 @@ void FVoxelDistanceFieldShaderHelper::Compute_RenderThread(
 	}
 
 	// To copy data
-#if VOXEL_ENGINE_VERSION < 426
-	RHICmdList.TransitionResource(EResourceTransitionAccess::EReadable, EResourceTransitionPipeline::EComputeToCompute, DstBuffer.UAV);
-#else
 	RHICmdList.Transition(FRHITransitionInfo(DstBuffer.UAV, ERHIAccess::Unknown, ERHIAccess::UAVCompute)); // TODO not unknown?
-#endif
-	
+
 	{
 		VOXEL_RENDER_SCOPE_COUNTER("Copy Data From Buffers");
 		void* BufferData = RHICmdList.LockVertexBuffer(SrcBuffer.Buffer, 0, SrcBuffer.NumBytes, EResourceLockMode::RLM_ReadOnly);
@@ -155,9 +142,9 @@ void FVoxelDistanceFieldShaderHelper::ApplyComputeShader(
 	int32 Step)
 {
 	check(IsInRenderingThread());
-	
-	const TShaderMapRef<T> ComputeShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
-	RHICmdList.SetComputeShader(UE_25_SWITCH(ComputeShader->GetComputeShader(), ComputeShader.GetComputeShader()));
+
+	const TShaderMapRef<T> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	SetComputePipelineState(RHICmdList, ComputeShader.GetComputeShader());
 
 	FVoxelDistanceFieldParameters Parameters;
 	Parameters.SizeX = Size.X;
@@ -168,15 +155,10 @@ void FVoxelDistanceFieldShaderHelper::ApplyComputeShader(
 	
 	const FIntVector NumThreads = FVoxelUtilities::DivideCeil(Size, VOXEL_DISTANCE_FIELD_NUM_THREADS_CS);
 	check(NumThreads.X > 0 && NumThreads.Y > 0 && NumThreads.Z > 0);
-	
-#if VOXEL_ENGINE_VERSION < 426
-	RHICmdList.TransitionResource(EResourceTransitionAccess::EReadable, EResourceTransitionPipeline::EComputeToCompute, SrcBuffer.UAV);
-	RHICmdList.TransitionResource(EResourceTransitionAccess::ERWBarrier, EResourceTransitionPipeline::EComputeToCompute, DstBuffer.UAV);
-#else
+
 	RHICmdList.Transition(FRHITransitionInfo(SrcBuffer.UAV, ERHIAccess::UAVCompute, ERHIAccess::UAVCompute));
 	RHICmdList.Transition(FRHITransitionInfo(DstBuffer.UAV, ERHIAccess::UAVCompute, ERHIAccess::UAVCompute));
-#endif
-	
+
 	ComputeShader->SetBuffers(RHICmdList, SrcBuffer, DstBuffer);
 	RHICmdList.DispatchComputeShader(NumThreads.X, NumThreads.Y, NumThreads.Z);
 	Swap(SrcBuffer, DstBuffer);

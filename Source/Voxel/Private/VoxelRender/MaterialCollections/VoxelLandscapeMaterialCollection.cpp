@@ -308,9 +308,9 @@ UMaterialInstanceConstant* UVoxelLandscapeMaterialCollection::CreateInstanceForP
 			AddedLayers.Add(Name);
 
 			FStaticTerrainLayerWeightParameter Parameter;
-			Parameter.UE_5_SWITCH(ParameterInfo, ParameterInfo_DEPRECATED) = NameToInfo[Name].Info;
-			Parameter.UE_5_SWITCH(bOverride, bOverride_DEPRECATED) = true;
-			Parameter.UE_5_SWITCH(ExpressionGUID, ExpressionGUID_DEPRECATED) = NameToInfo[Name].Guid;
+			Parameter.ParameterInfo_DEPRECATED = NameToInfo[Name].Info;
+			Parameter.bOverride_DEPRECATED = true;
+			Parameter.ExpressionGUID_DEPRECATED = NameToInfo[Name].Guid;
 			// Pass the layer to use to the voxel expression
 			// Add 1 000 000 to detect voxel vs landscape indices
 			Parameter.WeightmapIndex = 1000000 + Index;
@@ -329,12 +329,11 @@ UMaterialInstanceConstant* UVoxelLandscapeMaterialCollection::CreateInstanceForP
 			}
 			
 			FStaticTerrainLayerWeightParameter Parameter;
-			Parameter.UE_5_SWITCH(ParameterInfo, ParameterInfo_DEPRECATED) = NameToInfo[Layer.Name].Info;
-			Parameter.UE_5_SWITCH(bOverride, bOverride_DEPRECATED) = true;
-			Parameter.UE_5_SWITCH(ExpressionGUID, ExpressionGUID_DEPRECATED) = NameToInfo[Layer.Name].Guid;
+			Parameter.ParameterInfo_DEPRECATED = NameToInfo[Layer.Name].Info;
+			Parameter.bOverride_DEPRECATED = true;
+			Parameter.ExpressionGUID_DEPRECATED = NameToInfo[Layer.Name].Guid;
 			// 1 000 006 is used to set Default
 			Parameter.WeightmapIndex = 1000006;
-			StaticParameters.TerrainLayerWeightParameters.Add(Parameter);
 		}
 	}
 	
@@ -365,19 +364,11 @@ void UVoxelLandscapeMaterialCollection::ForeachMaterialParameter(TFunctionRef<vo
 	TArray<FMaterialParameterInfo> ParameterInfos;
 	TArray<FGuid> Guids;
 
-#if VOXEL_ENGINE_VERSION < 500
-	ActualMaterial->GetAllParameterInfo<UMaterialExpressionLandscapeLayerWeight>(ParameterInfos, Guids);
-	ActualMaterial->GetAllParameterInfo<UMaterialExpressionLandscapeLayerSwitch>(ParameterInfos, Guids);
-	ActualMaterial->GetAllParameterInfo<UMaterialExpressionLandscapeLayerSample>(ParameterInfos, Guids);
-	ActualMaterial->GetAllParameterInfo<UMaterialExpressionLandscapeLayerBlend>(ParameterInfos, Guids);
-	// Note: don't query landscape visibility parameter name, it just returns __LANDSCAPE_VISIBILITY__
-#else
 	for (int32 ParameterTypeIndex = 0; ParameterTypeIndex < NumMaterialParameterTypes; ++ParameterTypeIndex)
 	{
 		const EMaterialParameterType ParameterType = static_cast<EMaterialParameterType>(ParameterTypeIndex);
 		ActualMaterial->GetAllParameterInfoOfType(ParameterType, ParameterInfos, Guids);
 	}
-#endif
 
 	if (!ensure(ParameterInfos.Num() == Guids.Num()))
 	{

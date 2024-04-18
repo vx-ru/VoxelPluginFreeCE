@@ -38,10 +38,6 @@ public:
 	}
 	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 
-#if VOXEL_ENGINE_VERSION  < 425
-	virtual bool Serialize(FArchive& Ar) override;
-#endif
-	
 	void SetBuffers(
 		FRHICommandList& RHICmdList,
 		const FRWBuffer& SrcBuffer,

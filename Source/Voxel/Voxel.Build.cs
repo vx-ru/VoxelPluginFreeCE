@@ -11,10 +11,6 @@ public class Voxel : ModuleRules
         bEnforceIWYU = true;
         bLegacyPublicIncludePaths = false;
 
-#if UE_4_24_OR_LATER
-#else
-#endif
-
         PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
         PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 
@@ -32,17 +28,12 @@ public class Voxel : ModuleRules
                 "Networking",
                 "Sockets",
                 "RHI",
-#if UE_4_23_OR_LATER
                 "PhysicsCore",
-#endif
                 "RenderCore",
                 "Landscape",
-                "PhysX",
                 "Projects",
-#if UE_4_26_OR_LATER
                 "DeveloperSettings",
                 "TraceLog",
-#endif
             }
         );
 

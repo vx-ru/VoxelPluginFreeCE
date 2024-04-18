@@ -27,25 +27,7 @@ namespace FVoxelUtilities
 	void DeleteTickable(T* Ptr)
 	{
 		Ptr->OnDeleteTickable();
-		
-		// There is a bug in 4.23/24 where FTickableGameObject gets added to a set of deleted tickable objects on destruction
-		// This set is then checked in the next frame before adding a new tickable to see if it has been deleted
-		// See Engine/Source/Runtime/Engine/Private/Tickable.cpp:107
-		// The problem is that when deleting a tickable, there is a large chance than if we create another tickable of the same class
-		// it'll get assigned the same ptr (as the memory allocator will have a request of the exact same size, so will reuse freshly deleted ptr)
-		// This set of ptr is only valid one frame. To bypass this bug, we are postponing the tickable deletion for 1s
-		// Fixed by https://github.com/EpicGames/UnrealEngine/commit/70d70e56f2df9ba6941b91d9893ba6c6e99efc4c
-		if (VOXEL_ENGINE_VERSION  < 425)
-		{
-			FVoxelSystemUtilities::DelayedCall([=]()
-			{
-				delete Ptr;
-			}, 1.f);
-		}
-		else
-		{
-			delete Ptr;
-		}
+		delete Ptr;
 	}
 
 	template<typename T>

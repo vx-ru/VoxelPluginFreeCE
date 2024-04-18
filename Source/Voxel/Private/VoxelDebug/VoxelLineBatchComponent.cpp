@@ -268,11 +268,11 @@ void FVoxelLineBatcherSceneProxy::GetDynamicMeshElements(const TArray<const FSce
 				for (int32 VertIdx = 0; VertIdx < Mesh.MeshVerts.Num(); ++VertIdx)
 				{
 					MeshBuilder.AddVertex(
-						UE_5_CONVERT(FVector3f, Mesh.MeshVerts[VertIdx]),
-						UE_5_SWITCH(FVector2D::ZeroVector, FVector2f::ZeroVector),
-						UE_5_CONVERT(FVector3f, PosX),
-						UE_5_CONVERT(FVector3f, PosY),
-						UE_5_CONVERT(FVector3f, PosZ),
+						FVector3f(Mesh.MeshVerts[VertIdx]),
+						FVector2f::ZeroVector,
+						FVector3f(PosX),
+						FVector3f(PosY),
+						FVector3f(PosZ),
 						FColor::White);
 				}
 				for (int32 Idx = 0; Idx < Mesh.MeshIndices.Num(); Idx += 3)
@@ -294,8 +294,8 @@ FPrimitiveViewRelevance FVoxelLineBatcherSceneProxy::GetViewRelevance(const FSce
 	ViewRelevance.bDrawRelevance = IsShown(View);
 	ViewRelevance.bDynamicRelevance = true;
 	// ideally the TranslucencyRelevance should be filled out by the material, here we do it conservative
-	ViewRelevance.UE_25_SWITCH(bSeparateTranslucencyRelevance, bSeparateTranslucency) = true;
-	ViewRelevance.UE_25_SWITCH(bNormalTranslucencyRelevance, bNormalTranslucency) = true;
+	ViewRelevance.bSeparateTranslucency = true;
+	ViewRelevance.bNormalTranslucency = true;
 	return ViewRelevance;
 }
 

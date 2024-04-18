@@ -19,7 +19,7 @@ void AVoxelStaticWorld::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 	{
 		for (auto* Mesh : Meshes)
 		{
-			UE_5_SWITCH(auto*, auto) StaticMesh = Mesh->GetStaticMesh();
+			auto StaticMesh = Mesh->GetStaticMesh();
 			auto RelativeTransform = Mesh->GetRelativeTransform();
 			Mesh->ReinitializeProperties(BaseMesh);
 			Mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);

@@ -24,9 +24,7 @@
 #include "Editor.h"
 #include "EditorViewportClient.h"
 #include "DetailLayoutBuilder.h"
-#if VOXEL_ENGINE_VERSION  >= 425
 #include "VariablePrecisionNumericInterface.h"
-#endif
 #include "Modules/ModuleManager.h"
 #include "PropertyEditorModule.h"
 #include "Misc/ConfigCacheIni.h"
@@ -229,7 +227,6 @@ void FVoxelEditorToolsPanel::Init(const TSharedPtr<FUICommandList>& CommandListO
 	.AutoHeight()
 	[
 		SNew(SBorder)
-		UE_5_SWITCH(.BorderImage(FEditorStyle::GetBrush("DetailsView.AdvancedDropdownBorder")),)
 		.Padding(FMargin(0.0f, 3.0f, 16.f, 0.0f))
 		[
 			SAssignNew(ExpanderButton, SButton)
@@ -263,20 +260,6 @@ void FVoxelEditorToolsPanel::Init(const TSharedPtr<FUICommandList>& CommandListO
 		]
 	];
 
-#if VOXEL_ENGINE_VERSION < 500
-	CustomToolBarsVerticalBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("DetailsView.CategoryMiddle"))
-		.Padding(FMargin(0.0f, 3.0f, 16.f, 0.0f))
-		[
-			SNew(SImage)
-			.Image(FEditorStyle::GetBrush("DetailsView.AdvancedDropdownBorder.Open"))
-		]
-	];
-#endif
-	
 	for (auto& ToolBarBuilder : CustomToolBarBuilders)
 	{
 		CustomToolBarsVerticalBox->AddSlot()
@@ -321,55 +304,6 @@ void FVoxelEditorToolsPanel::Init(const TSharedPtr<FUICommandList>& CommandListO
 void FVoxelEditorToolsPanel::CustomizeToolbar(FToolBarBuilder& ToolBarBuilder)
 {
 	const auto& Commands = FVoxelToolsCommands::Get();
-	
-#if VOXEL_ENGINE_VERSION  >= 425 && VOXEL_ENGINE_VERSION < 500
-	ToolBarBuilder.AddToolBarButton(Commands.SurfaceTool);
-	ToolBarBuilder.AddToolBarButton(Commands.SmoothTool);
-	ToolBarBuilder.AddToolBarButton(Commands.MeshTool);
-	ToolBarBuilder.AddToolBarButton(Commands.SphereTool);
-	
-	ToolBarBuilder.AddToolBarButton(Commands.FlattenTool);
-	ToolBarBuilder.AddToolBarButton(Commands.LevelTool);
-	ToolBarBuilder.AddToolBarButton(Commands.TrimTool);
-	ToolBarBuilder.AddToolBarButton(Commands.RevertTool);
-
-	ToolBarBuilder.AddSeparator();
-
-	const auto NumericInterface = MakeShared<FVariablePrecisionNumericInterface>();
-
-	//  Brush Size 
-	{
-		FProperty* BrushRadiusProperty = UVoxelToolSharedConfig::StaticClass()->FindPropertyByName(GET_MEMBER_NAME_CHECKED(UVoxelToolSharedConfig, BrushSize));
-		const FString& UIMinString = BrushRadiusProperty->GetMetaData("UIMin");
-		const FString& UIMaxString = BrushRadiusProperty->GetMetaData("UIMax");
-		const FString& SliderExponentString = BrushRadiusProperty->GetMetaData("SliderExponent");
-		float UIMin = TNumericLimits<float>::Lowest();
-		float UIMax = TNumericLimits<float>::Max();
-		TTypeFromString<float>::FromString(UIMin, *UIMinString);
-		TTypeFromString<float>::FromString(UIMax, *UIMaxString);
-		float SliderExponent = 1.0f;
-		if (SliderExponentString.Len())
-		{
-			TTypeFromString<float>::FromString(SliderExponent, *SliderExponentString);
-		}
-
-		const auto SizeControl = 
-			SNew(SSpinBox<float>)
-			.Style(&FEditorStyle::Get().GetWidgetStyle<FSpinBoxStyle>("LandscapeEditor.SpinBox"))
-			.PreventThrottling(true)
-			.Value_Lambda([=]() -> float { return ToolManager->GetSharedConfig().BrushSize; })
-			.OnValueChanged_Lambda([=](float NewValue) { ToolManager->GetSharedConfig().BrushSize = NewValue; })
-
-			.MinValue(UIMin)
-			.MaxValue(UIMax)
-			.SliderExponent(SliderExponent)
-			.Font(FCoreStyle::GetDefaultFontStyle("Regular", 11))
-			.MinDesiredWidth(40.f)
-			.TypeInterface(NumericInterface)
-			.Justification(ETextJustify::Center);
-		ToolBarBuilder.AddToolBarWidget( SizeControl, VOXEL_LOCTEXT("Brush Size") );
-	}
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
