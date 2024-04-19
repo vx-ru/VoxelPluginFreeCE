@@ -61,22 +61,6 @@
 			]
 		},
 		{
-			"Name": "VoxelVDB",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64"
-			]
-		},
-		{
-			"Name": "VoxelVDBEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64"
-			]
-		},
-		{
 			"Name": "VoxelNiagara",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
@@ -89,16 +73,6 @@
 		},
 		{
 			"Name": "VoxelEditor",
-			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Linux",
-				"Mac"
-			]
-		},
-		{
-			"Name": "VoxelGraphEditor",
 			"Type": "Editor",
 			"LoadingPhase": "PostEngineInit",
 			"WhitelistPlatforms": [
@@ -125,16 +99,6 @@
 				"Win64",
 				"Linux",
 				"Android"
-			]
-		},
-		{
-			"Name": "VoxelLegacySpawners",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Linux",
-				"Mac"
 			]
 		}
 	],

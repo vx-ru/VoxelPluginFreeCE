@@ -6,7 +6,6 @@
 #include "ContentBrowserModule.h"
 #include "IContentBrowserSingleton.h"
 #include "VoxelGraphGenerator.h"
-#include "VoxelGraphEditorModule.h"
 
 UClass* FAssetTypeActions_VoxelGraphGenerator::GetSupportedClass() const
 {
@@ -15,15 +14,5 @@ UClass* FAssetTypeActions_VoxelGraphGenerator::GetSupportedClass() const
 
 void FAssetTypeActions_VoxelGraphGenerator::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor)
 {
-	const EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
-
-	for (auto ObjIt = InObjects.CreateConstIterator(); ObjIt; ++ObjIt)
-	{
-		auto* VoxelGraphGenerator = Cast<UVoxelGraphGenerator>(*ObjIt);
-		if (VoxelGraphGenerator)
-		{
-			IVoxelGraphEditorModule& VoxelGraphEditorModule = FModuleManager::LoadModuleChecked<IVoxelGraphEditorModule>("VoxelGraphEditor");
-			VoxelGraphEditorModule.CreateVoxelGraphEditor(Mode, EditWithinLevelEditor, VoxelGraphGenerator);
-		}
-	}
+	UE_LOG(LogTemp, Warning, TEXT("Voxel Graph Editor is disabled."));
 }

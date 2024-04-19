@@ -22,7 +22,6 @@ public class VoxelEditor : ModuleRules
 
         DynamicallyLoadedModuleNames.AddRange(
             new string[] {
-                "VoxelGraphEditor",
                 "AssetRegistry",
             });
 
@@ -72,7 +71,6 @@ public class VoxelEditor : ModuleRules
 
         PrivateIncludePathModuleNames.AddRange(
             new string[] {
-                "VoxelGraphEditor"
             });
     }
 }
