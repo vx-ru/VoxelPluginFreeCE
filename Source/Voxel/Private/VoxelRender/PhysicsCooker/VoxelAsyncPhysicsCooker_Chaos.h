@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "VoxelAsyncPhysicsCooker.h"
 
-#if WITH_CHAOS
 namespace Chaos
 {
 	class FTriangleMeshImplicitObject;
@@ -34,4 +33,3 @@ private:
 
 	TArray<TSharedPtr<Chaos::FTriangleMeshImplicitObject, ESPMode::ThreadSafe>> TriMeshes;
 };
-#endif

@@ -1,7 +1,6 @@
 // Copyright 2021 Phyronnaz
 
 #include "VoxelRender/PhysicsCooker/VoxelAsyncPhysicsCooker.h"
-#include "VoxelRender/PhysicsCooker/VoxelAsyncPhysicsCooker_PhysX.h"
 #include "VoxelRender/PhysicsCooker/VoxelAsyncPhysicsCooker_Chaos.h"
 #include "VoxelRender/VoxelProceduralMeshComponent.h"
 #include "VoxelRender/VoxelProcMeshBuffers.h"
@@ -91,13 +90,7 @@ IVoxelAsyncPhysicsCooker::IVoxelAsyncPhysicsCooker(UVoxelProceduralMeshComponent
 IVoxelAsyncPhysicsCooker* IVoxelAsyncPhysicsCooker::CreateCooker(UVoxelProceduralMeshComponent* Component)
 {
 	check(Component);
-#if WITH_PHYSX && PHYSICS_INTERFACE_PHYSX
-	return new FVoxelAsyncPhysicsCooker_PhysX(Component);
-#elif WITH_CHAOS
 	return new FVoxelAsyncPhysicsCooker_Chaos(Component);
-#else
-	return nullptr;
-#endif
 }
 
 void IVoxelAsyncPhysicsCooker::DoWork()

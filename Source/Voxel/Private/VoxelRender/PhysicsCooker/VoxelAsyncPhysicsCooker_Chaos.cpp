@@ -6,7 +6,6 @@
 
 #include "PhysicsEngine/BodySetup.h"
 
-#if WITH_CHAOS
 #include "Chaos/ImplicitObject.h"
 #include "Chaos/CollisionConvexMesh.h"
 #include "Chaos/TriangleMeshImplicitObject.h"
@@ -161,4 +160,3 @@ void FVoxelAsyncPhysicsCooker_Chaos::CreateTriMesh()
 		Process(TrianglesLargeIdx);
 	}
 }
-#endif

@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "VoxelMinimal.h"
-#include "PhysXIncludes.h"
-#include "VoxelPhysXRef.h"
 #include "PhysicsEngine/BodySetup.h"
 #include "Components/PrimitiveComponent.h"
 #include "VoxelWorldRootComponent.generated.h"
