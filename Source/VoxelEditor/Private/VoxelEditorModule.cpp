@@ -21,7 +21,6 @@
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
 
-#include "VoxelGraphGenerator.h"
 #include "VoxelPool.h"
 #include "VoxelWorld.h"
 #include "VoxelTexture.h"
@@ -33,18 +32,14 @@
 #include "VoxelConvertLandscapeMaterial.h"
 #include "VoxelCreateStaticMeshFromProcMesh.h"
 #include "VoxelTools/VoxelPaintMaterial.h"
-#include "VoxelNodes/VoxelOptimizationNodes.h"
 #include "VoxelFoliage.h"
 #include "VoxelPlaceableItems/Actors/VoxelAssetActor.h"
 #include "VoxelPlaceableItems/Actors/VoxelDisableEditsBox.h"
 
 #include "AssetTools/AssetTypeActions_VoxelDataAsset.h"
 #include "AssetTools/AssetTypeActions_VoxelHeightmapAsset.h"
-#include "AssetTools/AssetTypeActions_VoxelGraphGenerator.h"
-#include "AssetTools/AssetTypeActions_VoxelGraphMacro.h"
 #include "AssetTools/AssetTypeActions_VoxelFoliageBiomeType.h"
 
-#include "Thumbnails/VoxelGraphGeneratorThumbnailRenderer.h"
 #include "Thumbnails/VoxelDataAssetThumbnailRenderer.h"
 #include "Thumbnails/VoxelHeightmapAssetThumbnailRenderer.h"
 #include "Thumbnails/VoxelFoliageThumbnailRenderer.h"
@@ -62,12 +57,10 @@
 #include "Details/VoxelMeshImporterDetails.h"
 #include "Details/VoxelAssetActorDetails.h"
 #include "Details/VoxelGeneratorPickerCustomization.h"
-#include "Details/RangeAnalysisDebuggerDetails.h"
 #include "Details/VoxelPaintMaterialCustomization.h"
 #include "Details/VoxelFoliageScaleCustomization.h"
 #include "Details/VoxelGeneratorOutputPickerCustomization.h"
 #include "Details/VoxelFoliageDensityCustomization.h"
-#include "Details/VoxelGraphOutputCustomization.h"
 #include "Details/VoxelIntervalCustomization.h"
 #include "Details/VoxelBoolVectorCustomization.h"
 #include "Details/VoxelLandscapeCollectionDetails.h"
@@ -305,7 +298,6 @@ public:
 		
 		// Thumbnails
 		auto& ThumbnailManager = UThumbnailManager::Get();
-		ThumbnailManager.RegisterCustomRenderer(UVoxelGraphGenerator::StaticClass(), UVoxelGraphGeneratorThumbnailRenderer::StaticClass());
 		ThumbnailManager.RegisterCustomRenderer(UVoxelDataAsset     ::StaticClass(), UVoxelDataAssetThumbnailRenderer     ::StaticClass());
 		ThumbnailManager.RegisterCustomRenderer(UVoxelHeightmapAsset::StaticClass(), UVoxelHeightmapAssetThumbnailRenderer::StaticClass());
 		ThumbnailManager.RegisterCustomRenderer(UVoxelFoliage       ::StaticClass(), UVoxelFoliageThumbnailRenderer       ::StaticClass());
@@ -337,9 +329,6 @@ public:
 			StyleSet->Set("ClassIcon.VoxelMeshImporter"                      , new FSlateImageBrush(ContentDir + TEXT("Editor/AssetIcons/Import_16x.png"), Icon16x16));
 					     
 			// Voxel Graph												     
-			StyleSet->Set("ClassThumbnail.VoxelGraphGenerator"               , new FSlateImageBrush(ContentDir + TEXT("Editor/AssetIcons/VoxelGraph_64x.png"), Icon64x64));
-			StyleSet->Set("ClassIcon.VoxelGraphGenerator"                    , new FSlateImageBrush(ContentDir + TEXT("Editor/AssetIcons/VoxelGraph_16x.png"), Icon16x16));
-																		     
 			// Data Asset												     
 			StyleSet->Set("ClassThumbnail.VoxelDataAsset"                    , new FSlateImageBrush(ContentDir + TEXT("Editor/AssetIcons/DataAsset_64x.png"), Icon64x64));
 			StyleSet->Set("ClassIcon.VoxelDataAsset"                         , new FSlateImageBrush(ContentDir + TEXT("Editor/AssetIcons/DataAsset_16x.png"), Icon16x16));
@@ -400,7 +389,6 @@ public:
 		if (UObjectInitialized())
 		{
 			auto& ThumbnailManager = UThumbnailManager::Get();
-			ThumbnailManager.UnregisterCustomRenderer(UVoxelGraphGenerator::StaticClass());
 			ThumbnailManager.UnregisterCustomRenderer(UVoxelDataAsset::StaticClass());
 			ThumbnailManager.UnregisterCustomRenderer(UVoxelHeightmapAsset::StaticClass());
 		}
@@ -476,7 +464,6 @@ private:
 		RegisterCustomClassLayout<FVoxelLandscapeImporterDetails  , AVoxelLandscapeImporter              >();
 		RegisterCustomClassLayout<FVoxelMeshImporterDetails       , AVoxelMeshImporter                   >();
 		RegisterCustomClassLayout<FVoxelAssetActorDetails         , AVoxelAssetActor                     >();
-		RegisterCustomClassLayout<FRangeAnalysisDebuggerDetails   , UVoxelNode_RangeAnalysisDebuggerFloat>();
 		RegisterCustomClassLayout<FVoxelLandscapeCollectionDetails, UVoxelLandscapeMaterialCollection    >();
 
 		RegisterCustomPropertyLayout<FVoxelGeneratorPickerCustomization					       , FVoxelGeneratorPicker                        >();
@@ -489,7 +476,6 @@ private:
 		RegisterCustomPropertyLayout<FVoxelGeneratorOutputPickerCustomization                  , FVoxelGeneratorOutputPicker                  >();
 		RegisterCustomPropertyLayout<FVoxelFoliageDensityCustomization                         , FVoxelFoliageDensity                         >();
 		RegisterCustomPropertyLayout<FVoxelFoliageCustomDataCustomization                      , FVoxelFoliageCustomData                      >();
-		RegisterCustomPropertyLayout<FVoxelGraphOutputCustomization                            , FVoxelGraphOutput                            >();
 		RegisterCustomPropertyLayout<FVoxelIntervalCustomization                               , FVoxelInt32Interval                          >();
 		RegisterCustomPropertyLayout<FVoxelIntervalCustomization                               , FVoxelFloatInterval                          >();
 		
@@ -537,8 +523,6 @@ private:
 	{
 		RegisterAssetTypeAction<FAssetTypeActions_VoxelDataAsset>();
 		RegisterAssetTypeAction<FAssetTypeActions_VoxelHeightmapAsset>();
-		RegisterAssetTypeAction<FAssetTypeActions_VoxelGraphGenerator>();
-		RegisterAssetTypeAction<FAssetTypeActions_VoxelGraphMacro>();
 		RegisterAssetTypeAction<FAssetTypeActions_VoxelFoliageBiomeType>();
 
 		const FColor Orange = FColor(255, 140, 0);
@@ -560,8 +544,6 @@ private:
 		RegisterAssetTypeAction<UVoxelFoliage          >(VOXEL_LOCTEXT("Voxel Foliage"           ), LightGreen);
 		RegisterAssetTypeAction<AVoxelFoliageActor     >(VOXEL_LOCTEXT("Voxel Foliage Actor"     ), LightGreen);
 		RegisterAssetTypeAction<UVoxelFoliageBiome     >(VOXEL_LOCTEXT("Voxel Foliage Biome"     ), LightGreen);
-
-		RegisterAssetTypeAction<UVoxelGraphDataItemConfig>(VOXEL_LOCTEXT("Voxel Graph Data Item Config"), Blue);
 	}
 
 	void UnregisterAssetTools()

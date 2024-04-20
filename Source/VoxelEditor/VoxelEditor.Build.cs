@@ -35,7 +35,6 @@ public class VoxelEditor : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new string[] {
                 "Voxel",
-                "VoxelGraph",
                 "VoxelFoliage",
                 "VoxelEditorDefault",
                 "Landscape",

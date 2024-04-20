@@ -28,17 +28,6 @@
 			]
 		},
 		{
-			"Name": "VoxelGraph",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Linux",
-				"Android",
-				"Mac"
-			]
-		},
-		{
 			"Name": "VoxelFoliage",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",

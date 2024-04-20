@@ -5,14 +5,12 @@
 #include "CoreMinimal.h"
 #include "Factories/Factory.h"
 #include "VoxelData/VoxelSave.h"
-#include "VoxelNodes/VoxelGraphMacro.h"
 #include "VoxelFoliageBiome.h"
 #include "VoxelFoliageCollection.h"
 #include "VoxelRender/MaterialCollections/VoxelBasicMaterialCollection.h"
 #include "VoxelRender/MaterialCollections/VoxelBlueprintMaterialCollection.h"
 #include "VoxelRender/MaterialCollections/VoxelLandscapeMaterialCollection.h"
 #include "VoxelRender/MaterialCollections/VoxelInstancedMaterialCollection.h"
-#include "VoxelGraphDataItemConfig.h"
 #include "VoxelFactories.generated.h"
 
 UCLASS(Abstract)
@@ -151,24 +149,3 @@ class UVoxelLandscapeMaterialCollectionFactory : public UVoxelFactory
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-UCLASS()
-class UVoxelGraphMacroAssetFactory : public UVoxelFactory
-{
-	GENERATED_BODY()
-	GENERATED_VOXEL_FACTORY_BODY(UVoxelGraphMacro)
-};
-
-UCLASS()
-class UVoxelGraphGeneratorAssetFactory : public UVoxelFactory
-{
-	GENERATED_BODY()
-	GENERATED_VOXEL_FACTORY_BODY(UVoxelGraphGenerator)
-};
-
-UCLASS()
-class UVoxelGraphDataItemConfigFactory : public UVoxelFactory
-{
-	GENERATED_BODY()
-	GENERATED_VOXEL_FACTORY_BODY(UVoxelGraphDataItemConfig)
-};
