@@ -65,7 +65,7 @@ void FVoxelErosionCS::SetUniformBuffers(FRHICommandList& RHICmdList, const FVoxe
 /* Unbinds buffers that will be used elsewhere */
 void FVoxelErosionCS::UnbindBuffers(FRHICommandList& RHICmdList)
 {
-#define PROCESS_SURFACE(Name) RHICmdList.SetUAVParameter(UE_25_SWITCH(GetComputeShader(), RHICmdList.GetBoundComputeShader()), Name.GetBaseIndex(), FUnorderedAccessViewRHIRef());
+#define PROCESS_SURFACE(Name) SetUAVParameter(RHICmdList.GetScratchShaderParameters(), Name, FUnorderedAccessViewRHIRef());
 	PROCESS_SURFACE(RainMap);
 	PROCESS_SURFACE(TerrainHeight);
 	PROCESS_SURFACE(TerrainHeight1);

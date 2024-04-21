@@ -10,12 +10,13 @@
 
 #include "Engine/Engine.h"
 #include "Materials/Material.h"
+#include "Materials/MaterialRenderProxy.h"
 #include "PhysicsEngine/BodySetup.h"
 #include "DistanceFieldAtlas.h"
 #include "PrimitiveSceneInfo.h"
 
 // Needed to cancel motion blur when reusing proxies
-#include "Renderer/Private/ScenePrivate.h"
+#include "Runtime/Renderer/Private/ScenePrivate.h"
 
 #define NOT_SHIPPING_NOR_TEST !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 
@@ -82,7 +83,7 @@ FVoxelProcMeshBuffersRenderData::FVoxelProcMeshBuffersRenderData(
 	VertexBuffers.StaticMeshVertexBuffer.BindPackedTexCoordVertexBuffer(&VertexFactory, Data);
 	VertexBuffers.ColorVertexBuffer.BindColorVertexBuffer(&VertexFactory, Data);
 	VertexFactory.SetData(Data);
-	VertexFactory.InitResource();
+	BeginInitResource(&VertexFactory);
 
 #if RHI_RAYTRACING
 	if (IsRayTracingEnabled())
@@ -100,7 +101,7 @@ FVoxelProcMeshBuffersRenderData::FVoxelProcMeshBuffersRenderData(
 		Initializer.Segments.Add(Segment);
 
 		RayTracingGeometry.SetInitializer(Initializer);
-		RayTracingGeometry.InitResource();
+		BeginInitResource(&RayTracingGeometry);
 	}
 #endif
 }
@@ -594,7 +595,6 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingMa
 
 				RayTracingInstance.Materials.Add(MeshBatch);
 
-				RayTracingInstance.BuildInstanceMaskAndFlags(ERHIFeatureLevel::Type::SM6);
 				OutRayTracingInstances.Add(RayTracingInstance);
 			}
 		}

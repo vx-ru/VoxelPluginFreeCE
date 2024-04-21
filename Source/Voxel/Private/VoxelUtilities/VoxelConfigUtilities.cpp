@@ -46,7 +46,8 @@ void FVoxelConfigUtilities::LoadConfig(UObject* Object, const FString& BaseSecti
 		FString Value;
 		if (GConfig->GetString(*Section, *Property.GetName(), Value, Filename))
 		{
-			Property.ImportText(*Value, Property.ContainerPtrToValuePtr<void>(Object), PPF_None, Object);
+			const TCHAR* Buffer = *Value; 
+			Property.ImportText_Direct(Buffer, Property.ContainerPtrToValuePtr<void>(Object), Object, PPF_None);
 		}
 	}
 }

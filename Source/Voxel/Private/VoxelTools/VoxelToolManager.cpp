@@ -5,7 +5,7 @@
 
 #include "Engine/Blueprint.h"
 #include "UObject/UObjectHash.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 
 UVoxelToolManager::UVoxelToolManager()
 {

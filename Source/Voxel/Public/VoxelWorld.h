@@ -372,7 +372,7 @@ public:
 	FString GetDefaultFilePath() const;
 	
 	//~ Begin IVoxelEditorDelegatesInterface Interface
-	virtual void OnPreSaveWorld(uint32 SaveFlags, UWorld* World) override;
+	virtual void OnPreSaveWorld(UWorld* World, const FObjectPreSaveContext& SaveContext) override;
 	virtual void OnPreBeginPIE(bool bIsSimulating) override;
 	virtual void OnEndPIE(bool bIsSimulating) override;
 	virtual void OnPrepareToCleanseEditorObject(UObject* Object) override;

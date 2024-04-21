@@ -55,7 +55,7 @@ void FVoxelGeneratorPickerCustomization::CustomizeHeader(TSharedRef<IPropertyHan
 				SNew(SComboBox<TSharedPtr<EVoxelGeneratorPickerType>>)
 				.IsEnabled(!TypeHandle->IsEditConst())
 				.OptionsSource(&ComboBoxArray)
-				.OnSelectionChanged_Lambda([=](TSharedPtr<EVoxelGeneratorPickerType> Value, ESelectInfo::Type)
+				.OnSelectionChanged_Lambda([this, TypeHandle](TSharedPtr<EVoxelGeneratorPickerType> Value, ESelectInfo::Type)
 				{
 					PickerType = *Value;
 					TypeHandle->SetValueFromFormattedString(UEnum::GetDisplayValueAsText(PickerType).ToString());
@@ -71,7 +71,7 @@ void FVoxelGeneratorPickerCustomization::CustomizeHeader(TSharedRef<IPropertyHan
 				[
 					SNew(STextBlock)
 					.Font(IDetailLayoutBuilder::GetDetailFont())
-					.Text_Lambda([=]()
+					.Text_Lambda([this]()
 					{
 						return UEnum::GetDisplayValueAsText(PickerType);
 					})
@@ -83,7 +83,7 @@ void FVoxelGeneratorPickerCustomization::CustomizeHeader(TSharedRef<IPropertyHan
 		[
 			SNew(SBox)
 			.HAlign(HAlign_Left)
-			.Visibility_Lambda([=]()
+			.Visibility_Lambda([this]()
 			{
 				return PickerType == EVoxelGeneratorPickerType::Class ? EVisibility::Visible : EVisibility::Collapsed;
 			})
@@ -96,7 +96,7 @@ void FVoxelGeneratorPickerCustomization::CustomizeHeader(TSharedRef<IPropertyHan
 		[
 			SNew(SBox)
 			.HAlign(HAlign_Left)
-			.Visibility_Lambda([=]()
+			.Visibility_Lambda([this]()
 			{
 				return PickerType == EVoxelGeneratorPickerType::Object ? EVisibility::Visible : EVisibility::Collapsed;
 			})
@@ -128,7 +128,7 @@ public:
 		[
 			SNew(STextBlock)
 			.Text(FText::FromString(Name))
-			.Font(FEditorStyle::GetFontStyle(PropertyEditorConstants::CategoryFontStyle))
+			.Font(FAppStyle::GetFontStyle(PropertyEditorConstants::CategoryFontStyle))
 		];
 	}
 	virtual void GenerateChildContent(IDetailChildrenBuilder& ChildrenBuilder) override
@@ -217,9 +217,9 @@ void FVoxelGeneratorPickerCustomization::CustomizeChildren(TSharedRef<IPropertyH
 				// Pool blueprints, as we can't have a BP deleted before its class
 				BlueprintPool.Add(EditorData->Blueprint);
 			}
-			if (EditorData->BlueprintInstance) 
+			if (EditorData->BlueprintInstance)
 			{
-				EditorData->BlueprintInstance->MarkPendingKill();
+				EditorData->BlueprintInstance->MarkAsGarbage();
 			}
 			
 			EditorData->GeneratorObject = nullptr;
@@ -287,7 +287,8 @@ void FVoxelGeneratorPickerCustomization::CustomizeChildren(TSharedRef<IPropertyH
 				if (!ensure(Parameter)) continue;
 
 				auto* CDO = Blueprint->GeneratedClass->GetDefaultObject();
-				Property->ImportText(*Parameter->DefaultValue, It->ContainerPtrToValuePtr<void>(CDO), PPF_None, CDO);
+				const TCHAR* Buffer = *Parameter->DefaultValue;
+				Property->ImportText_Direct(Buffer, It->ContainerPtrToValuePtr<void>(CDO), CDO, PPF_None);
 			}
 		}
 
@@ -307,10 +308,11 @@ void FVoxelGeneratorPickerCustomization::CustomizeChildren(TSharedRef<IPropertyH
 		auto* Value = Picker.Parameters.Find(Property->GetFName());
 		if (!Value) continue;
 
-		Property->ImportText(**Value, It->ContainerPtrToValuePtr<void>(BlueprintInstance), PPF_None, BlueprintInstance);
+		const TCHAR* Buffer = **Value;
+		Property->ImportText_Direct(Buffer, It->ContainerPtrToValuePtr<void>(BlueprintInstance), BlueprintInstance, PPF_None);
 	}
 	
-	FCoreUObjectDelegates::OnObjectPropertyChanged.Add(MakeWeakPtrDelegate(PropertyHandle, 
+	FCoreUObjectDelegates::OnObjectPropertyChanged.Add(MakeWeakPtrDelegate(TSharedPtr<IPropertyHandle>(PropertyHandle),
 	[=, &Picker, Handle = &PropertyHandle.Get()](UObject* InObject, FPropertyChangedEvent& PropertyChangedEvent)
 	{
 		if (BlueprintInstance != InObject) return;
@@ -343,7 +345,7 @@ void FVoxelGeneratorPickerCustomization::CustomizeChildren(TSharedRef<IPropertyH
 			if (!ensure(Parameter)) continue;
 
 			FString Value;
-			Property->ExportTextItem(Value, It->ContainerPtrToValuePtr<void>(BlueprintInstance), nullptr, BlueprintInstance, PPF_None);
+			Property->ExportText_Direct(Value, It->ContainerPtrToValuePtr<void>(BlueprintInstance), BlueprintInstance, nullptr, PPF_None);
 
 			if (Parameter->DefaultValue == Value)
 			{

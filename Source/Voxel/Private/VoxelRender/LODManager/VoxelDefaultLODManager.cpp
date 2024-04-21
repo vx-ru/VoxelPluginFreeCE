@@ -46,7 +46,7 @@ void FVoxelDefaultLODManager::Destroy()
 	if (!Task->IsDone())
 	{
 		Task->CancelAndAutodelete();
-		Task.Release();
+		(void)Task.Release(); // Release ownership - the task will auto-delete itself when it finishes
 	}
 }
 

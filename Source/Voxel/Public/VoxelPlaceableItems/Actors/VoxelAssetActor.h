@@ -30,12 +30,6 @@ UCLASS()
 class VOXEL_API UAssetActorPrimitiveComponent : public UPrimitiveComponent
 {
 	GENERATED_BODY()
-
-	//~ Begin UPrimitiveComponent Interface
-#if WITH_EDITOR
-	virtual bool IgnoreBoundsForEditorFocus() const override { return true; }
-#endif
-	//~ End UPrimitiveComponent Interface
 };
 
 UCLASS(HideCategories = ("Tick", "Replication", "Input", "Actor", "Rendering", "HOLD", "LOD", "Cooking", "Collision"))

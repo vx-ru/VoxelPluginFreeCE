@@ -8,7 +8,6 @@ public class Voxel : ModuleRules
     public Voxel(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-        bEnforceIWYU = true;
         bLegacyPublicIncludePaths = false;
 
         PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));

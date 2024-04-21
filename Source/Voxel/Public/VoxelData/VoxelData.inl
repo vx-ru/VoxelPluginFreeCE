@@ -322,7 +322,7 @@ inline void FVoxelDataItemsUtilities::AddItemToLeafData<FVoxelDataItem>(
 ///////////////////////////////////////////////////////////////////////////////
 
 template<typename T, bool bDoNotModifyExistingDataChunks, typename... TArgs>
-TVoxelWeakPtr<const TVoxelDataItemWrapper<T>> FVoxelData::AddItem(TArgs&&... Args)
+TVoxelWeakPtr<TVoxelDataItemWrapper<T>> FVoxelData::AddItem(TArgs&&... Args)
 {
 	VOXEL_ASYNC_FUNCTION_COUNTER();
 
@@ -375,7 +375,7 @@ TVoxelWeakPtr<const TVoxelDataItemWrapper<T>> FVoxelData::AddItem(TArgs&&... Arg
 }
 
 template<typename T>
-bool FVoxelData::RemoveItem(TVoxelWeakPtr<const TVoxelDataItemWrapper<T>>& InItem, FString& OutError)
+bool FVoxelData::RemoveItem(TVoxelWeakPtr<TVoxelDataItemWrapper<T>>& InItem, FString& OutError)
 {
 	VOXEL_ASYNC_FUNCTION_COUNTER();
 	
@@ -430,7 +430,7 @@ bool FVoxelData::RemoveItem(TVoxelWeakPtr<const TVoxelDataItemWrapper<T>>& InIte
 	// Fixup the one we swapped (could be us, but that's fine)
 	ItemsData.Items[Item->Index]->Index = Item->Index;
 	// Pop the item
-	ensure(ItemsData.Items.Pop(false) == Item);
+	ensure(ItemsData.Items.Pop(EAllowShrinking::No) == Item);
 	// Clear the index, in case we try to remove the item twice
 	Item->Index = -1;
 

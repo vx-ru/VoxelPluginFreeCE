@@ -4,9 +4,11 @@
 #include "VoxelMinimal.h"
 #include "VoxelWorld.h"
 
+#include "SceneView.h"
 #include "PrimitiveSceneProxy.h"
 #include "Engine/Engine.h"
 #include "Materials/Material.h"
+#include "Materials/MaterialRenderProxy.h"
 
 static TAutoConsoleVariable<int32> CVarShowWireframeCollision(
 	TEXT("voxel.collision.DrawWireframe"),

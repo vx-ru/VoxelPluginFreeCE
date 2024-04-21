@@ -4,6 +4,7 @@
 #include "VoxelContainers/VoxelStaticArray.h"
 
 #include "MaterialCompiler.h"
+#include "Materials/MaterialFunction.h"
 #include "Materials/HLSLMaterialTranslator.h"
 
 #if WITH_EDITOR
@@ -52,7 +53,7 @@ public:
 	virtual int32 StaticTerrainLayerWeight(FName ParameterName, int32 Default) override
 	{
 		FHLSLCompilerChild* HLSLCompiler = static_cast<FHLSLCompilerChild*>(GetBaseCompiler());
-		auto& TerrainLayerWeightParameters = HLSLCompiler->GetStaticParameters().TerrainLayerWeightParameters;
+		auto& TerrainLayerWeightParameters = HLSLCompiler->GetStaticParameters().EditorOnly.TerrainLayerWeightParameters;
 
 		TArray<int32> VoxelIndices;
 		int32 ParameterVoxelIndex = -1;
@@ -169,7 +170,7 @@ public:
 
 	virtual int32 ParticleSpriteRotation() override
 	{
-		return Compiler->PostSkinVertexOffset();
+		return Compiler->ParticleSpriteRotation();
 	}
 };
 
@@ -208,7 +209,7 @@ bool NeedsToBeConvertedToVoxelImp(const TArray<UMaterialExpression*>& Expression
 			if (Function && !VisitedFunctions.Contains(Function))
 			{
 				VisitedFunctions.Add(Function);
-				if (NeedsToBeConvertedToVoxelImp(Function->FunctionExpressions, VisitedFunctions))
+				if (NeedsToBeConvertedToVoxelImp(Function->GetEditorOnlyData()->ExpressionCollection.Expressions, VisitedFunctions))
 				{
 					return true;
 				}

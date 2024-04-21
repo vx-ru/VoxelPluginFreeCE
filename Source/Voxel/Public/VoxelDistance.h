@@ -18,9 +18,10 @@ struct FVoxelDistance
 	GENERATED_BODY()
 
 	FVoxelDistance() = default;
-	
-	static FVoxelDistance Voxels(float Value) { return { EVoxelDistanceType::Voxels, Value }; }
-	static FVoxelDistance Centimeters(float Value) { return { EVoxelDistanceType::Centimeters, Value }; }
+	FVoxelDistance(EVoxelDistanceType InType, float InDistance) : Type(InType), Distance(InDistance) {}
+
+	static FVoxelDistance Voxels(float Value) { return FVoxelDistance(EVoxelDistanceType::Voxels, Value); }
+	static FVoxelDistance Centimeters(float Value) { return FVoxelDistance(EVoxelDistanceType::Centimeters, Value); }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel")
 	EVoxelDistanceType Type = EVoxelDistanceType::Voxels;

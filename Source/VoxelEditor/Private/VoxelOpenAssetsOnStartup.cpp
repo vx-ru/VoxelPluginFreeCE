@@ -37,7 +37,7 @@ void UVoxelOpenAssetsOnStartup::ActualInit()
 	}
 	
 	FContentBrowserModule& ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
-	ContentBrowserModule.GetAllAssetViewContextMenuExtenders().Add(FContentBrowserMenuExtender_SelectedAssets::CreateLambda([=](const TArray<FAssetData>& SelectedAssets)
+	ContentBrowserModule.GetAllAssetViewContextMenuExtenders().Add(FContentBrowserMenuExtender_SelectedAssets::CreateLambda([this](const TArray<FAssetData>& SelectedAssets)
 	{
 		const auto Extender = MakeShared<FExtender>();
 		
@@ -50,16 +50,16 @@ void UVoxelOpenAssetsOnStartup::ActualInit()
 				"CommonAssetActions",
 				EExtensionHook::After,
 				nullptr,
-				FMenuExtensionDelegate::CreateLambda([=](FMenuBuilder& MenuBuilder)
+				FMenuExtensionDelegate::CreateLambda([this, Path](FMenuBuilder& MenuBuilder)
 				{
 					MenuBuilder.AddMenuEntry(
-					TAttribute<FText>::Create(TAttribute<FText>::FGetter::CreateLambda([=]()
+					TAttribute<FText>::Create(TAttribute<FText>::FGetter::CreateLambda([this, Path]()
 					{
 						return AssetsToOpenOnStartup.FindRef(*Path) ? VOXEL_LOCTEXT("Stop opening on startup") : VOXEL_LOCTEXT("Open on startup");
 					})),
 					TAttribute<FText>(),
 					FSlateIcon(NAME_None, NAME_None),
-					FUIAction(FExecuteAction::CreateLambda([=]()
+					FUIAction(FExecuteAction::CreateLambda([this, Path]()
 					{
 						bool& bValue = AssetsToOpenOnStartup.FindOrAdd(*Path);
 						bValue = !bValue;
@@ -79,16 +79,16 @@ void UVoxelOpenAssetsOnStartup::ActualInit()
 				"CommonAssetActions",
 				EExtensionHook::After,
 				nullptr,
-				FMenuExtensionDelegate::CreateLambda([=](FMenuBuilder& MenuBuilder)
+				FMenuExtensionDelegate::CreateLambda([this, Asset](FMenuBuilder& MenuBuilder)
 				{
 					MenuBuilder.AddMenuEntry(
 					VOXEL_LOCTEXT("Set as editor startup map"),
 					TAttribute<FText>(),
 					FSlateIcon(NAME_None, NAME_None),
-					FUIAction(FExecuteAction::CreateLambda([=]()
+					FUIAction(FExecuteAction::CreateLambda([Asset]()
 					{
 						auto* Settings = GetMutableDefault<UGameMapsSettings>();
-						Settings->EditorStartupMap = SelectedAssets[0].ToSoftObjectPath();
+						Settings->EditorStartupMap = Asset.ToSoftObjectPath();
 
 						auto* Property = FindFProperty<FProperty>(UGameMapsSettings::StaticClass(), GET_MEMBER_NAME_CHECKED(UGameMapsSettings, EditorStartupMap));
 						Settings->UpdateSinglePropertyInConfigFile(Property, Settings->GetDefaultConfigFilename());

@@ -31,7 +31,7 @@ template<EVoxelLockType LockType>
 class TVoxelScopeLock
 {
 public:
-	using TData = typename TChooseClass<LockType == EVoxelLockType::Read, const FVoxelData, FVoxelData>::Result;
+	using TData = std::conditional_t<LockType == EVoxelLockType::Read, const FVoxelData, FVoxelData>;
 	
 	TVoxelScopeLock(TData& InData, const FVoxelIntBox& Bounds, const FName& Name, bool bCondition = true)
 		: Data(InData)

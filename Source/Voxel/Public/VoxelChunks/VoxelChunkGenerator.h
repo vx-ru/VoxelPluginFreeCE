@@ -26,7 +26,7 @@ public:
 	TVoxelSharedPtr<FVoxelChunksData> Data;
 	
 	explicit FVoxelChunkGeneratorInstance(const UVoxelChunkGenerator& Generator)
-		: Super(&Generator)
+		: Super(const_cast<UVoxelChunkGenerator*>(&Generator))
 	{
 	}
 

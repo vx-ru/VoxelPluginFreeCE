@@ -154,7 +154,7 @@ private:
 #endif
 
 	using FAcceleratorMap = TMap<FIntVector, FVoxelDataOctreeLeaf*>;
-	using FConstAcceleratorMap = typename TChooseClass<bIsConst, const FAcceleratorMap, FAcceleratorMap>::Result;
+	using FConstAcceleratorMap = std::conditional_t<bIsConst, const FAcceleratorMap, FAcceleratorMap>;
 	
 	// Map from Leaf.GetMin() to &Leaf
 	const TVoxelSharedPtr<FConstAcceleratorMap> AcceleratorMap;

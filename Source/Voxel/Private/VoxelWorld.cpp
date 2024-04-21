@@ -47,6 +47,7 @@
 #include "HAL/PlatformFilemanager.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInterface.h"
+#include "MaterialDomain.h"
 #include "Components/BillboardComponent.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
@@ -94,7 +95,7 @@ AVoxelWorld::AVoxelWorld()
 	}
 
 	// Automatically refresh material on property change/material recompile
-	const auto RefreshMaterial = [=](UMaterialInterface* Material)
+	const auto RefreshMaterial = [this](UMaterialInterface* Material)
 	{
 		if (!Material || !bAutomaticallyRefreshMaterials || !IsCreated())
 		{
@@ -148,7 +149,7 @@ AVoxelWorld::AVoxelWorld()
 	};
 	UMaterial::OnMaterialCompilationFinished().AddWeakLambda(this, RefreshMaterial);
 
-	const auto TryRefreshMaterials = [=](UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
+	const auto TryRefreshMaterials = [=, this](UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
 	{
 		if (!bAutomaticallyRefreshMaterials)
 		{
@@ -198,11 +199,11 @@ AVoxelWorld::AVoxelWorld()
 		}
 	};
 	
-	const auto TryRefreshFoliage = [=](UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
+	const auto TryRefreshFoliage = [this](UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
 	{
 	};
 		
-	FCoreUObjectDelegates::OnObjectPropertyChanged.AddWeakLambda(this, [=](UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
+	FCoreUObjectDelegates::OnObjectPropertyChanged.AddWeakLambda(this, [this, TryRefreshMaterials, TryRefreshFoliage](UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
 	{
 		if (PropertyChangedEvent.ChangeType == EPropertyChangeType::Interactive)
 		{
@@ -218,7 +219,7 @@ AVoxelWorld::AVoxelWorld()
 		TryRefreshFoliage(Object, PropertyChangedEvent);
 	});
 
-	FVoxelEditorDelegates::OnVoxelGraphUpdated.AddWeakLambda(this, [=](UVoxelGenerator* Object)
+	FVoxelEditorDelegates::OnVoxelGraphUpdated.AddWeakLambda(this, [this, TryRefreshFoliage](UVoxelGenerator* Object)
 	{
 		if (!Object || !IsCreated())
 		{
@@ -913,7 +914,7 @@ void AVoxelWorld::DestroyWorldInternal()
 	{
 		// Reset to avoid keeping instances alive
 		GeneratorCache->GeneratorCache.Reset();
-		GeneratorCache->MarkPendingKill();
+		GeneratorCache->MarkAsGarbage();
 		GeneratorCache = nullptr;
 	}
 
@@ -925,7 +926,7 @@ void AVoxelWorld::DestroyWorldInternal()
 	
 	if (PlaceableItemActorHelper)
 	{
-		PlaceableItemActorHelper->MarkPendingKill();
+		PlaceableItemActorHelper->MarkAsGarbage();
 		PlaceableItemActorHelper = nullptr;
 	}
 
@@ -1338,7 +1339,7 @@ FString AVoxelWorld::GetDefaultFilePath() const
 	return Path;
 }
 
-void AVoxelWorld::OnPreSaveWorld(uint32 SaveFlags, UWorld* World)
+void AVoxelWorld::OnPreSaveWorld(UWorld* World, const FObjectPreSaveContext& SaveContext)
 {
 	if (IsCreated() && PlayType == EVoxelPlayType::Preview)
 	{
@@ -1383,7 +1384,7 @@ void AVoxelWorld::OnApplyObjectToActor(UObject* Object, AActor* Actor)
 	}
 
 	auto* Material = Cast<UMaterialInterface>(Object);
-	if (!Material || Material->GetMaterial()->MaterialDomain != MD_Surface)
+	if (!Material || Material->GetMaterial()->MaterialDomain != EMaterialDomain::MD_Surface)
 	{
 		return;
 	}

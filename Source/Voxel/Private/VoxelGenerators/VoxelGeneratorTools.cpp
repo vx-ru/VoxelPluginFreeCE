@@ -51,7 +51,7 @@ bool UVoxelGeneratorTools::SetGeneratorParameterImpl(FVoxelGeneratorPicker& Pick
 	}
 
 	FString Result;
-	Property.ExportTextItem(Result, Data, nullptr, nullptr, PPF_None);
+	Property.ExportText_Direct(Result, Data, nullptr, nullptr, PPF_None);
 	Picker.Parameters.Add(Name, Result);
 	
 	return true;
@@ -124,7 +124,7 @@ TVoxelTexture<T> UVoxelGeneratorTools::CreateTextureFromGeneratorImpl(
 	VOXEL_TOOL_FUNCTION_COUNTER(Size.X * Size.Y);
 	check(Size.X > 0 && Size.Y > 0);
 
-	using TGeneratorType = typename TChooseClass<TIsSame<T, float>::Value, v_flt, T>::Result;
+	using TGeneratorType = std::conditional_t<TIsSame<T, float>::Value, v_flt, T>;
 	
 	const auto FunctionPtr = Generator.GetOutputsPtrMap<TGeneratorType>().FindRef(OutputName);
 	if (!ensure(FunctionPtr)) return {};
@@ -181,7 +181,7 @@ TVoxelSharedPtr<FVoxelGeneratorInstance> SetupGenerator(
 		return {};
 	}
 
-	using TGeneratorType = typename TChooseClass<TIsSame<T, float>::Value, v_flt, T>::Result;
+	using TGeneratorType = std::conditional_t<TIsSame<T, float>::Value, v_flt, T>;
 
 	if (!Generator->Instance->GetOutputsPtrMap<TGeneratorType>().Contains(OutputName))
 	{

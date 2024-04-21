@@ -17,12 +17,16 @@ void UVoxelErosion::Initialize()
 		return;
 	}
 	
-	RealSize = FMath::Max(32, FMath::CeilToInt(Size / 32.f) * 32);;
-	
+	RealSize = FMath::Max(32, FMath::CeilToInt(Size / 32.f) * 32);
+
+	auto WeakThis = MakeWeakObjectPtr(this);
 	ENQUEUE_RENDER_COMMAND(Step)(
-		[ThisPtr = this](FRHICommandList& RHICmdList) 
+		[WeakThis](FRHICommandList& RHICmdList)
 	{
-		ThisPtr->Init_RenderThread();
+		if (auto ThisPtr = WeakThis.Get())
+		{
+			ThisPtr->Init_RenderThread(RHICmdList);
+		}
 	});
 
 	FlushRenderingCommands();
@@ -91,10 +95,14 @@ void UVoxelErosion::Step(int32 Count)
 	Parameters.Kr = RainStrength;
 	Parameters.Ke = Evaporation;
 
+	auto WeakThis = MakeWeakObjectPtr(this);
 	ENQUEUE_RENDER_COMMAND(Step)(
-		[Parameters, Count, ThisPtr = this](FRHICommandList& RHICmdList) 
+		[Parameters, Count, WeakThis](FRHICommandList& RHICmdList)
 	{
-		ThisPtr->Step_RenderThread(Parameters, Count);
+		if (auto ThisPtr = WeakThis.Get())
+		{
+			ThisPtr->Step_RenderThread(Parameters, Count);
+		}
 	});
 }
 
@@ -144,8 +152,8 @@ void UVoxelErosion::RunShader(const FVoxelErosionParameters& Parameters)
 {
 	FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
 	
-	TShaderMapRef<T> ComputeShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
-	RHICmdList.SetComputeShader(ComputeShader.GetComputeShader());
+	TShaderMapRef<T> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	SetComputePipelineState(RHICmdList, ComputeShader.GetComputeShader());
 
 	ComputeShader->SetSurfaces(
 		RHICmdList, 
@@ -166,7 +174,7 @@ void UVoxelErosion::RunShader(const FVoxelErosionParameters& Parameters)
 	ComputeShader->UnbindBuffers(RHICmdList);
 }
 
-void UVoxelErosion::CopyTextureToRHI(const TVoxelTexture<float>& Texture, const FTexture2DRHIRef& RHITexture)
+void UVoxelErosion::CopyTextureToRHI(const TVoxelTexture<float>& Texture, const FTextureRHIRef& RHITexture)
 {
 	ENQUEUE_RENDER_COMMAND(CopyTextureToRHI)([Texture, RHITexture, ThisPtr = this](FRHICommandList& RHICmdList)
 	{
@@ -176,7 +184,7 @@ void UVoxelErosion::CopyTextureToRHI(const TVoxelTexture<float>& Texture, const 
 	FlushRenderingCommands();
 }
 
-void UVoxelErosion::CopyRHIToTexture(const FTexture2DRHIRef& RHITexture, TVoxelSharedRef<TVoxelTexture<float>::FTextureData>& Texture)
+void UVoxelErosion::CopyRHIToTexture(const FTextureRHIRef& RHITexture, TVoxelSharedRef<TVoxelTexture<float>::FTextureData>& Texture)
 {
 	ENQUEUE_RENDER_COMMAND(CopyRHIToTexture)(
 		[RHITexture, Texture, ThisPtr = this](FRHICommandList& RHICmdList)
@@ -187,7 +195,7 @@ void UVoxelErosion::CopyRHIToTexture(const FTexture2DRHIRef& RHITexture, TVoxelS
 	FlushRenderingCommands();
 }
 
-void UVoxelErosion::CopyTextureToRHI_RenderThread(const TVoxelTexture<float>& Texture, const FTexture2DRHIRef& RHITexture)
+void UVoxelErosion::CopyTextureToRHI_RenderThread(const TVoxelTexture<float>& Texture, const FTextureRHIRef& RHITexture)
 {
 	check(IsInRenderingThread());
 
@@ -208,7 +216,7 @@ void UVoxelErosion::CopyTextureToRHI_RenderThread(const TVoxelTexture<float>& Te
 }
 
 
-void UVoxelErosion::CopyRHIToTexture_RenderThread(const FTexture2DRHIRef& RHITexture, TVoxelTexture<float>::FTextureData& Texture)
+void UVoxelErosion::CopyRHIToTexture_RenderThread(const FTextureRHIRef& RHITexture, TVoxelTexture<float>::FTextureData& Texture)
 {
 	check(IsInRenderingThread());
 
@@ -229,31 +237,38 @@ void UVoxelErosion::CopyRHIToTexture_RenderThread(const FTexture2DRHIRef& RHITex
 	RHIUnlockTexture2D(RHITexture, 0, false);
 }
 
-void UVoxelErosion::Init_RenderThread()
+void UVoxelErosion::Init_RenderThread(FRHICommandList& RHICmdList)
 {
 	check(IsInRenderingThread());
 
-	FRHIResourceCreateInfo CreateInfo(TEXT("CreateInfo"));
 	const ETextureCreateFlags Flags = TexCreate_ShaderResource | TexCreate_UAV;
 
-#define CREATE_TEXTURE(Name, SizeX) \
-	Name = RHICreateTexture2D(SizeX * RealSize, RealSize, PF_R32_FLOAT, 1, 1, Flags, CreateInfo); \
-	Name##UAV = RHICreateUnorderedAccessView(Name); \
+	auto CreateTextureWithUAV = [&](TRefCountPtr<FRHITexture>& Texture, TRefCountPtr<FRHIUnorderedAccessView>& UAV, int32 SizeX, const TCHAR* DebugName)
+	{
+		FRHITextureCreateDesc Desc = FRHITextureCreateDesc::Create2D(DebugName)
+			.SetExtent(int32(SizeX * RealSize), int32(RealSize))
+			.SetFormat(PF_R32_FLOAT)
+			.SetNumMips(1)
+			.SetNumSamples(1)
+			.SetFlags(Flags)
+			.SetInitialState(ERHIAccess::Unknown);
 
-	CREATE_TEXTURE(RainMap, 1);
-	CREATE_TEXTURE(TerrainHeight, 1);
-	CREATE_TEXTURE(TerrainHeight1, 1);
-	CREATE_TEXTURE(WaterHeight, 1);
-	CREATE_TEXTURE(WaterHeight1, 1);
-	CREATE_TEXTURE(WaterHeight2, 1);
-	CREATE_TEXTURE(Sediment, 1);
-	CREATE_TEXTURE(Sediment1, 1);
-	CREATE_TEXTURE(Outflow, 4);
-	CREATE_TEXTURE(Velocity, 2);
+		Texture = RHICreateTexture(Desc);
+		UAV = RHICmdList.CreateUnorderedAccessView(Texture);
+	};
 
-#undef CREATE_TEXTURE
+	// Create all textures and UAVs
+	CreateTextureWithUAV(RainMap,       RainMapUAV,       1, TEXT("RainMap"));
+	CreateTextureWithUAV(TerrainHeight, TerrainHeightUAV, 1, TEXT("TerrainHeight"));
+	CreateTextureWithUAV(TerrainHeight1, TerrainHeight1UAV, 1, TEXT("TerrainHeight1"));
+	CreateTextureWithUAV(WaterHeight,   WaterHeightUAV,   1, TEXT("WaterHeight"));
+	CreateTextureWithUAV(WaterHeight1,  WaterHeight1UAV,  1, TEXT("WaterHeight1"));
+	CreateTextureWithUAV(WaterHeight2,  WaterHeight2UAV,  1, TEXT("WaterHeight2"));
+	CreateTextureWithUAV(Sediment,      SedimentUAV,      1, TEXT("Sediment"));
+	CreateTextureWithUAV(Sediment1,     Sediment1UAV,     1, TEXT("Sediment1"));
+	CreateTextureWithUAV(Outflow,       OutflowUAV,       4, TEXT("Outflow"));
+	CreateTextureWithUAV(Velocity,      VelocityUAV,      2, TEXT("Velocity"));
 }
-
 
 void UVoxelErosion::Step_RenderThread(const FVoxelErosionParameters& Parameters, int32 Count)
 {

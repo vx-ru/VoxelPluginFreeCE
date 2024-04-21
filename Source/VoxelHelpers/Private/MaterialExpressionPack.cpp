@@ -70,14 +70,14 @@ void UMaterialExpressionPack::GetCaption(TArray<FString>& OutCaptions) const
 	OutCaptions.Add(TEXT("Pack"));
 }
 
-const TArray<FExpressionInput*> UMaterialExpressionPack::GetInputs()
+TArrayView<FExpressionInput*> UMaterialExpressionPack::GetInputsView()
 {
-	TArray<FExpressionInput*> Result;
-	for (auto& Input : Inputs)
+	InputPtrs.SetNumUninitialized(Inputs.Num());
+	for (int32 i = 0; i < Inputs.Num(); ++i)
 	{
-		Result.Add(&Input.Input);
+		InputPtrs[i] = &Inputs[i].Input;
 	}
-	return Result;
+	return InputPtrs;
 }
 
 FExpressionInput* UMaterialExpressionPack::GetInput(int32 InputIndex)

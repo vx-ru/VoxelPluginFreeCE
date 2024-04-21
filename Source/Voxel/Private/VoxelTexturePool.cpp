@@ -367,7 +367,7 @@ UTexture2D* FVoxelTexturePool::CreateTexture() const
 	Texture->SRGB = false;
 	Texture->Filter = TF_Nearest;
 
-	FTexture2DMipMap& Mip = Texture->PlatformData->Mips[0];
+	FTexture2DMipMap& Mip = Texture->GetPlatformData()->Mips[0];
 	{
 		void* Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memzero(Data, Stride * FMath::Square(Settings.TexturePoolTextureSize));
@@ -426,7 +426,7 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 	INC_DWORD_STAT(STAT_VoxelTexturePool_NumTextureUpdates);
 	INC_DWORD_STAT_BY(STAT_VoxelTexturePool_TextureUpdatesSize, ColorData->Num() * ColorData->GetStride());
 
-	if (ensure(Texture->Resource))
+	if (ensure(Texture->GetResource()))
 	{
 		ENQUEUE_RENDER_COMMAND(UpdateVoxelTexturePoolRegionsData)(
         [
@@ -535,7 +535,7 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 	}
 	else
 	{
-		FTexture2DMipMap& Mip = Texture->PlatformData->Mips[0];
+		FTexture2DMipMap& Mip = Texture->GetPlatformData()->Mips[0];
 		{
 			void* Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 			if (ensure(Data))

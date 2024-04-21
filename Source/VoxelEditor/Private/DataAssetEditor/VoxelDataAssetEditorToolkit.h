@@ -52,6 +52,7 @@ public:
 
 	//~ Begin FGCObject interface
 	virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
+	virtual FString GetReferencerName() const override;
 	//~ End FGCObject interface
 	
 	//~ Begin FNotifyHook interface
@@ -77,7 +78,7 @@ private:
 
 private:
 	// The Voxel asset being inspected
-	UVoxelDataAsset* DataAsset = nullptr;
+	TObjectPtr<UVoxelDataAsset> DataAsset = nullptr;
 	
 	// Manager, handles the voxel world
 	TUniquePtr<FVoxelDataAssetEditorManager> Manager;

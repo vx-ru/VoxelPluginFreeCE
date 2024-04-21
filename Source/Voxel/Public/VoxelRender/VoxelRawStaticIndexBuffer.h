@@ -156,7 +156,7 @@ public:
     void Discard();
     
 	// FRenderResource interface.
-	virtual void InitRHI() override;
+	virtual void InitRHI(FRHICommandListBase& RHICmdList) override;
 
 	inline bool Is32Bit() const { return b32Bit; }
 

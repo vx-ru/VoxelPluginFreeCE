@@ -7,6 +7,8 @@
 #include "ShaderParameterMacros.h"
 #include "RenderCommandFence.h"
 #include "GlobalShader.h"
+#include "RHIFeatureLevel.h"
+#include "DataDrivenShaderPlatformInfo.h"
 
 BEGIN_GLOBAL_SHADER_PARAMETER_STRUCT(FVoxelDistanceFieldParameters,)
 
@@ -44,12 +46,12 @@ public:
 		const FRWBuffer& DstBuffer) const;
 		
 	void SetUniformBuffers(
-		FRHICommandList& RHICmdList, 
+		FRHICommandList& RHICmdList,
 		const FVoxelDistanceFieldParameters& Parameters) const;
 
 private:
-	LAYOUT_FIELD(FRWShaderParameter, Src);
-	LAYOUT_FIELD(FRWShaderParameter, Dst);
+	LAYOUT_FIELD(FShaderResourceParameter, Src);
+	LAYOUT_FIELD(FShaderResourceParameter, Dst);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

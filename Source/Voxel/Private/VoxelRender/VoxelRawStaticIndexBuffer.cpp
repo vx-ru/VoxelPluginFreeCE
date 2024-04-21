@@ -159,25 +159,25 @@ FIndexArrayView FVoxelRawStaticIndexBuffer::GetArrayView() const
 	return FIndexArrayView(IndexStorage.GetData(), NumIndices, b32Bit);
 }
 
-void FVoxelRawStaticIndexBuffer::InitRHI()
+void FVoxelRawStaticIndexBuffer::InitRHI(FRHICommandListBase& RHICmdList)
 {
-	const uint32 IndexStride = b32Bit ? sizeof(uint32) : sizeof(uint16);
 	const uint32 SizeInBytes = IndexStorage.Num();
 	check(NumIndices == (b32Bit ? (IndexStorage.Num() / 4) : (IndexStorage.Num() / 2)));
 
 	if (SizeInBytes > 0)
 	{
 		// Create the index buffer.
-		FRHIResourceCreateInfo CreateInfo(UE_5_ONLY(TEXT("VoxelIndex"),) &IndexStorage);
-		IndexBufferRHI = RHICreateIndexBuffer(IndexStride,SizeInBytes,BUF_Static,CreateInfo);
-	}    
+		const uint32 IndexStride = b32Bit ? sizeof(uint32) : sizeof(uint16);
+		FRHIResourceCreateInfo CreateInfo(TEXT("INDEX"), &IndexStorage);
+		IndexBufferRHI = RHICmdList.CreateIndexBuffer(IndexStride, SizeInBytes, BUF_Static, CreateInfo);
+	}
 }
 
 void FVoxelRawStaticIndexBuffer::Serialize(FArchive& Ar, bool bNeedsCPUAccess)
 {
 	IndexStorage.SetAllowCPUAccess(bNeedsCPUAccess);
 
-	if (Ar.UE4Ver() < VER_UE4_SUPPORT_32BIT_STATIC_MESH_INDICES)
+	if (Ar.UEVer() < VER_UE4_SUPPORT_32BIT_STATIC_MESH_INDICES)
 	{
 		TResourceArray<uint16,INDEXBUFFER_ALIGNMENT> LegacyIndices;
 

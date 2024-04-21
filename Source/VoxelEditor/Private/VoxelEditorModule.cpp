@@ -17,6 +17,7 @@
 #include "EditorReimportHandler.h"
 #include "Framework/Commands/Commands.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
+#include "UObject/ObjectSaveContext.h"
 
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
@@ -146,10 +147,10 @@ static void RefreshVoxelWorlds_Execute(UObject* MatchingGenerator = nullptr)
 static void BindEditorDelegates(IVoxelEditorDelegatesInterface* Interface, UObject* Object)
 {
 	check(Interface && Object);
-	
-	if (!FEditorDelegates::PreSaveWorld.IsBoundToObject(Object))
+
+	if (!FEditorDelegates::PreSaveWorldWithContext.IsBoundToObject(Object))
 	{
-		FEditorDelegates::PreSaveWorld.AddWeakLambda(Object, [=](uint32 SaveFlags, UWorld* World) { Interface->OnPreSaveWorld(SaveFlags, World); });
+		FEditorDelegates::PreSaveWorldWithContext.AddWeakLambda(Object, [=](UWorld* World, const FObjectPreSaveContext& SaveContext) { Interface->OnPreSaveWorld(World, SaveContext); });
 	}
 	if (!FEditorDelegates::PreBeginPIE.IsBoundToObject(Object))
 	{

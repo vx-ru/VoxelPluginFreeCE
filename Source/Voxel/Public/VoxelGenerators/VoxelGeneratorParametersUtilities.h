@@ -55,7 +55,8 @@ struct FVoxelGeneratorParametersUtilities
 		}
 
 		T Temp{};
-		if (!ensure(Property.ImportText(**Override, &Temp, PPF_None, GetTransientPackage())))
+		const TCHAR* Buffer = **Override;
+		if (!ensure(Property.ImportText_Direct(Buffer, &Temp, GetTransientPackage(), PPF_None)))
 		{
 			return Default;
 		}
@@ -84,7 +85,8 @@ struct FVoxelGeneratorParametersUtilities
 		T Temp;
 		Property.InitializeValue_InContainer(&Temp);
 
-		if (!ensure(Property.ImportText(**Override, &Temp, PPF_None, GetTransientPackage())))
+		const TCHAR* Buffer = **Override;
+		if (!ensure(Property.ImportText_Direct(Buffer, &Temp, GetTransientPackage(), PPF_None)))
 		{
 			return Default;
 		}
@@ -111,7 +113,8 @@ struct FVoxelGeneratorParametersUtilities
 		}
 
 		UObject* Temp = nullptr;
-		if (!ensure(Property.ImportText(**Override, &Temp, PPF_None, GetTransientPackage())))
+		const TCHAR* Buffer = **Override;
+		if (!ensure(Property.ImportText_Direct(Buffer, &Temp, GetTransientPackage(), PPF_None)))
 		{
 			return Default;
 		}
@@ -131,8 +134,9 @@ struct FVoxelGeneratorParametersUtilities
 
 		T Temp;
 		Property.InitializeValue_InContainer(&Temp);
-		
-		if (!ensure(Property.ImportText(**Override, &Temp, PPF_None, GetTransientPackage())))
+
+		const TCHAR* Buffer = **Override;
+		if (!ensure(Property.ImportText_Direct(Buffer, &Temp, GetTransientPackage(), PPF_None)))
 		{
 			return Default;
 		}

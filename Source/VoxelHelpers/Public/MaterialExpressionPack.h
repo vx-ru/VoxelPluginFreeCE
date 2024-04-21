@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "VoxelDefinitions.h"
 #include "Materials/MaterialExpression.h"
 #include "MaterialExpressionPack.generated.h"
 
@@ -32,6 +33,8 @@ public:
 	FSimpleMulticastDelegate OnPostEditChangeProperty;
 	
 #if WITH_EDITOR
+	TArray<FExpressionInput*> InputPtrs;
+
 	//~ Begin UObject Interface.
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	//~ End UObject Interface.
@@ -39,7 +42,7 @@ public:
 	//~ Begin UMaterialExpression Interface
 	virtual int32 Compile(FMaterialCompiler* Compiler, int32 OutputIndex) override;
 	virtual void GetCaption(TArray<FString>& OutCaptions) const override;
-	virtual const TArray<FExpressionInput*> GetInputs() override;
+	virtual TArrayView<FExpressionInput*> GetInputsView() override;
 	virtual FExpressionInput* GetInput(int32 InputIndex) override;
 	virtual FName GetInputName(int32 InputIndex) const override;
 	virtual uint32 GetInputType(int32 InputIndex) override { return MCT_Unknown; }

@@ -60,6 +60,11 @@ void FVoxelDataAssetEditorManager::AddReferencedObjects(FReferenceCollector& Col
 	check(World);
 }
 
+FString FVoxelDataAssetEditorManager::GetReferencerName() const 
+{ 
+	return "FVoxelDataAssetEditorManager"; 
+}
+
 AVoxelWorld& FVoxelDataAssetEditorManager::GetVoxelWorld() const
 {
 	check(World);

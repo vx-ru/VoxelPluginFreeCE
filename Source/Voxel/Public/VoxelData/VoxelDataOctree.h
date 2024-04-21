@@ -136,7 +136,7 @@ public:
 	template<typename TIn>
 	FORCEINLINE void InitForEdit(const IVoxelData& Data)
 	{
-		using T = typename TRemoveConst<TIn>::Type;
+		using T = typename std::remove_const_t<TIn>;
 		
 		TVoxelDataOctreeLeafData<T>& DataHolder = GetData<T>();
 		if (!DataHolder.HasData())
@@ -163,8 +163,8 @@ public:
 	}
 
 public:
-	template<typename T> FORCEINLINE       TVoxelDataOctreeLeafData<typename TRemoveConst<T>::Type>& GetData()       { return FVoxelUtilities::TValuesMaterialsSelector<T>::Get(*this); }
-	template<typename T> FORCEINLINE const TVoxelDataOctreeLeafData<typename TRemoveConst<T>::Type>& GetData() const { return FVoxelUtilities::TValuesMaterialsSelector<T>::Get(*this); }
+	template<typename T> FORCEINLINE       TVoxelDataOctreeLeafData<typename std::remove_const_t<T>>& GetData()       { return FVoxelUtilities::TValuesMaterialsSelector<T>::Get(*this); }
+	template<typename T> FORCEINLINE const TVoxelDataOctreeLeafData<typename std::remove_const_t<T>>& GetData() const { return FVoxelUtilities::TValuesMaterialsSelector<T>::Get(*this); }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

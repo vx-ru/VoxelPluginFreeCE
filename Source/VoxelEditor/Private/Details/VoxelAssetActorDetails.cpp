@@ -32,7 +32,7 @@ void FVoxelAssetActorDetails::CustomizeDetails(IDetailLayoutBuilder& DetailLayou
 		VOXEL_LOCTEXT("Update Render"),
 		VOXEL_LOCTEXT("Update"),
 		false,
-		FOnClicked::CreateLambda([=]()
+		FOnClicked::CreateLambda([this]()
 		{
 			if (AssetActor.IsValid())
 			{
@@ -40,7 +40,7 @@ void FVoxelAssetActorDetails::CustomizeDetails(IDetailLayoutBuilder& DetailLayou
 			}
 			return FReply::Handled();
 		}),
-		TAttribute<bool>::Create([=]()
+		TAttribute<bool>::Create([this]()
 		{
 			return AssetActor.IsValid()
 				&& AssetActor->GetWorld()
@@ -56,7 +56,7 @@ void FVoxelAssetActorDetails::CustomizeDetails(IDetailLayoutBuilder& DetailLayou
 		VOXEL_LOCTEXT("Stamp"),
 		VOXEL_LOCTEXT("Stamp"),
 		false,
-		FOnClicked::CreateLambda([=]()
+		FOnClicked::CreateLambda([this]()
 		{
 			FVoxelScopedTransaction Transaction(AssetActor->PreviewWorld, STATIC_FNAME("Stamp"), EVoxelChangeType::Edit);
 			const auto Bounds = AssetActor->AddItemToData(
@@ -66,7 +66,7 @@ void FVoxelAssetActorDetails::CustomizeDetails(IDetailLayoutBuilder& DetailLayou
 			UVoxelBlueprintLibrary::SaveFrame(AssetActor->PreviewWorld);
 			return FReply::Handled();
 		}),
-		TAttribute<bool>::Create([=]()
+		TAttribute<bool>::Create([this]()
 		{
 			return AssetActor.IsValid()
 				&& AssetActor->Generator.IsValid()

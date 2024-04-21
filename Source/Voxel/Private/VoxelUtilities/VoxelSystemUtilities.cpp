@@ -12,7 +12,7 @@ void FVoxelSystemUtilities::DelayedCall(TFunction<void()> Call, float Delay)
 {
 	check(IsInGameThread());
 	
-	FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([=](float)
+	FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Call](float)
 	{
 		Call();
 		return false;

@@ -24,6 +24,7 @@
 #include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
+#include "MaterialDomain.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Lightmass/LightmassImportanceVolume.h"
@@ -613,7 +614,7 @@ FMaterialRelevance UVoxelProceduralMeshComponent::GetMaterialRelevance(ERHIFeatu
 		}
 		else
 		{
-			Apply(UMaterial::GetDefaultMaterial(MD_Surface));
+			Apply(UMaterial::GetDefaultMaterial(EMaterialDomain::MD_Surface));
 		}
 	}
 

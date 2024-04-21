@@ -206,12 +206,12 @@ public:
 			return *this;
 		}
 
-		Empty(Copy.Num());
-		NumBits = Copy.NumBits;
-		if(NumBits)
+		this->Empty(Copy.Num());
+		this->NumBits = Copy.NumBits;
+		if(this->NumBits)
 		{
-			const SizeType NumDWORDs = FMath::DivideAndRoundUp(MaxBits, VoxelNumBitsPerDWORD);
-			FMemory::Memcpy(GetWordData(),Copy.GetWordData(),NumDWORDs * sizeof(uint32));
+			const SizeType NumDWORDs = FMath::DivideAndRoundUp(this->MaxBits, VoxelNumBitsPerDWORD);
+			FMemory::Memcpy(this->GetWordData(),Copy.GetWordData(),NumDWORDs * sizeof(uint32));
 		}
 		return *this;
 	}
@@ -219,37 +219,37 @@ public:
 	template<typename OtherAllocator>
 	FORCEINLINE TVoxelBitArray& operator=(const TVoxelBitArray<OtherAllocator>& Copy)
 	{
-		Empty(Copy.Num());
-		NumBits = Copy.NumBits;
-		if(NumBits)
+		this->Empty(Copy.Num());
+		this->NumBits = Copy.NumBits;
+		if(this->NumBits)
 		{
-			const SizeType NumDWORDs = FMath::DivideAndRoundUp(MaxBits, VoxelNumBitsPerDWORD);
-			FMemory::Memcpy(GetWordData(),Copy.GetWordData(),NumDWORDs * sizeof(uint32));
+			const SizeType NumDWORDs = FMath::DivideAndRoundUp(this->MaxBits, VoxelNumBitsPerDWORD);
+			FMemory::Memcpy(this->GetWordData(),Copy.GetWordData(),NumDWORDs * sizeof(uint32));
 		}
 		return *this;
 	}
 
 	FORCEINLINE bool operator==(const TVoxelBitArray<Allocator>& Other) const
 	{
-		if (Num() != Other.Num())
+		if (this->Num() != Other.Num())
 		{
 			return false;
 		}
 
-		int NumBytes = FMath::DivideAndRoundUp(NumBits, VoxelNumBitsPerDWORD) * sizeof(uint32);
-		return FMemory::Memcmp(GetWordData(), Other.GetWordData(), NumBytes) == 0;
+		int NumBytes = FMath::DivideAndRoundUp(this->NumBits, VoxelNumBitsPerDWORD) * sizeof(uint32);
+		return FMemory::Memcmp(this->GetWordData(), Other.GetWordData(), NumBytes) == 0;
 	}
 
 	FORCEINLINE bool operator<(const TVoxelBitArray<Allocator>& Other) const
 	{
 		//sort by length
-		if (Num() != Other.Num())
+		if (this->Num() != Other.Num())
 		{
-			return Num() < Other.Num();
+			return this->Num() < Other.Num();
 		}
 
-		uint32 NumWords = FMath::DivideAndRoundUp(Num(), VoxelNumBitsPerDWORD);
-		const uint32* Data0 = GetWordData();
+		uint32 NumWords = FMath::DivideAndRoundUp(this->Num(), VoxelNumBitsPerDWORD);
+		const uint32* Data0 = this->GetWordData();
 		const uint32* Data1 = Other.GetWordData();
 
 		//lexicographically compare
@@ -270,7 +270,7 @@ public:
 
 private:
 	template <typename BitArrayType>
-	static FORCEINLINE typename TEnableIf<TContainerTraits<BitArrayType>::MoveWillEmptyContainer>::Type MoveOrCopy(BitArrayType& ToArray, BitArrayType& FromArray)
+	static FORCEINLINE void MoveOrCopy(BitArrayType& ToArray, BitArrayType& FromArray)
 	{
 		ToArray.AllocatorInstance.MoveToEmpty(FromArray.AllocatorInstance);
 
@@ -278,12 +278,6 @@ private:
 		ToArray  .MaxBits = FromArray.MaxBits;
 		FromArray.NumBits = 0;
 		FromArray.MaxBits = 0;
-	}
-
-	template <typename BitArrayType>
-	static FORCEINLINE typename TEnableIf<!TContainerTraits<BitArrayType>::MoveWillEmptyContainer>::Type MoveOrCopy(BitArrayType& ToArray, BitArrayType& FromArray)
-	{
-		ToArray = FromArray;
 	}
 
 public:
@@ -942,13 +936,6 @@ private:
 			FMemory::Memzero((uint32*)AllocatorInstance.GetAllocation() + PreviousNumDWORDs,(MaxDWORDs - PreviousNumDWORDs) * sizeof(uint32));
 		}
 	}
-};
-
-template<typename Allocator>
-struct TContainerTraits<TVoxelBitArray<Allocator> > : public TContainerTraitsBase<TVoxelBitArray<Allocator> >
-{
-	static_assert(TAllocatorTraits<Allocator>::SupportsMove, "TVoxelBitArray no longer supports move-unaware allocators");
-	enum { MoveWillEmptyContainer = TAllocatorTraits<Allocator>::SupportsMove };
 };
 
 template<typename Allocator>

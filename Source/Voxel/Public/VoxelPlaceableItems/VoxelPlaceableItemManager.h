@@ -115,7 +115,7 @@ public:
 	virtual void OnClear_Implementation() {}
 
 public:
-	using FVoxelDataItemPtr = TVoxelWeakPtr<const TVoxelDataItemWrapper<FVoxelDataItem>>;
+	using FVoxelDataItemPtr = TVoxelWeakPtr<TVoxelDataItemWrapper<FVoxelDataItem>>;
 	
 	void Generate();
 	void Clear();

@@ -49,7 +49,7 @@ bool FVoxelFixedResolutionLODManager::Initialize(
 							ChunkLOD,
 							ChunkBounds,
 							{},
-							FVoxelChunkSettings{ bVisible, bEnableCollisions, bEnableNavmesh, 0 },
+							{ bVisible, bEnableCollisions, bEnableNavmesh, 0 },
 							{}
 						});
 				}

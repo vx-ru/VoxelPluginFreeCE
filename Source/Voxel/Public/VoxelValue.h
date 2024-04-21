@@ -375,9 +375,9 @@ struct FVoxelValueConverter
 	{
 		FVoxelValueArray64 Result;
 		Result.Reserve(Values.Num());
-		for (auto& Value : Values)
+		for (int64 Index = 0; Index < Values.Num(); Index++)
 		{
-			Result.Add(ConvertValue(Value));
+			Result.Add(ConvertValue(Values[Index]));
 		}
 		return Result;
 	}
@@ -395,7 +395,7 @@ struct FVoxelValueConverter
 #else
 	static FVoxelValueArray64 ConvertValues(FVoxelBitArray64&& Values)
 	{
-		return ConvertValuesImpl(TArray<FVoxelBitValue>(Values));
+		return ConvertValuesImpl(Values);
 	}
 	static FVoxelValueArray64 ConvertValues(TArray64<FVoxelValue8>&& Values)
 	{

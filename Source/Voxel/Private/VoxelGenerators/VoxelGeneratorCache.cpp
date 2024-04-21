@@ -102,11 +102,13 @@ void FVoxelGeneratorCache::AddReferencedObjects(FReferenceCollector& Collector)
 	
 	for (auto& It : WrapperCache)
 	{
-		Collector.AddReferencedObject(It.Value);
+		TObjectPtr<UObject> ObjectPtr(It.Value);
+		Collector.AddReferencedObject(ObjectPtr);
 	}
 	for (auto& It : WrapperTransformableCache)
 	{
-		Collector.AddReferencedObject(It.Value);
+		TObjectPtr<UObject> ObjectPtr(It.Value);
+		Collector.AddReferencedObject(ObjectPtr);
 	}
 }
 

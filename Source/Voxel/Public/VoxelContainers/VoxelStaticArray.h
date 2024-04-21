@@ -27,6 +27,16 @@ public:
 		static_assert(sizeof...(Args) == Size, "");
 		SetFromVariadicArgs(Args...);
 	}
+	FORCEINLINE ~TVoxelStaticArray()
+	{
+		if (!std::is_trivially_destructible_v<T>)
+		{
+			for (auto& Element : *this)
+			{
+				Element.~T();
+			}
+		}
+	}
 
 	FORCEINLINE static constexpr uint32 Num()
 	{

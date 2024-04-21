@@ -96,26 +96,26 @@ private:
 	FUnorderedAccessViewRHIRef OutflowUAV;
 	FUnorderedAccessViewRHIRef VelocityUAV;
 
-	FTexture2DRHIRef RainMap;
-	FTexture2DRHIRef TerrainHeight;
-	FTexture2DRHIRef TerrainHeight1;
-	FTexture2DRHIRef WaterHeight;
-	FTexture2DRHIRef WaterHeight1;
-	FTexture2DRHIRef WaterHeight2;
-	FTexture2DRHIRef Sediment;
-	FTexture2DRHIRef Sediment1;
-	FTexture2DRHIRef Outflow;
-	FTexture2DRHIRef Velocity;
+	FTextureRHIRef RainMap;
+	FTextureRHIRef TerrainHeight;
+	FTextureRHIRef TerrainHeight1;
+	FTextureRHIRef WaterHeight;
+	FTextureRHIRef WaterHeight1;
+	FTextureRHIRef WaterHeight2;
+	FTextureRHIRef Sediment;
+	FTextureRHIRef Sediment1;
+	FTextureRHIRef Outflow;
+	FTextureRHIRef Velocity;
 
 	template<typename T>
 	void RunShader(const FVoxelErosionParameters& Parameters);
 
-	void CopyTextureToRHI(const TVoxelTexture<float>& Texture, const FTexture2DRHIRef& RHITexture);
-	void CopyRHIToTexture(const FTexture2DRHIRef& RHITexture, TVoxelSharedRef<TVoxelTexture<float>::FTextureData>& Texture);
+	void CopyTextureToRHI(const TVoxelTexture<float>& Texture, const FTextureRHIRef& RHITexture);
+	void CopyRHIToTexture(const FTextureRHIRef& RHITexture, TVoxelSharedRef<TVoxelTexture<float>::FTextureData>& Texture);
 
-	static void CopyTextureToRHI_RenderThread(const TVoxelTexture<float>& Texture, const FTexture2DRHIRef& RHITexture);
-	static void CopyRHIToTexture_RenderThread(const FTexture2DRHIRef& RHITexture, TVoxelTexture<float>::FTextureData& Texture);
+	static void CopyTextureToRHI_RenderThread(const TVoxelTexture<float>& Texture, const FTextureRHIRef& RHITexture);
+	static void CopyRHIToTexture_RenderThread(const FTextureRHIRef& RHITexture, TVoxelTexture<float>::FTextureData& Texture);
 	
-	void Init_RenderThread();
+	void Init_RenderThread(FRHICommandList& RHICmdList);
 	void Step_RenderThread(const FVoxelErosionParameters& Parameters, int32 Count);
 };

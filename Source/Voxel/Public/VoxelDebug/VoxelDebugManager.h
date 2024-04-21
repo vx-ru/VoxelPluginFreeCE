@@ -8,12 +8,16 @@
 #include "VoxelSubsystem.h"
 #include "VoxelDebugManager.generated.h"
 
-class VOXEL_API FVoxelGlobalDebugManager : public FTickerObjectBase
+class VOXEL_API FVoxelGlobalDebugManager
 {
 public:
-	//~ Begin FTickerObjectBase Interface
-	virtual bool Tick(float DeltaTime) override;
-	//~ End FTickerObjectBase Interface
+	FVoxelGlobalDebugManager();
+	~FVoxelGlobalDebugManager();
+
+	bool Tick(float DeltaTime);
+
+private:
+	FTSTicker::FDelegateHandle TickerHandle;
 };
 
 extern VOXEL_API FVoxelGlobalDebugManager* GVoxelDebugManager;

@@ -1371,7 +1371,7 @@ void FVoxelDefaultRenderer::CancelTask(TVoxelAsyncWorkPtr<FVoxelMesherAsyncWork>
 	check(Task.IsValid());
 	
 	const bool bIsDone = Task->CancelAndAutodelete();
-	Task.Release();
+	(void)Task.Release(); // Release ownership - the task will auto-delete itself when it finishes
 	if (!bIsDone)
 	{
 		// If IsDone, QueueChunkCallback_AnyThread was called

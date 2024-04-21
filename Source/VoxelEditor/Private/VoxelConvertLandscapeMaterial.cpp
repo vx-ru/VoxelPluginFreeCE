@@ -2,7 +2,7 @@
 
 #include "VoxelConvertLandscapeMaterial.h"
 
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "VoxelMinimal.h"
 #include "VoxelFoliage.h"
 #include "VoxelFoliageCollection.h"
@@ -71,7 +71,7 @@ void FVoxelConvertLandscapeMaterial::ConvertMaterial(UMaterial* Material)
 	FScopedTransaction Transaction(TEXT("ConvertMaterial"), VOXEL_LOCTEXT("Convert landscape material to voxel"), Material);
 
 	TSet<UMaterialFunction*> VisitedFunctions;
-	const int32 NumReplaced = ConvertExpressions(Material, Material->Expressions, VisitedFunctions);
+	const int32 NumReplaced = ConvertExpressions(Material, Material->GetEditorOnlyData()->ExpressionCollection.Expressions, VisitedFunctions);
 
 	const FText Text = FText::Format(VOXEL_LOCTEXT("{0} expressions replaced in {1}"), NumReplaced, FText::FromName(Material->GetFName()));
 	LOG_VOXEL(Log, TEXT("%s"), *Text.ToString());
@@ -101,7 +101,7 @@ int32 FVoxelConvertLandscapeMaterial::ConvertExpressions(UObject* Owner, const T
 			if (Function && !VisitedFunctions.Contains(Function))
 			{
 				VisitedFunctions.Add(Function);
-				NumReplaced += ConvertExpressions(Function, Function->FunctionExpressions, VisitedFunctions);
+				NumReplaced += ConvertExpressions(Function, Function->GetEditorOnlyData()->ExpressionCollection.Expressions, VisitedFunctions);
 			}
 		}
 	}
@@ -119,7 +119,7 @@ void FVoxelConvertLandscapeMaterial::ConvertExpression(UObject* Owner, UMaterial
 	Expression->Modify();
 	NewExpression->Modify();
 
-	auto& Expressions = Owner->IsA<UMaterial>() ? CastChecked<UMaterial>(Owner)->Expressions : CastChecked<UMaterialFunction>(Owner)->FunctionExpressions;
+	auto& Expressions = Owner->IsA<UMaterial>() ? CastChecked<UMaterial>(Owner)->GetEditorOnlyData()->ExpressionCollection.Expressions : CastChecked<UMaterialFunction>(Owner)->GetEditorOnlyData()->ExpressionCollection.Expressions;
 	ensure(Expressions.Remove(Expression) == 1);
 	Expressions.Add(NewExpression);
 
@@ -138,7 +138,7 @@ void FVoxelConvertLandscapeMaterial::ConvertExpression(UObject* Owner, UMaterial
 	{
 		if (OtherExpression != Expression)
 		{
-			for (FExpressionInput* Input : OtherExpression->GetInputs())
+			for (FExpressionInput* Input : OtherExpression->GetInputsView())
 			{
 				if (Input->Expression == Expression)
 				{

@@ -128,9 +128,12 @@ void FVoxelDataAssetEditorViewportClient::Draw(FViewport* InViewport, FCanvas* C
 	DrawStatsHUD(VoxelWorld.GetWorld(), InViewport, Canvas, nullptr, EmptyPropertyArray, GetViewLocation(), GetViewRotation());
 }
 
-bool FVoxelDataAssetEditorViewportClient::InputKey(FViewport* InViewport, int32 ControllerId, FKey Key, EInputEvent Event, float AmountDepressed, bool bGamepad)
+bool FVoxelDataAssetEditorViewportClient::InputKey(const FInputKeyEventArgs& EventArgs)
 {
-	bool bHandled = GUnrealEd->ComponentVisManager.HandleInputKey(this, InViewport, Key, Event);;
+	const FKey Key = EventArgs.Key;
+	const EInputEvent Event = EventArgs.Event;
+	FViewport* InViewport = EventArgs.Viewport;
+	bool bHandled = GUnrealEd->ComponentVisManager.HandleInputKey(this, InViewport, Key, Event);
 
 	if (Key == EKeys::MouseScrollDown || Key == EKeys::MouseScrollUp)
 	{
@@ -152,15 +155,15 @@ bool FVoxelDataAssetEditorViewportClient::InputKey(FViewport* InViewport, int32 
 
 	if (!bHandled)
 	{
-		bHandled = FEditorViewportClient::InputKey(InViewport, ControllerId, Key, Event, AmountDepressed, bGamepad);
+		bHandled = FEditorViewportClient::InputKey(EventArgs);
 	}
 
 	return bHandled;
 }
 
-bool FVoxelDataAssetEditorViewportClient::InputAxis(FViewport* InViewport, int32 ControllerId, FKey Key, float Delta, float DeltaTime, int32 NumSamples, bool bGamepad)
+bool FVoxelDataAssetEditorViewportClient::InputAxis(FViewport* InViewport, FInputDeviceId DeviceID, FKey Key, float Delta, float DeltaTime, int32 NumSamples, bool bGamepad)
 {
-	return Panel.InputAxis(this, InViewport, Key, Delta, DeltaTime) || FEditorViewportClient::InputAxis(InViewport, ControllerId, Key, Delta, DeltaTime, NumSamples, bGamepad);
+	return Panel.InputAxis(this, InViewport, Key, Delta, DeltaTime) || FEditorViewportClient::InputAxis(InViewport, DeviceID, Key, Delta, DeltaTime, NumSamples, bGamepad);
 }
 
 void FVoxelDataAssetEditorViewportClient::ProcessClick(class FSceneView& View, class HHitProxy* HitProxy, FKey Key, EInputEvent Event, uint32 HitX, uint32 HitY)

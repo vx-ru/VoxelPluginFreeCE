@@ -52,7 +52,7 @@ TArray<FVoxelGeneratorParameter> UVoxelGenerator::GetParameters() const
 		const auto Type = FVoxelGeneratorParameterType(*Property);
 		
 		FString DefaultValue;
-		Property->ExportTextItem(DefaultValue, Property->ContainerPtrToValuePtr<void>(this), nullptr, nullptr, PPF_None);
+		Property->ExportText_Direct(DefaultValue, Property->ContainerPtrToValuePtr<void>(this), nullptr, nullptr, PPF_None);
 		
 		Parameters.Add(FVoxelGeneratorParameter(Id, Type, Name, Category, ToolTip, Priority++, MetaData, DefaultValue));
 
@@ -107,9 +107,10 @@ TMap<FName, FString> UVoxelGenerator::ApplyParametersInternal(const TMap<FName, 
 
 		void* PropertyData = Property->ContainerPtrToValuePtr<void>(this);
 		// Export backup
-		Property->ExportTextItem(ParametersBackup.Add(It.Key), PropertyData, nullptr, nullptr, PPF_None);
+		Property->ExportText_Direct(ParametersBackup.Add(It.Key), PropertyData, nullptr, nullptr, PPF_None);
 		// Import new value
-		Property->ImportText(*It.Value, PropertyData, PPF_None, this);
+		const TCHAR* Buffer = *It.Value;
+		Property->ImportText_Direct(Buffer, PropertyData, this, PPF_None);
 	}
 	
 	return ParametersBackup;

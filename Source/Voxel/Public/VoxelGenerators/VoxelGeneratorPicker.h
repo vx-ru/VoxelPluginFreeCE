@@ -25,11 +25,11 @@ public:
 	static constexpr bool bIsTransformable = TIsSame<TGenerator, UVoxelTransformableGenerator>::Value;
 	
 	using UGenerator = TGenerator;
-	using FInstance = typename TChooseClass<bIsTransformable, FVoxelTransformableGeneratorInstance, FVoxelGeneratorInstance>::Result;
-	using UWrapper = typename TChooseClass<bIsTransformable, UVoxelTransformableGeneratorInstanceWrapper, UVoxelGeneratorInstanceWrapper>::Result;
+	using FInstance = std::conditional_t<bIsTransformable, FVoxelTransformableGeneratorInstance, FVoxelGeneratorInstance>;
+	using UWrapper = std::conditional_t<bIsTransformable, UVoxelTransformableGeneratorInstanceWrapper, UVoxelGeneratorInstanceWrapper>;
 
 	template<typename T>
-	using TPtr = typename TChooseClass<bWeakPtr, TWeakObjectPtr<T>, T*>::Result;
+	using TPtr = std::conditional_t<bWeakPtr, TWeakObjectPtr<T>, T*>;
 
 public:
 	TVoxelGeneratorPicker() = default;

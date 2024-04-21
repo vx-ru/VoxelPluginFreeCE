@@ -31,9 +31,7 @@ void FVoxelModule::StartupModule()
 	GVoxelDebugManager = new FVoxelGlobalDebugManager();
 
 	FVoxelStartupPopup::OnModuleStartup();
-	
-	ApplyCVarSettingsFromIni(TEXT("/Script/Voxel.VoxelSettings"), *GEngineIni, ECVF_SetByProjectSetting);
-	
+
 	IPlugin& Plugin = FVoxelSystemUtilities::GetPlugin();
 
 	// This is needed to correctly share content across Pro and Free

@@ -206,7 +206,7 @@ void FVoxelDataAssetEditorToolkit::CreateInternalWidgets()
 			AVoxelWorld::StaticClass(),
 			FOnGetDetailCustomizationInstance::CreateLambda([]() { return MakeShared<FVoxelWorldDetails>(true); }));
 		PreviewSettings->SetObject(&Manager->GetVoxelWorld());
-		PreviewSettings->OnFinishedChangingProperties().AddLambda([=](const FPropertyChangedEvent& Event)
+		PreviewSettings->OnFinishedChangingProperties().AddLambda([this](const FPropertyChangedEvent& Event)
 		{
 			if (Event.ChangeType != EPropertyChangeType::Interactive)
 			{
@@ -317,6 +317,11 @@ bool FVoxelDataAssetEditorToolkit::OnRequestClose()
 void FVoxelDataAssetEditorToolkit::AddReferencedObjects(FReferenceCollector& Collector)
 {
 	Collector.AddReferencedObject(DataAsset);
+}
+
+FString FVoxelDataAssetEditorToolkit::GetReferencerName() const 
+{ 
+	return "FVoxelDataAssetEditorToolkit"; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////

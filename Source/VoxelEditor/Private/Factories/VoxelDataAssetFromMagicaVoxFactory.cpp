@@ -6,7 +6,7 @@
 #include "VoxelImporters/VoxelMagicaVoxImporter.h"
 
 #include "Editor.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Modules/ModuleManager.h"
 #include "PropertyEditorModule.h"
 #include "Widgets/SWindow.h"
@@ -57,7 +57,7 @@ bool UVoxelDataAssetFromMagicaVoxFactory::ConfigureProperties()
 	auto Widget =
 		SNew(SBorder)
 		.Visibility(EVisibility::Visible)
-		.BorderImage(FEditorStyle::GetBrush("Menu.Background"))
+		.BorderImage(FAppStyle::GetBrush("Menu.Background"))
 		[
 			SNew(SBox)
 			.Visibility(EVisibility::Visible)
@@ -76,26 +76,26 @@ bool UVoxelDataAssetFromMagicaVoxFactory::ConfigureProperties()
 				.Padding(8)
 				[
 					SNew(SUniformGridPanel)
-					.SlotPadding(FEditorStyle::GetMargin("StandardDialog.SlotPadding"))
+					.SlotPadding(FAppStyle::GetMargin("StandardDialog.SlotPadding"))
 					+ SUniformGridPanel::Slot(0, 0)
 					[
 						SNew(SButton)
 						.Text(VOXEL_LOCTEXT("Create"))
 						.HAlign(HAlign_Center)
-						.ContentPadding(FEditorStyle::GetMargin("StandardDialog.ContentPadding"))
+						.ContentPadding(FAppStyle::GetMargin("StandardDialog.ContentPadding"))
 						.OnClicked(OnOkClicked)
-						.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
-						.TextStyle(FEditorStyle::Get(), "FlatButton.DefaultTextStyle")
+						.ButtonStyle(FAppStyle::Get(), "FlatButton.Success")
+						.TextStyle(FAppStyle::Get(), "FlatButton.DefaultTextStyle")
 					]
 					+SUniformGridPanel::Slot(1,0)
 					[
 						SNew(SButton)
 						.Text(VOXEL_LOCTEXT("Cancel"))
 						.HAlign(HAlign_Center)
-						.ContentPadding(FEditorStyle::GetMargin("StandardDialog.ContentPadding"))
+						.ContentPadding(FAppStyle::GetMargin("StandardDialog.ContentPadding"))
 						.OnClicked(OnCancelClicked)
-						.ButtonStyle(FEditorStyle::Get(), "FlatButton.Default")
-						.TextStyle(FEditorStyle::Get(), "FlatButton.DefaultTextStyle")
+						.ButtonStyle(FAppStyle::Get(), "FlatButton.Default")
+						.TextStyle(FAppStyle::Get(), "FlatButton.DefaultTextStyle")
 					]
 				]
 			]

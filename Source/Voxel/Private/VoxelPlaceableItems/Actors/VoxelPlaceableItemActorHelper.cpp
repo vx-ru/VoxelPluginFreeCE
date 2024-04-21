@@ -17,7 +17,7 @@ void UVoxelPlaceableItemActorHelper::Initialize()
 		AddActor(**ActorItr);
 	}
 
-	GetWorld()->AddOnActorSpawnedHandler(MakeWeakObjectPtrDelegate(this, [=](AActor* Actor)
+	GetWorld()->AddOnActorSpawnedHandler(MakeWeakObjectPtrDelegate(this, [this](AActor* Actor)
 	{
 		auto* DataItemActor = Cast<AVoxelDataItemActor>(Actor);
 		if (!DataItemActor)
@@ -28,7 +28,8 @@ void UVoxelPlaceableItemActorHelper::Initialize()
 		if (Actor->GetWorld()->IsGameWorld())
 		{
 			// In games, delay by one frame so that BeginPlay/the construction script have time to run
-			Actor->GetWorld()->GetTimerManager().SetTimerForNextTick(MakeWeakObjectPtrDelegate(this, [this, WeakDataItemActor = MakeWeakObjectPtr(DataItemActor)]()
+			TWeakObjectPtr<AVoxelDataItemActor> WeakDataItemActor(DataItemActor);
+			Actor->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this, [this, WeakDataItemActor]()
 			{
 				if (AVoxelDataItemActor* Object = WeakDataItemActor.Get())
 				{

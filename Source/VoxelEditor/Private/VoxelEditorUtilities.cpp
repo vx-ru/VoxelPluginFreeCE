@@ -4,7 +4,7 @@
 #include "VoxelMinimal.h"
 
 #include "AssetToolsModule.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "UObject/Package.h"
 #include "UObject/UObjectGlobals.h"
 

@@ -2,6 +2,7 @@
 
 #include "VoxelRender/VoxelMaterialInterface.h"
 #include "Materials/Material.h"
+#include "MaterialDomain.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 

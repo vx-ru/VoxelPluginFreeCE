@@ -49,12 +49,6 @@ void UActorFactoryVoxelAssetActor::PostSpawnActor(UObject* Asset, AActor* NewAct
 	InitActor(Asset, NewActor);
 }
 
-void UActorFactoryVoxelAssetActor::PostCreateBlueprint(UObject* Asset, AActor* CDO)
-{
-	Super::PostCreateBlueprint(Asset, CDO);
-	InitActor(Asset, CDO);
-}
-
 bool UActorFactoryVoxelAssetActor::CanCreateActorFrom(const FAssetData& AssetData, FText& OutErrorMsg)
 {
 	// We allow creating AVoxelAssetActor without an existing asset

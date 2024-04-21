@@ -389,8 +389,8 @@ void FVoxelPaintMaterial_MaterialCollectionChannelCustomization::CustomizeHeader
 	const auto OnClose = MakeShared<FSimpleDelegate>();
 	
 	const auto AssetComboButton = SNew(SComboButton)
-		.ButtonStyle( FEditorStyle::Get(), "PropertyEditor.AssetComboStyle" )
-		.ForegroundColor(FEditorStyle::GetColor("PropertyEditor.AssetName.ColorAndOpacity"))
+		.ButtonStyle( FAppStyle::Get(), "PropertyEditor.AssetComboStyle" )
+		.ForegroundColor(FAppStyle::GetColor("PropertyEditor.AssetName.ColorAndOpacity"))
 		.OnGetMenuContent_Lambda([=]()
 		{
 			FContentBrowserModule& ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
@@ -402,8 +402,7 @@ void FVoxelPaintMaterial_MaterialCollectionChannelCustomization::CustomizeHeader
 			PickerConfig.InitialAssetViewType = EAssetViewType::Tile;
 			PickerConfig.InitialAssetSelection = SelectedMaterial->Material.Get();
 			// Remove all real results, we add our own assets below
-			PickerConfig.Filter.ObjectPaths.Add("FAKE");
-			PickerConfig.Filter.ClassNames.Add("FAKE");
+			PickerConfig.Filter.ClassPaths.Add(FTopLevelAssetPath(TEXT("/Script/Engine"), TEXT("FAKE")));
 			PickerConfig.OnGetCustomSourceAssets = FOnGetCustomSourceAssets::CreateLambda([=](const FARFilter& SourceFilter, TArray<FAssetData>& AddedAssets)
 			{
 				for (auto& It : *AssetsToMaterials)
@@ -445,8 +444,8 @@ void FVoxelPaintMaterial_MaterialCollectionChannelCustomization::CustomizeHeader
 			.VAlign(VAlign_Center)
 			[
 				SNew(STextBlock)
-				.TextStyle( FEditorStyle::Get(), "PropertyEditor.AssetClass" )
-				.Font( FEditorStyle::GetFontStyle( "PropertyWindow.NormalFont" ) )
+				.TextStyle( FAppStyle::Get(), "PropertyEditor.AssetClass" )
+				.Font( FAppStyle::GetFontStyle( "PropertyWindow.NormalFont" ) )
 				.Text_Lambda([=]()
 				{
 					return FText::FromName(SelectedMaterial->GetName());

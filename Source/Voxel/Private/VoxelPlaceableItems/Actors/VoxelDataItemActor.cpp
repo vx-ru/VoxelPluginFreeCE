@@ -46,7 +46,7 @@ void AVoxelDataItemActor::ScheduleRefresh()
 	{
 		if (auto* World = GetWorld())
 		{
-			World->GetTimerManager().SetTimer(RefreshTimerHandle, MakeWeakObjectPtrDelegate(this, [=]()
+			World->GetTimerManager().SetTimer(RefreshTimerHandle, FTimerDelegate::CreateWeakLambda(this, [this]()
 			{
 				OnRefresh.Broadcast();
 			}), RefreshDelay, false);

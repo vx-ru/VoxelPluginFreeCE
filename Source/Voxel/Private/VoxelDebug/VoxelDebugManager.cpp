@@ -291,6 +291,16 @@ static FAutoConsoleCommand CmdLogSecondsPerCycles(
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+FVoxelGlobalDebugManager::FVoxelGlobalDebugManager()
+{
+	TickerHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FVoxelGlobalDebugManager::Tick));
+}
+
+FVoxelGlobalDebugManager::~FVoxelGlobalDebugManager()
+{
+	FTSTicker::GetCoreTicker().RemoveTicker(TickerHandle);
+}
+
 bool FVoxelGlobalDebugManager::Tick(float DeltaTime)
 {
 	VOXEL_FUNCTION_COUNTER();

@@ -32,9 +32,6 @@ public:
 	//~ Begin UPrimitiveComponent Interface
 	virtual FPrimitiveSceneProxy* CreateSceneProxy() override;
 	virtual FBoxSphereBounds CalcBounds(const FTransform& LocalToWorld) const override;
-#if WITH_EDITOR
-	virtual bool IgnoreBoundsForEditorFocus() const override { return true; }
-#endif
 	//~ End UPrimitiveComponent Interface
 
 	//~ Begin UActorComponent Interface

@@ -58,15 +58,10 @@ void UMaterialExpressionBlendMaterialAttributesBarycentric::GetCaption(TArray<FS
 	OutCaptions.Add(TEXT("BlendMaterialAttributesBarycentric"));
 }
 
-const TArray<FExpressionInput*> UMaterialExpressionBlendMaterialAttributesBarycentric::GetInputs()
+TArrayView<FExpressionInput*> UMaterialExpressionBlendMaterialAttributesBarycentric::GetInputsView()
 {
-	TArray<FExpressionInput*> Result;
-	Result.Add(&A);
-	Result.Add(&B);
-	Result.Add(&C);
-	Result.Add(&AlphaA);
-	Result.Add(&AlphaB);
-	return Result;
+	InputPtrs = { &A, &B, &C, &AlphaA, &AlphaB };
+	return InputPtrs;
 }
 
 FExpressionInput* UMaterialExpressionBlendMaterialAttributesBarycentric::GetInput(int32 InputIndex)

@@ -21,7 +21,7 @@
 #include "Misc/MessageDialog.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailCategoryBuilder.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Editor.h"
 
 // The sort order is being silly, so force set it

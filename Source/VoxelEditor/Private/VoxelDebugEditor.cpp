@@ -37,7 +37,7 @@ public:
 
 	void Construct(const FArguments& Args)
 	{
-		FVoxelDebug::GetDelegate<float>().Add(MakeWeakPtrDelegate(this, [=](FName Name, const FIntVector& Size, TArrayView<const float> Data)
+		FVoxelDebug::GetDelegate<float>().Add(MakeWeakPtrDelegate(this, [this](FName Name, const FIntVector& Size, TArrayView<const float> Data)
 		{
 			AsyncTask(ENamedThreads::GameThread, [Name, Size, Data = TArray<float>(Data.GetData(), Data.Num())]()
 			{
@@ -48,7 +48,7 @@ public:
 				CustomData.DataToDisplay.FindOrAdd(Name);
 			});
 		}));
-		FVoxelDebug::GetDelegate<FVoxelValue>().Add(MakeWeakPtrDelegate(this, [=](FName Name, const FIntVector& Size, TArrayView<const FVoxelValue> Data)
+		FVoxelDebug::GetDelegate<FVoxelValue>().Add(MakeWeakPtrDelegate(this, [this](FName Name, const FIntVector& Size, TArrayView<const FVoxelValue> Data)
 		{
 			AsyncTask(ENamedThreads::GameThread, [Name, Size, Data = TArray<FVoxelValue>(Data.GetData(), Data.Num())]()
 			{
@@ -67,7 +67,7 @@ public:
 		Details = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 		const auto BaseDetails = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 
-		const auto Lambda = [=](const FPropertyChangedEvent& PropertyChangedEvent)
+		const auto Lambda = [this](const FPropertyChangedEvent& PropertyChangedEvent)
 		{
 			UpdateTexture();
 		};

@@ -63,12 +63,14 @@ void FVoxelDistanceFieldShaderHelper::StartCompute(const FIntVector& Size, const
 	check(Size.X > 0 && Size.Y > 0 && Size.Z > 0);
 	
 	ensure(Fence.IsFenceComplete());
-	
-	ENQUEUE_RENDER_COMMAND(VoxelDistanceFieldCompute)(
-		MakeVoxelWeakPtrLambda(this, [=](FRHICommandListImmediate& RHICmdList)
+
+	auto WeakPtrThis = AsWeak();
+	ENQUEUE_RENDER_COMMAND(VoxelDistanceFieldCompute)([Size, DataRef=InOutData, MaxPasses_Debug, WeakPtrThis](FRHICommandListImmediate& RHICmdList) {
+		if (auto PinnedThis = WeakPtrThis.Pin())
 		{
-			Compute_RenderThread(RHICmdList, Size, GetData(*InOutData), GetNum(*InOutData), MaxPasses_Debug);
-		}));
+			PinnedThis->Compute_RenderThread(RHICmdList, Size, GetData(*DataRef), GetNum(*DataRef), MaxPasses_Debug);
+		}
+	});
 	
 	Fence.BeginFence();
 }
@@ -98,9 +100,9 @@ void FVoxelDistanceFieldShaderHelper::Compute_RenderThread(
 	
 	{
 		VOXEL_RENDER_SCOPE_COUNTER("Copy Data To Buffers");
-		void* BufferData = RHICmdList.LockVertexBuffer(SrcBuffer.Buffer, 0, SrcBuffer.NumBytes, EResourceLockMode::RLM_WriteOnly);
+		void* BufferData = RHICmdList.LockBuffer(SrcBuffer.Buffer, 0, SrcBuffer.NumBytes, EResourceLockMode::RLM_WriteOnly);
 		FMemory::Memcpy(BufferData, Data, SrcBuffer.NumBytes);
-		RHICmdList.UnlockVertexBuffer(SrcBuffer.Buffer);
+		RHICmdList.UnlockBuffer(SrcBuffer.Buffer);
 	}
 
 	const int32 PowerOfTwo = FMath::CeilLogTwo(Size.GetMax());
@@ -121,9 +123,9 @@ void FVoxelDistanceFieldShaderHelper::Compute_RenderThread(
 
 	{
 		VOXEL_RENDER_SCOPE_COUNTER("Copy Data From Buffers");
-		void* BufferData = RHICmdList.LockVertexBuffer(SrcBuffer.Buffer, 0, SrcBuffer.NumBytes, EResourceLockMode::RLM_ReadOnly);
+		void* BufferData = RHICmdList.LockBuffer(SrcBuffer.Buffer, 0, SrcBuffer.NumBytes, EResourceLockMode::RLM_ReadOnly);
 		FMemory::Memcpy(Data, BufferData, SrcBuffer.NumBytes);
-		RHICmdList.UnlockVertexBuffer(SrcBuffer.Buffer);
+		RHICmdList.UnlockBuffer(SrcBuffer.Buffer);
 	}
 
 	// Make sure to release the buffers, else will crash on DX12!

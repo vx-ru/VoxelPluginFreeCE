@@ -15,7 +15,7 @@ struct VOXEL_API FVoxelDebug
 	template<typename T>
 	static void Broadcast(FName Name, const FIntVector& Size, TArrayView<T> Data)
 	{
-		GetDelegate<typename TRemoveConst<T>::Type>().Broadcast(Name, Size, Data);
+		GetDelegate<std::remove_const_t<T>>().Broadcast(Name, Size, Data);
 	}
 	template<typename T>
 	static void Broadcast(FName Name, const FIntVector& Size, const TArray<T>& Data)
