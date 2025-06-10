@@ -50,7 +50,7 @@ public:
 		}
 	}
 
-	virtual int32 StaticTerrainLayerWeight(FName ParameterName, int32 Default) override
+	virtual int32 StaticTerrainLayerWeight(FName ParameterName, int32 Default, bool bTextureArray = false) override
 	{
 		FHLSLCompilerChild* HLSLCompiler = static_cast<FHLSLCompilerChild*>(GetBaseCompiler());
 		auto& TerrainLayerWeightParameters = HLSLCompiler->GetStaticParameters().EditorOnly.TerrainLayerWeightParameters;

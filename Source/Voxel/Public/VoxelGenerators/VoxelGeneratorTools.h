@@ -9,6 +9,7 @@
 #include "VoxelTexture.h"
 #include "VoxelGenerators/VoxelGeneratorInit.h"
 #include "VoxelGenerators/VoxelGeneratorPicker.h"
+#include "Blueprint/BlueprintExceptionInfo.h"
 #include "VoxelGeneratorTools.generated.h"
 
 class AVoxelWorld;

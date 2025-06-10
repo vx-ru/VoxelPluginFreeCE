@@ -573,13 +573,13 @@ FEdGraphTerminalType FVoxelGeneratorPickerCustomization::GetParameterTerminalPin
 	}
 	case EVoxelGeneratorParameterPropertyType::Object:
 	{
-		auto* Class = FindObject<UClass>(ANY_PACKAGE, *ParameterType.PropertyClass.ToString());
+		auto* Class = FindObject<UClass>(nullptr, *ParameterType.PropertyClass.ToString());
 		ensure(Class);
 		return Make(UEdGraphSchema_K2::PC_Object, ParameterType.PropertyClass, Class);
 	}
 	case EVoxelGeneratorParameterPropertyType::Struct:
 	{
-		auto* Struct = FindObject<UScriptStruct>(ANY_PACKAGE, *ParameterType.PropertyClass.ToString());
+		auto* Struct = FindObject<UScriptStruct>(nullptr, *ParameterType.PropertyClass.ToString());
 		ensure(Struct);
 		return Make(UEdGraphSchema_K2::PC_Struct, ParameterType.PropertyClass, Struct);
 	}

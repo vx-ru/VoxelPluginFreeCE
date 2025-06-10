@@ -575,7 +575,7 @@ FORCEINLINE void FVoxelGreedyCubicMesher::AddFace(
 			if (bSingleColor)
 			{
 				// We don't need the texture data - remove it
-				TextureData->SetNum(TextureDataNumBefore, false);
+				TextureData->SetNum(TextureDataNumBefore, EAllowShrinking::No);
 				Vertex.Material = FirstMaterial;
 				Vertex.Material.CubicColor_SetUseTextureFalse();
 			}

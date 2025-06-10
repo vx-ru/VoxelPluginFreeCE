@@ -43,7 +43,7 @@ void FVoxelDistanceFieldUtilities::GetSurfacePositionsFromDensities(
 					// Only consider positive values, so that there's a surface between us
 					// By symmetry, take the min value negative if Value is positive
 					float MaxNeighborValue = 0.f;
-					FIntVector MaxNeighborPosition;
+					FIntVector MaxNeighborPosition = Position;
 
 #define	CheckNeighbor(DX, DY, DZ) \
 					{ \

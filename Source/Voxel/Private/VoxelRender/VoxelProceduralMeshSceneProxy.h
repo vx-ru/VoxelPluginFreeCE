@@ -59,7 +59,7 @@ public:
 	~FVoxelProceduralMeshSceneProxy();
 
 	//~ Begin FPrimitiveSceneProxy Interface
-	virtual void CreateRenderThreadResources() override;
+	virtual void CreateRenderThreadResources(FRHICommandListBase& RHICmdList) override;
 	virtual void DestroyRenderThreadResources() override;
 
 	virtual void DrawStaticElements(FStaticPrimitiveDrawInterface* PDI) override;
@@ -67,7 +67,7 @@ public:
 
 #if RHI_RAYTRACING
 	virtual bool IsRayTracingRelevant() const override { return true; }
-	virtual void GetDynamicRayTracingInstances(FRayTracingMaterialGatheringContext& Context, TArray<FRayTracingInstance>& OutRayTracingInstances) override;
+	virtual void GetDynamicRayTracingInstances(FRayTracingInstanceCollector& Collector) override;
 #endif
 	
 	virtual FPrimitiveViewRelevance GetViewRelevance(const FSceneView* View) const override;

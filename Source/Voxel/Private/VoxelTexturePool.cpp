@@ -417,7 +417,7 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 		return;
 	}
 
-	auto* Texture = TextureInfo->Texture;
+	UTexture2D* Texture = TextureInfo->Texture;
 	if (!ensure(Texture))
 	{
 		return;
@@ -446,7 +446,7 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 			}
 			
 			const int32 RowSize = Resource->GetSizeX();
-			const FTexture2DRHIRef TextureRHI = Resource->GetTexture2DRHI();
+			const FTextureRHIRef TextureRHI = Resource->GetTexture2DRHI();
 			const uint8* const EndData = Data + Slot.Num * ColorData->GetStride();
 
 			if (!TextureRHI)

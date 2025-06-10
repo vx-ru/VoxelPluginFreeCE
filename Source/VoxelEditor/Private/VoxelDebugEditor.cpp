@@ -61,7 +61,11 @@ public:
 		}));
 		
 		FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-		FDetailsViewArgs DetailsViewArgs(false, false, false, FDetailsViewArgs::HideNameArea);
+		FDetailsViewArgs DetailsViewArgs;
+		DetailsViewArgs.bUpdatesFromSelection = false;
+		DetailsViewArgs.bLockable = false;
+		DetailsViewArgs.bAllowSearch = false;
+		DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;
 		DetailsViewArgs.DefaultsOnlyVisibility = EEditDefaultsOnlyNodeVisibility::Automatic;
 
 		Details = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
@@ -470,7 +474,6 @@ TSharedRef<SDockTab> FVoxelDebugEditor::CreateTab(const FSpawnTabArgs& Args)
 {
 	return
 		SNew(SDockTab)
-		.Icon(FSlateStyleRegistry::FindSlateStyle("VoxelStyle")->GetBrush("VoxelIcon"))
 		.TabRole(ETabRole::NomadTab)
 		[
 			SNew(SVoxelDebug)

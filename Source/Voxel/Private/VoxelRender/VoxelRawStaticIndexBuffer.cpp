@@ -159,6 +159,18 @@ FIndexArrayView FVoxelRawStaticIndexBuffer::GetArrayView() const
 	return FIndexArrayView(IndexStorage.GetData(), NumIndices, b32Bit);
 }
 
+namespace
+{
+	template<typename IndexType>
+	FBufferRHIRef CreateIndexBufferRHI(FRHICommandListBase& RHICmdList, uint32 NumIndices, FResourceArrayInterface* ResourceArray)
+	{
+		return RHICmdList.CreateBuffer(
+			FRHIBufferCreateDesc::CreateIndex<IndexType>(TEXT("INDEX"), NumIndices)
+			.AddUsage(BUF_Static)
+			.SetInitActionResourceArray(ResourceArray));
+	}
+}
+
 void FVoxelRawStaticIndexBuffer::InitRHI(FRHICommandListBase& RHICmdList)
 {
 	const uint32 SizeInBytes = IndexStorage.Num();
@@ -167,9 +179,9 @@ void FVoxelRawStaticIndexBuffer::InitRHI(FRHICommandListBase& RHICmdList)
 	if (SizeInBytes > 0)
 	{
 		// Create the index buffer.
-		const uint32 IndexStride = b32Bit ? sizeof(uint32) : sizeof(uint16);
-		FRHIResourceCreateInfo CreateInfo(TEXT("INDEX"), &IndexStorage);
-		IndexBufferRHI = RHICmdList.CreateIndexBuffer(IndexStride, SizeInBytes, BUF_Static, CreateInfo);
+		IndexBufferRHI = b32Bit
+			? CreateIndexBufferRHI<uint32>(RHICmdList, NumIndices, &IndexStorage)
+			: CreateIndexBufferRHI<uint16>(RHICmdList, NumIndices, &IndexStorage);
 	}
 }
 

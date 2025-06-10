@@ -61,8 +61,8 @@ bool FVoxelGeneratorParameterTerminalType::CanBeAssignedFrom_Terminal(const FVox
 		{
 		case EVoxelGeneratorParameterPropertyType::Object:
 		{
-			auto* ThisClass = FindObject<UClass>(ANY_PACKAGE, *PropertyClass.ToString());
-			auto* OtherClass = FindObject<UClass>(ANY_PACKAGE, *Other.PropertyClass.ToString());
+			auto* ThisClass = FindObject<UClass>(nullptr, *PropertyClass.ToString());
+			auto* OtherClass = FindObject<UClass>(nullptr, *Other.PropertyClass.ToString());
 
 			if (!ThisClass || !OtherClass)
 			{
@@ -81,8 +81,8 @@ bool FVoxelGeneratorParameterTerminalType::CanBeAssignedFrom_Terminal(const FVox
 		{
 		case EVoxelGeneratorParameterPropertyType::Struct:
 		{
-			auto* ThisStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *PropertyClass.ToString());
-			auto* OtherStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *Other.PropertyClass.ToString());
+			auto* ThisStruct = FindObject<UScriptStruct>(nullptr, *PropertyClass.ToString());
+			auto* OtherStruct = FindObject<UScriptStruct>(nullptr, *Other.PropertyClass.ToString());
 
 			if (!ThisStruct || !OtherStruct)
 			{

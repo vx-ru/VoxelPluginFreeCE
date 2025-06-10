@@ -3,7 +3,7 @@
 #include "AssetTools/AssetTypeActions_VoxelHeightmapAsset.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "Framework/Commands/UIAction.h"
-#include "EditorStyleSet.h"
+#include "Styling/AppStyle.h"
 #include "EditorReimportHandler.h"
 
 void FAssetTypeActions_VoxelHeightmapAsset::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)
@@ -13,7 +13,7 @@ void FAssetTypeActions_VoxelHeightmapAsset::GetActions(const TArray<UObject*>& I
 	MenuBuilder.AddMenuEntry(
 		VOXEL_LOCTEXT("Reimport"),
 		VOXEL_LOCTEXT("Reimport the selected heightmaps(s)."),
-		FSlateIcon(FEditorStyle::GetStyleSetName(), "ContentBrowser.AssetActions.ReimportAsset"),
+		FSlateIcon(FAppStyle::GetAppStyleSetName(), "ContentBrowser.AssetActions.ReimportAsset"),
 		FUIAction(
 			FExecuteAction::CreateSP(this, &FAssetTypeActions_VoxelHeightmapAsset::ExecuteReimport, Heightmaps),
 			FCanExecuteAction::CreateSP(this, &FAssetTypeActions_VoxelHeightmapAsset::CanExecuteReimport, Heightmaps)

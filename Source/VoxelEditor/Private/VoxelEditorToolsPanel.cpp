@@ -69,7 +69,11 @@ void FVoxelEditorToolsPanel::Init(const TSharedPtr<FUICommandList>& CommandListO
 	}
 	
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	FDetailsViewArgs DetailsViewArgs(false, false, false, FDetailsViewArgs::HideNameArea);
+	FDetailsViewArgs DetailsViewArgs;
+	DetailsViewArgs.bUpdatesFromSelection = false;
+	DetailsViewArgs.bLockable = false;
+	DetailsViewArgs.bAllowSearch = false;
+	DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;
 	DetailsViewArgs.DefaultsOnlyVisibility = EEditDefaultsOnlyNodeVisibility::Automatic;
 	
 	ToolManager = NewObject<UVoxelToolManager>(GetTransientPackage(), NAME_None, RF_Transient | RF_Transactional);
@@ -95,15 +99,15 @@ void FVoxelEditorToolsPanel::Init(const TSharedPtr<FUICommandList>& CommandListO
 	SharedConfigDetailsPanel = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 	SharedConfigDetailsPanel->SetObject(&ToolManager->GetSharedConfig());
 	SharedConfigDetailsPanel->SetIsPropertyVisibleDelegate(IsPropertyVisibleDelegate);
-	SharedConfigDetailsPanel->OnFinishedChangingProperties().AddWeakLambda(ToolManager, [this](auto&)
+	SharedConfigDetailsPanel->OnFinishedChangingProperties().AddWeakLambda(ToolManager.Get(), [this](auto&)
 	{
 		FVoxelConfigUtilities::SaveConfig(&ToolManager->GetSharedConfig(), ToolConfigSectionName);
 	});
-	
+
 	ToolDetailsPanel = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 	ToolDetailsPanel->SetObject(ToolManager->GetActiveTool());
 	ToolDetailsPanel->SetIsPropertyVisibleDelegate(IsPropertyVisibleDelegate);
-	ToolDetailsPanel->OnFinishedChangingProperties().AddWeakLambda(ToolManager, [this](auto&)
+	ToolDetailsPanel->OnFinishedChangingProperties().AddWeakLambda(ToolManager.Get(), [this](auto&)
 	{
 		if (auto* Tool = ToolManager->GetActiveTool())
 		{

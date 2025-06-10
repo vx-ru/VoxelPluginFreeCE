@@ -21,19 +21,20 @@ bool FVoxelAsyncPhysicsCooker_Chaos::Finalize(
 	FVoxelProceduralMeshComponentMemoryUsage& OutMemoryUsage)
 {
 #if TRACK_CHAOS_GEOMETRY
-	for (auto& TriMesh : TriMeshes)
+	for (auto& TriMesh : TriMeshGeometries)
 	{
 		TriMesh->Track(Chaos::MakeSerializable(TriMesh), "Voxel Mesh");
 	}
 #endif
 
 	// Force trimesh collisions off
-	for (auto& TriMesh : TriMeshes)
+	for (auto& TriMesh : TriMeshGeometries)
 	{
 		TriMesh->SetDoCollide(false);
 	}
-	
-	BodySetup.ChaosTriMeshes = MoveTemp(TriMeshes);
+
+	BodySetup.TriMeshGeometries = MoveTemp(TriMeshGeometries);
+	TriMeshGeometries = {};
 	BodySetup.bCreatedPhysicsMeshes = true;
 
 	return true;
@@ -95,7 +96,7 @@ void FVoxelAsyncPhysicsCooker_Chaos::CreateTriMesh()
 					auto& PositionBuffer = Buffer.VertexBuffers.PositionVertexBuffer;
 					for (uint32 Index = 0; Index < PositionBuffer.GetNumVertices(); Index++)
 					{
-						Particles.X(VertexIndex++) = PositionBuffer.VertexPosition(Index);
+						Particles.SetX(VertexIndex++, PositionBuffer.VertexPosition(Index));
 					}
 				}
 
@@ -146,7 +147,7 @@ void FVoxelAsyncPhysicsCooker_Chaos::CreateTriMesh()
 		TArray<uint16> MaterialIndices;
 		
 		VOXEL_ASYNC_SCOPE_COUNTER("Build Tri Mesh");
-		TriMeshes.Emplace(new Chaos::FTriangleMeshImplicitObject(MoveTemp(Particles), MoveTemp(Triangles), MoveTemp(MaterialIndices)));
+		TriMeshGeometries.Emplace(new Chaos::FTriangleMeshImplicitObject(MoveTemp(Particles), MoveTemp(Triangles), MoveTemp(MaterialIndices)));
 	};
 	
 	if (NumVertices < TNumericLimits<uint16>::Max())

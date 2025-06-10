@@ -258,7 +258,7 @@ UVoxelProceduralMeshComponent* IVoxelRendererMeshHandler::GetNewMesh(FChunkId Ch
 	{
 		while (MeshPool.Num() > 0 && !NewMesh)
 		{
-			NewMesh = MeshPool.Pop(false).Get();
+			NewMesh = MeshPool.Pop(EAllowShrinking::No).Get();
 			ensure(NewMesh != nullptr);
 			DEC_DWORD_STAT(STAT_VoxelProcMeshPool);
 		}

@@ -92,7 +92,7 @@ public:
 		{
 			if (QueuedThreads.Num() > 0)
 			{
-				auto* Thread = QueuedThreads.Pop(false);
+				auto* Thread = QueuedThreads.Pop(EAllowShrinking::No);
 				Thread->Wakeup();
 			}
 			else

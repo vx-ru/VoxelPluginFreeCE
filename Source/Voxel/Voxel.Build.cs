@@ -17,6 +17,8 @@ public class Voxel : ModuleRules
         PrivateIncludePaths.Add(EngineDirectory + "/Shaders/Shared");
         // For HLSL translator
         PrivateIncludePaths.Add(EngineDirectory + "/Source/Runtime/Engine/Private");
+        // For access to TranslucentPassResource used in private renderer API
+        PrivateIncludePaths.Add(EngineDirectory + "/Source/Runtime/Renderer/Internal");
 
         PublicDependencyModuleNames.AddRange(
             new string[]

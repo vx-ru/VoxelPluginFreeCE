@@ -454,7 +454,7 @@ void UVoxelProceduralMeshComponent::UpdateStaticMeshComponent()
 		if (!StaticMeshComponent)
 		{
 			StaticMeshComponent = NewObject<UStaticMeshComponent>(GetOwner(), NAME_None, RF_Transient);
-			StaticMeshComponent->LightmapType = ELightmapType::ForceVolumetric;
+			StaticMeshComponent->SetLightmapType(ELightmapType::ForceVolumetric);
 			StaticMeshComponent->CastShadow = CastShadow;
 			StaticMeshComponent->SetMobility(EComponentMobility::Static);
 			StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);

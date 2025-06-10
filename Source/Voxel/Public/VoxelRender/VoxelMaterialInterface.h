@@ -58,7 +58,7 @@ private:
 	};
 	struct FMaterialInfo
 	{
-		UMaterialInterface* Material = nullptr;
+		TObjectPtr<UMaterialInterface> Material = nullptr;
 		bool bIsInstance = false;
 		int32 ReferenceCount = 0;
 	};
@@ -85,7 +85,7 @@ private:
 	TVoxelSharedRef<FVoxelMaterialInterface> CreateMaterialImpl(UMaterialInterface* MaterialInterface, bool bIsInstance);
 
 private:
-	TArray<UMaterialInstanceDynamic*> InstancePool;
+	TArray<TObjectPtr<UMaterialInstanceDynamic>> InstancePool;
 	
 	UMaterialInstanceDynamic* GetInstanceFromPool();
 	void ReturnInstanceToPool(UMaterialInstanceDynamic* Instance);

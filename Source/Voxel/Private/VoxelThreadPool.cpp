@@ -248,7 +248,7 @@ IVoxelQueuedWork* FVoxelThreadPool::ReturnToPoolOrGetNextJob(FVoxelThread* InQue
 	{
 		VOXEL_ASYNC_SCOPE_COUNTER("HeapPop");
 		FQueuedWorkInfo WorkInfo;
-		QueuedWorks.HeapPop(WorkInfo, false);
+		QueuedWorks.HeapPop(WorkInfo, EAllowShrinking::No);
 		WorkInfo.Work->CheckIsValidLowLevel();
 		return WorkInfo.Work;
 	}
@@ -273,7 +273,7 @@ void FVoxelThreadPool::RecomputePriorities_AssumeLocked()
 			if (WorkInfo.Work->ShouldAbandon())
 			{
 				AbandonWork(*WorkInfo.Work);
-				QueuedWorks.RemoveAtSwap(Index, 1, false);
+				QueuedWorks.RemoveAtSwap(Index, 1, EAllowShrinking::No);
 				Index--;
 				continue;
 			}

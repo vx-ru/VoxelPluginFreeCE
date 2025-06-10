@@ -294,13 +294,13 @@ void FVoxelDefaultRenderer::UpdateLODs(const uint64 InUpdateIndex, const TArray<
 				if (Chunk.GetState() == EChunkState::DitheringOut)
 				{
 					ensure(Chunk.PreviousChunks.Num() == 0);
-					ChunksToRemove.RemoveAllSwap([&](auto& X) { return X.Id == Chunk.Id; }, false);
+					ChunksToRemove.RemoveAllSwap([&](auto& X) { return X.Id == Chunk.Id; }, EAllowShrinking::No);
 				}
 				if (Chunk.GetState() == EChunkState::DitheringIn)
 				{
 					ensure(Settings.bDitherChunks);
 					// Note: will probably have previous chunks
-					ChunksToShow.RemoveAllSwap([&](auto& X) { return X.Id == Chunk.Id; }, false);
+					ChunksToShow.RemoveAllSwap([&](auto& X) { return X.Id == Chunk.Id; }, EAllowShrinking::No);
 				}
 			};
 			
@@ -1163,7 +1163,7 @@ void FVoxelDefaultRenderer::ProcessChunksToRemoveOrShow()
 					}
 				}
 
-				ChunksToShow.RemoveAtSwap(Index, 1, false);
+				ChunksToShow.RemoveAtSwap(Index, 1, EAllowShrinking::No);
 				Index--; // Go back to process the element we swapped
 			}
 		}
@@ -1180,7 +1180,7 @@ void FVoxelDefaultRenderer::ProcessChunksToRemoveOrShow()
 				FChunk& Chunk = ChunksMap.FindChecked(ChunkToRemove.Id);
 				if (Chunk.GetState() != EChunkState::DitheringOut) continue; // Chunk is not dithering out anymore
 
-				ChunksToRemove.RemoveAtSwap(Index, 1, false);
+				ChunksToRemove.RemoveAtSwap(Index, 1, EAllowShrinking::No);
 				Index--; // Go back to process the element we swapped
 				
 				// Do it after so that it's not in ChunksToRemove anymore

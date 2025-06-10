@@ -128,15 +128,7 @@ namespace Private
 		template <typename InstanceType, typename DelegateMode, typename... Args>
 		static void CreateDelegateInstanceImpl(TDelegateBase<DelegateMode>& BaseDelegate, Args&&... ArgsIn)
 		{
-			struct FDelegateFriend : public TDelegateBase<DelegateMode>
-			{
-				using TDelegateBase<DelegateMode>::CreateDelegateInstance;
-			};
-
-			// Hack to access protected CreateDelegateInstance - reinterpret cast works because FDelegateFriend does not add any data members.
-			FDelegateFriend& DelegateAccess = reinterpret_cast<FDelegateFriend&>(BaseDelegate);
-
-			DelegateAccess.template CreateDelegateInstance<InstanceType>(Forward<Args>(ArgsIn)...);
+			new (TWriteLockedDelegateAllocation{ BaseDelegate }) InstanceType(Forward<Args>(ArgsIn)...);
 		}
 
 		// Context object - the validity of this object controls the validity of the lambda

@@ -65,7 +65,7 @@ void FVoxelMessagesEditor::LogMessage(const TSharedRef<FTokenizedMessage>& Messa
 		}
 	};
 
-	const TArray<const FFrame*>& ScriptStack = FBlueprintContextTracker::Get().GetScriptStack();
+	const TArrayView<const FFrame* const> ScriptStack = FBlueprintContextTracker::Get().GetCurrentScriptStack();
 
 	TArray<TSharedPtr<IMessageToken>> ReversedTokens;
 	if (ScriptStack.Num() > 0)

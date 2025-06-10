@@ -117,7 +117,7 @@ struct FVoxelMemoryCounterRef
 	FThreadSafeCounter64* UsageCounterPtr = nullptr;
 	FThreadSafeCounter64* PeakCounterPtr = nullptr;
 };
-VOXEL_API TMap<const TCHAR*, FVoxelMemoryCounterRef>& GetVoxelMemoryCounters();
+VOXEL_API TMap<const TCHAR*, FVoxelMemoryCounterRef, FDefaultSetAllocator, TStringPointerMapKeyFuncs_DEPRECATED<const TCHAR*, FVoxelMemoryCounterRef>>& GetVoxelMemoryCounters();
 
 struct FVoxelMemoryCounterStaticRef
 {

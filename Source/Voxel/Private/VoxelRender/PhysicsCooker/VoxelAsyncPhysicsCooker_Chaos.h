@@ -31,5 +31,5 @@ protected:
 private:
 	void CreateTriMesh();
 
-	TArray<TSharedPtr<Chaos::FTriangleMeshImplicitObject, ESPMode::ThreadSafe>> TriMeshes;
+	TArray<Chaos::FTriangleMeshImplicitObjectPtr> TriMeshGeometries;
 };

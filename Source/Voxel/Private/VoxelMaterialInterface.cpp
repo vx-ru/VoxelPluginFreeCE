@@ -240,7 +240,7 @@ UMaterialInstanceDynamic* FVoxelMaterialInterfaceManager::GetInstanceFromPool()
 
 	while (!Instance && InstancePool.Num() > 0)
 	{
-		Instance = InstancePool.Pop(false);
+		Instance = InstancePool.Pop(EAllowShrinking::No);
 		DEC_DWORD_STAT(STAT_VoxelMaterialInstancesPool);
 	}
 

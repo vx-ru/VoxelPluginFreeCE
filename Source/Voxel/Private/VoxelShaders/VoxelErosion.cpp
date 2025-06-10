@@ -23,7 +23,7 @@ void UVoxelErosion::Initialize()
 	ENQUEUE_RENDER_COMMAND(Step)(
 		[WeakThis](FRHICommandList& RHICmdList)
 	{
-		if (auto ThisPtr = WeakThis.Get())
+		if (auto ThisPtr = WeakThis.Pin())
 		{
 			ThisPtr->Init_RenderThread(RHICmdList);
 		}
@@ -99,7 +99,7 @@ void UVoxelErosion::Step(int32 Count)
 	ENQUEUE_RENDER_COMMAND(Step)(
 		[Parameters, Count, WeakThis](FRHICommandList& RHICmdList)
 	{
-		if (auto ThisPtr = WeakThis.Get())
+		if (auto ThisPtr = WeakThis.Pin())
 		{
 			ThisPtr->Step_RenderThread(Parameters, Count);
 		}
@@ -254,7 +254,7 @@ void UVoxelErosion::Init_RenderThread(FRHICommandList& RHICmdList)
 			.SetInitialState(ERHIAccess::Unknown);
 
 		Texture = RHICreateTexture(Desc);
-		UAV = RHICmdList.CreateUnorderedAccessView(Texture);
+		UAV = RHICmdList.CreateUnorderedAccessView(Texture, 0);
 	};
 
 	// Create all textures and UAVs

@@ -37,9 +37,9 @@ DEFINE_LOG_CATEGORY(LogVoxel);
 ///////////////////////////////////////////////////////////////////////////////
 
 #if ENABLE_VOXEL_MEMORY_STATS
-TMap<const TCHAR*, FVoxelMemoryCounterRef>& GetVoxelMemoryCounters()
+TMap<const TCHAR*, FVoxelMemoryCounterRef, FDefaultSetAllocator, TStringPointerMapKeyFuncs_DEPRECATED<const TCHAR*, FVoxelMemoryCounterRef>>& GetVoxelMemoryCounters()
 {
-	static TMap<const TCHAR*, FVoxelMemoryCounterRef> GVoxelMemoryCounters;
+	static TMap<const TCHAR*, FVoxelMemoryCounterRef, FDefaultSetAllocator, TStringPointerMapKeyFuncs_DEPRECATED<const TCHAR*, FVoxelMemoryCounterRef>> GVoxelMemoryCounters;
 	return GVoxelMemoryCounters;
 }
 
@@ -125,9 +125,9 @@ VOXEL_API FString VoxelStats_RemoveLambdaFromFunctionName(const FString& Functio
 	FunctionName.ParseIntoArray(Array, TEXT("::"));
 
 	// operator()
-	if (ensure(Array.Num() > 1)) Array.Pop(false);
+	if (ensure(Array.Num() > 1)) Array.Pop(EAllowShrinking::No);
 	// <lambda XXXXXXX>
-	if (ensure(Array.Num() > 1)) Array.Pop(false);
+	if (ensure(Array.Num() > 1)) Array.Pop(EAllowShrinking::No);
 
 	return FString::Join(Array, TEXT("::"));
 #else

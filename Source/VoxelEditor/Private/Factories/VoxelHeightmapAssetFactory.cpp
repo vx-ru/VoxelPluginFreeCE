@@ -14,7 +14,7 @@
 #include "Widgets/Layout/SScrollBox.h"
 
 #include "Editor.h"
-#include "EditorStyleSet.h"
+#include "Styling/AppStyle.h"
 #include "PropertyEditorModule.h"
 #include "IDetailCustomization.h"
 #include "DetailLayoutBuilder.h"
@@ -107,7 +107,11 @@ bool UVoxelHeightmapAssetUINT16Factory::ConfigureProperties()
 	};
 
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	FDetailsViewArgs DetailsViewArgs(false, false, false, FDetailsViewArgs::HideNameArea);
+	FDetailsViewArgs DetailsViewArgs;
+	DetailsViewArgs.bUpdatesFromSelection = false;
+	DetailsViewArgs.bLockable = false;
+	DetailsViewArgs.bAllowSearch = false;
+	DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;
 
 	auto DetailsPanel = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 	FOnGetDetailCustomizationInstance LayoutDelegateDetails = FOnGetDetailCustomizationInstance::CreateLambda([]() { return MakeShared<FVoxelHeightmapFactoryDetails>(); });
@@ -133,7 +137,7 @@ bool UVoxelHeightmapAssetUINT16Factory::ConfigureProperties()
 	auto Widget =
 		SNew(SBorder)
 		.Visibility(EVisibility::Visible)
-		.BorderImage(FEditorStyle::GetBrush("Menu.Background"))
+		.BorderImage(FAppStyle::GetBrush("Menu.Background"))
 		[
 			SNew(SBox)
 			.Visibility(EVisibility::Visible)
@@ -157,7 +161,7 @@ bool UVoxelHeightmapAssetUINT16Factory::ConfigureProperties()
 				.Padding(8)
 				[
 					SNew(SUniformGridPanel)
-					.SlotPadding(FEditorStyle::GetMargin("StandardDialog.SlotPadding"))
+					.SlotPadding(FAppStyle::GetMargin("StandardDialog.SlotPadding"))
 					+ SUniformGridPanel::Slot(0, 0)
 					[
 						SNew(SButton)
@@ -178,20 +182,20 @@ bool UVoxelHeightmapAssetUINT16Factory::ConfigureProperties()
 							}
 							return EVisibility::Visible;
 						})))
-						.ContentPadding(FEditorStyle::GetMargin("StandardDialog.ContentPadding"))
+						.ContentPadding(FAppStyle::GetMargin("StandardDialog.ContentPadding"))
 						.OnClicked(OnOkClicked)
-						.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
-						.TextStyle(FEditorStyle::Get(), "FlatButton.DefaultTextStyle")
+						.ButtonStyle(FAppStyle::Get(), "FlatButton.Success")
+						.TextStyle(FAppStyle::Get(), "FlatButton.DefaultTextStyle")
 					]
 					+SUniformGridPanel::Slot(1,0)
 					[
 						SNew(SButton)
 						.Text(VOXEL_LOCTEXT("Cancel"))
 						.HAlign(HAlign_Center)
-						.ContentPadding(FEditorStyle::GetMargin("StandardDialog.ContentPadding"))
+						.ContentPadding(FAppStyle::GetMargin("StandardDialog.ContentPadding"))
 						.OnClicked(OnCancelClicked)
-						.ButtonStyle(FEditorStyle::Get(), "FlatButton.Default")
-						.TextStyle(FEditorStyle::Get(), "FlatButton.DefaultTextStyle")
+						.ButtonStyle(FAppStyle::Get(), "FlatButton.Default")
+						.TextStyle(FAppStyle::Get(), "FlatButton.DefaultTextStyle")
 					]
 				]
 			]

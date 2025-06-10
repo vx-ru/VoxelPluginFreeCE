@@ -76,9 +76,10 @@ FVoxelProcMeshBuffersRenderData::FVoxelProcMeshBuffersRenderData(
 
 	auto& VertexBuffers = Buffers->VertexBuffers;
 	auto& IndexBuffer = Buffers->IndexBuffer;
-	
+	auto& PositionBuffer = Buffers->VertexBuffers.PositionVertexBuffer;
+
 	FLocalVertexFactory::FDataType Data;
-	VertexBuffers.PositionVertexBuffer.BindPositionVertexBuffer(&VertexFactory, Data);
+	PositionBuffer.BindPositionVertexBuffer(&VertexFactory, Data);
 	VertexBuffers.StaticMeshVertexBuffer.BindTangentVertexBuffer(&VertexFactory, Data);
 	VertexBuffers.StaticMeshVertexBuffer.BindPackedTexCoordVertexBuffer(&VertexFactory, Data);
 	VertexBuffers.ColorVertexBuffer.BindColorVertexBuffer(&VertexFactory, Data);
@@ -96,7 +97,8 @@ FVoxelProcMeshBuffersRenderData::FVoxelProcMeshBuffersRenderData(
 		Initializer.bAllowUpdate = false;
 
 		FRayTracingGeometrySegment Segment;
-		Segment.VertexBuffer = VertexBuffers.PositionVertexBuffer.VertexBufferRHI;
+		Segment.VertexBuffer = PositionBuffer.VertexBufferRHI;
+		Segment.MaxVertices = PositionBuffer.GetNumVertices();
 		Segment.NumPrimitives = Initializer.TotalPrimitiveCount;
 		Initializer.Segments.Add(Segment);
 
@@ -245,7 +247,7 @@ FVoxelProceduralMeshSceneProxy::~FVoxelProceduralMeshSceneProxy()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void FVoxelProceduralMeshSceneProxy::CreateRenderThreadResources()
+void FVoxelProceduralMeshSceneProxy::CreateRenderThreadResources(FRHICommandListBase& RHICmdList)
 {
 	VOXEL_RENDER_FUNCTION_COUNTER();
 	check(IsInRenderingThread());
@@ -558,7 +560,7 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicMeshElements(const TArray<const F
 ///////////////////////////////////////////////////////////////////////////////
 
 #if RHI_RAYTRACING
-void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingMaterialGatheringContext& Context, TArray<FRayTracingInstance>& OutRayTracingInstances)
+void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingInstanceCollector& Collector)
 {
 	VOXEL_RENDER_FUNCTION_COUNTER();
 
@@ -567,7 +569,7 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingMa
 		if (Section.bSectionVisible && ensure(Section.Material->GetMaterial()->IsValidLowLevel()))
 		{
 			auto& RenderData = *Section.RenderData;
-			if (RenderData.RayTracingGeometry.RayTracingGeometryRHI.IsValid())
+			if (RenderData.RayTracingGeometry.GetRHI())
 			{
 				check(RenderData.RayTracingGeometry.Initializer.IndexBuffer.IsValid());
 
@@ -595,7 +597,7 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingMa
 
 				RayTracingInstance.Materials.Add(MeshBatch);
 
-				OutRayTracingInstances.Add(RayTracingInstance);
+				Collector.AddRayTracingInstance(RayTracingInstance);
 			}
 		}
 	}

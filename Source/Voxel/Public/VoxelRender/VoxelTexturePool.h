@@ -105,7 +105,7 @@ private:
 	{
 	public:
 		const uint32 Stride;
-		UTexture2D* Texture = nullptr;
+		TObjectPtr<UTexture2D> Texture = nullptr;
 
 		TArray<FTextureSlot> FreeSlots;
 		TVoxelTypedSparseArray<FTextureSlotId, FUsedTextureSlot> UsedSlots;

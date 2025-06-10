@@ -63,7 +63,7 @@ public:
 	}
 
 private:
-	UVoxelToolManager* ToolManager = nullptr;
+	TObjectPtr<UVoxelToolManager> ToolManager = nullptr;
 
 	TSharedPtr<IDetailsView> SharedConfigDetailsPanel;
 	TSharedPtr<IDetailsView> ToolDetailsPanel;
