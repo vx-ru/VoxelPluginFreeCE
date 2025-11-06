@@ -3,16 +3,56 @@
 #include "VoxelRender/PhysicsCooker/VoxelAsyncPhysicsCooker_Chaos.h"
 #include "VoxelRender/VoxelProcMeshBuffers.h"
 #include "VoxelUtilities/VoxelMathUtilities.h"
+#include "VoxelWorldRootComponent.h"
 
 #include "PhysicsEngine/BodySetup.h"
+#include "PhysicsEngine/ConvexElem.h"
 
 #include "Chaos/ImplicitObject.h"
 #include "Chaos/CollisionConvexMesh.h"
 #include "Chaos/TriangleMeshImplicitObject.h"
+#include "Chaos/Convex.h"
+#include "Chaos/AABB.h"
 
 FVoxelAsyncPhysicsCooker_Chaos::FVoxelAsyncPhysicsCooker_Chaos(UVoxelProceduralMeshComponent* Component)
 	: IVoxelAsyncPhysicsCooker(Component)
 {
+}
+
+namespace
+{
+	// Helper function to build a Chaos convex from vertex data
+	// Based on Chaos::Cooking::BuildConvexMeshes implementation
+	Chaos::FConvexPtr BuildChaosConvexFromVertices(const TArray<FVector>& HullVerts)
+	{
+		const int32 NumHullVerts = HullVerts.Num();
+		if (NumHullVerts == 0)
+		{
+			return nullptr;
+		}
+
+		// Calculate bounds for the convex (used for debugging/validation)
+		Chaos::FAABB3 Bounds = Chaos::FAABB3::EmptyAABB();
+		for (int32 VertIndex = 0; VertIndex < NumHullVerts; ++VertIndex)
+		{
+			const FVector& HullVert = HullVerts[VertIndex];
+			Bounds.GrowToInclude(HullVert);
+		}
+
+		// Create the corner vertices for the convex
+		TArray<Chaos::FConvex::FVec3Type> ConvexVertices;
+		ConvexVertices.SetNumZeroed(NumHullVerts);
+
+		for (int32 VertIndex = 0; VertIndex < NumHullVerts; ++VertIndex)
+		{
+			const FVector& HullVert = HullVerts[VertIndex];
+			ConvexVertices[VertIndex] = Chaos::FConvex::FVec3Type(HullVert.X, HullVert.Y, HullVert.Z);
+		}
+
+		// Margin is always zero on convex shapes - they are intended to be instanced
+		// This creates the convex hull from the vertices
+		return Chaos::FConvexPtr(new Chaos::FConvex(ConvexVertices, 0.0f));
+	}
 }
 
 bool FVoxelAsyncPhysicsCooker_Chaos::Finalize(
@@ -20,6 +60,57 @@ bool FVoxelAsyncPhysicsCooker_Chaos::Finalize(
 	TVoxelSharedPtr<FVoxelSimpleCollisionData>& OutSimpleCollisionData,
 	FVoxelProceduralMeshComponentMemoryUsage& OutMemoryUsage)
 {
+	// Pass our generated simple collision data back to the caller
+	OutSimpleCollisionData = SimpleCollisionData;
+
+	// 1. Copy simple collision data to BodySetup's AggGeom
+	// Boxes and convex hulls will be used for simple collision
+	if (SimpleCollisionData && !SimpleCollisionData->IsEmpty())
+	{
+		VOXEL_ASYNC_SCOPE_COUNTER("Process Simple Collision");
+
+		// Copy box elements directly - these don't need pre-cooking
+		// The physics interface will handle them at runtime
+		BodySetup.AggGeom.BoxElems = SimpleCollisionData->BoxElems;
+
+		// Copy convex elements and ensure they have Chaos geometry
+		BodySetup.AggGeom.ConvexElems = SimpleCollisionData->ConvexElems;
+
+		// For each ConvexElem, ensure it has Chaos geometry
+		const FString DebugName = FString::Printf(TEXT("Voxel Convex (LOD %d)"), LOD);
+		for (FKConvexElem& ConvexElem : BodySetup.AggGeom.ConvexElems)
+		{
+			// If the ConvexElem doesn't already have a Chaos mesh, create one from vertex data
+			if (!ConvexElem.GetChaosConvexMesh() && ConvexElem.VertexData.Num() > 0)
+			{
+				// Build Chaos convex from the vertex data
+				Chaos::FConvexPtr ChaosConvex = BuildChaosConvexFromVertices(ConvexElem.VertexData);
+
+				if (ChaosConvex && ChaosConvex->IsValidGeometry())
+				{
+					// Assign the Chaos convex to the element
+					// Use UpdateConvexDataOnlyIfMissing since we're building from existing VertexData
+					ConvexElem.SetConvexMeshObject(
+						MoveTemp(ChaosConvex),
+						FKConvexElem::EConvexDataUpdateMethod::UpdateConvexDataOnlyIfMissing
+					);
+
+#if TRACK_CHAOS_GEOMETRY
+					ConvexElem.GetChaosConvexMesh()->Track(
+						Chaos::MakeSerializable(ConvexElem.GetChaosConvexMesh()),
+						DebugName
+					);
+#endif
+				}
+				else
+				{
+					UE_LOG(LogVoxel, Warning, TEXT("Failed to create Chaos convex for voxel collision (LOD %d) - invalid geometry"), LOD);
+				}
+			}
+		}
+	}
+
+	// 2. Handle trimesh geometry (complex collision)
 #if TRACK_CHAOS_GEOMETRY
 	for (auto& TriMesh : TriMeshGeometries)
 	{
@@ -28,6 +119,7 @@ bool FVoxelAsyncPhysicsCooker_Chaos::Finalize(
 #endif
 
 	// Force trimesh collisions off
+	// This is standard practice - prevents redundant collision checks
 	for (auto& TriMesh : TriMeshGeometries)
 	{
 		TriMesh->SetDoCollide(false);
@@ -42,10 +134,14 @@ bool FVoxelAsyncPhysicsCooker_Chaos::Finalize(
 
 void FVoxelAsyncPhysicsCooker_Chaos::CookMesh()
 {
-	if (CollisionTraceFlag != ECollisionTraceFlag::CTF_UseComplexAsSimple)
+	// Generate simple collision if requested
+	if (CollisionTraceFlag == ECollisionTraceFlag::CTF_UseSimpleAsComplex ||
+		CollisionTraceFlag == ECollisionTraceFlag::CTF_UseDefault)
 	{
-		ensure(false);
+		CreateSimpleCollision();
 	}
+
+	// Generate complex (trimesh) collision if needed
 	if (CollisionTraceFlag != ECollisionTraceFlag::CTF_UseSimpleAsComplex)
 	{
 		CreateTriMesh();
@@ -55,6 +151,125 @@ void FVoxelAsyncPhysicsCooker_Chaos::CookMesh()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+void FVoxelAsyncPhysicsCooker_Chaos::CreateSimpleCollision()
+{
+	VOXEL_ASYNC_FUNCTION_COUNTER();
+
+	// Calculate bounds of the entire mesh
+	FBox MeshBounds(ForceInit);
+	int32 TotalVertices = 0;
+	for (auto& Buffer : Buffers)
+	{
+		auto& PositionBuffer = Buffer->VertexBuffers.PositionVertexBuffer;
+		const uint32 NumVerts = PositionBuffer.GetNumVertices();
+		TotalVertices += NumVerts;
+
+		for (uint32 Index = 0; Index < NumVerts; Index++)
+		{
+			MeshBounds += FVector(PositionBuffer.VertexPosition(Index));
+		}
+	}
+
+	if (!MeshBounds.IsValid || TotalVertices == 0)
+	{
+		// No vertices, can't create collision
+		UE_LOG(LogVoxel, Verbose, TEXT("Skipping collision for LOD %d - no vertices (TotalVertices=%d, BoundsValid=%d)"),
+			LOD, TotalVertices, MeshBounds.IsValid);
+		return;
+	}
+
+	// Create the simple collision data
+	SimpleCollisionData = MakeVoxelShared<FVoxelSimpleCollisionData>();
+	SimpleCollisionData->Bounds = MeshBounds;
+
+	if (bSimpleCubicCollision)
+	{
+		// Option 1: Single box collision (simplest and fastest)
+		// This is the recommended option for voxel terrain as it provides good performance
+		FKBoxElem BoxElem;
+		BoxElem.Center = MeshBounds.GetCenter();
+		const FVector BoxSize = MeshBounds.GetSize();
+		BoxElem.X = BoxSize.X;
+		BoxElem.Y = BoxSize.Y;
+		BoxElem.Z = BoxSize.Z;
+
+		UE_LOG(LogVoxel, Verbose, TEXT("Created simple box collision for LOD %d: Center=%s, Size=%s, Vertices=%d"),
+			LOD, *BoxElem.Center.ToString(), *BoxSize.ToString(), TotalVertices);
+
+		SimpleCollisionData->BoxElems.Add(BoxElem);
+	}
+	else
+	{
+		// Option 2: Convex hull collision using actual convex mesh generation
+		// Subdivide the mesh spatially and create convex hulls from vertex data
+		VOXEL_ASYNC_SCOPE_COUNTER("Generate Convex Hulls");
+
+		const int32 NumHullsPerAxis = FMath::Max(1, NumConvexHullsPerAxis);
+		const FVector BoundsExtent = MeshBounds.GetExtent();
+		const FVector BoundsMin = MeshBounds.Min;
+		const FVector SubDivisionSize = BoundsExtent * 2.0 / NumHullsPerAxis;
+
+		// Create convex hull for each subdivision that contains vertices
+		for (int32 X = 0; X < NumHullsPerAxis; X++)
+		{
+			for (int32 Y = 0; Y < NumHullsPerAxis; Y++)
+			{
+				for (int32 Z = 0; Z < NumHullsPerAxis; Z++)
+				{
+					// Calculate the search bounds for this subdivision
+					FVector SubMin = BoundsMin + FVector(X, Y, Z) * SubDivisionSize;
+					FVector SubMax = SubMin + SubDivisionSize;
+					FBox SearchBounds(SubMin, SubMax);
+
+					// Collect vertices in this subdivision
+					TArray<FVector> HullVertices;
+
+					for (auto& Buffer : Buffers)
+					{
+						auto& PositionBuffer = Buffer->VertexBuffers.PositionVertexBuffer;
+						const uint32 NumVerts = PositionBuffer.GetNumVertices();
+
+						for (uint32 Index = 0; Index < NumVerts; Index++)
+						{
+							FVector Vertex = FVector(PositionBuffer.VertexPosition(Index));
+							if (SearchBounds.IsInside(Vertex))
+							{
+								HullVertices.Add(Vertex);
+							}
+						}
+					}
+
+					// Create a convex element if we have enough vertices
+					if (HullVertices.Num() >= 4)
+					{
+						FKConvexElem& ConvexElem = SimpleCollisionData->ConvexElems.Emplace_GetRef();
+						ConvexElem.VertexData = MoveTemp(HullVertices);
+						ConvexElem.UpdateElemBox();
+					}
+				}
+			}
+		}
+
+		UE_LOG(LogVoxel, Verbose, TEXT("Generated %d convex hulls for LOD %d with %d total vertices"),
+			SimpleCollisionData->ConvexElems.Num(), LOD, TotalVertices);
+
+		// If no convex hulls were created, fall back to a single box
+		// This can happen for example for a flat surface
+		if (SimpleCollisionData->ConvexElems.Num() == 0)
+		{
+			FKBoxElem BoxElem;
+			BoxElem.Center = MeshBounds.GetCenter();
+			const FVector BoxSize = MeshBounds.GetSize();
+			BoxElem.X = BoxSize.X;
+			BoxElem.Y = BoxSize.Y;
+			BoxElem.Z = BoxSize.Z;
+			SimpleCollisionData->BoxElems.Add(BoxElem);
+
+			UE_LOG(LogVoxel, Verbose, TEXT("No convex hulls created for LOD %d, using fallback box"), LOD);
+		}
+	}
+}
 
 void FVoxelAsyncPhysicsCooker_Chaos::CreateTriMesh()
 {

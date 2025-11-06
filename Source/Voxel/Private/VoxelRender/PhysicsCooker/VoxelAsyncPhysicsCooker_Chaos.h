@@ -30,6 +30,8 @@ protected:
 	
 private:
 	void CreateTriMesh();
+	void CreateSimpleCollision();
 
 	TArray<Chaos::FTriangleMeshImplicitObjectPtr> TriMeshGeometries;
+	TVoxelSharedPtr<FVoxelSimpleCollisionData> SimpleCollisionData;
 };
