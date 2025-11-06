@@ -159,8 +159,7 @@ public:
 	bool bSimpleCubicCollision;
 	int32 SimpleCubicCollisionLODBias;
 	int32 NumConvexHullsPerAxis;
-	bool bCleanCollisionMeshes;
-	
+
 public:
 	bool bEnableNavmesh;
 	bool bComputeVisibleChunksNavmesh;

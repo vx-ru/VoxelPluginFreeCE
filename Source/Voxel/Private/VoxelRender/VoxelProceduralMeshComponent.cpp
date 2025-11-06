@@ -116,7 +116,6 @@ void UVoxelProceduralMeshComponent::Init(
 	CollisionTraceFlag = Renderer.Settings.CollisionTraceFlag;
 	bSimpleCubicCollision = Renderer.Settings.bSimpleCubicCollision;
 	NumConvexHullsPerAxis = Renderer.Settings.NumConvexHullsPerAxis;
-	bCleanCollisionMesh = Renderer.Settings.bCleanCollisionMeshes;
 	bClearProcMeshBuffersOnFinishUpdate = Renderer.Settings.bStaticWorld && !Renderer.Settings.bRenderWorld; // We still need the buffers if we are rendering!
 	DistanceFieldSelfShadowBias = Renderer.Settings.DistanceFieldSelfShadowBias;
 	bContributesToStaticLighting = Renderer.Settings.bContributesToStaticLighting;

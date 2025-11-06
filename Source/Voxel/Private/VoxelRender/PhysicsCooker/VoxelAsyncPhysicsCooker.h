@@ -22,10 +22,9 @@ public:
 	const uint64 UniqueId;
 	const TWeakObjectPtr<UVoxelProceduralMeshComponent> Component;
 	const TVoxelWeakPtr<IVoxelProceduralMeshComponent_PhysicsCallbackHandler> PhysicsCallbackHandler;
-	
+
 	const int32 LOD;
 	const ECollisionTraceFlag CollisionTraceFlag;
-	const bool bCleanCollisionMesh;
 	const bool bSimpleCubicCollision;
 	const int32 NumConvexHullsPerAxis;
 	const TArray<TVoxelSharedPtr<const FVoxelProcMeshBuffers>> Buffers;

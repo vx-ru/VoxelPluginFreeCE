@@ -124,7 +124,6 @@ void FVoxelRuntimeSettings::SetFromRuntime(const AVoxelRuntimeActor& InRuntime)
 	SET(bSimpleCubicCollision);
 	SET(SimpleCubicCollisionLODBias);
 	SET(NumConvexHullsPerAxis);
-	SET(bCleanCollisionMeshes);
 
 	SET(bEnableNavmesh);
 	SET(bComputeVisibleChunksNavmesh);

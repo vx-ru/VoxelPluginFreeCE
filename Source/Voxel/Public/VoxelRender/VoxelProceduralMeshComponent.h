@@ -87,8 +87,6 @@ private:
     bool bSimpleCubicCollision = false;
     // For convex collisions
 	int32 NumConvexHullsPerAxis = 2;
-	// Cooks slower, but won't crash in case of weird complex geometry
-	bool bCleanCollisionMesh = false;
 	// Will clear the proc mesh buffers once navmesh + collisions have been built
 	bool bClearProcMeshBuffersOnFinishUpdate = false;
 	// Distance field bias

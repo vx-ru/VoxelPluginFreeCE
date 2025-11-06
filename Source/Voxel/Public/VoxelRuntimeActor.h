@@ -434,14 +434,7 @@ public:
 	// You can check the result in the Player Collision view
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = "Voxel - Collisions", meta = (RecreateRender, ClampMin = 1, ClampMax = 32, UIMin = 1, UIMax = 32, EditCondition = bEnableCollisions))
 	int32 NumConvexHullsPerAxis = 2;
-	
-	// Clean collisions meshes when cooking them.
-	// Disabling this makes cooking collision slightly faster, but might lead to physx crashing in case of invalid geometry.
-	// Enable this if you are getting crashes in the physx code
-	// To check the performance improvements: voxel.LogCollisionCookingTimes 1
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = "Voxel - Collisions", meta = (RecreateRender, EditCondition = bEnableCollisions))
-	bool bCleanCollisionMeshes = true;
-	
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel - Navmesh", meta = (RecreateRender))
 	bool bEnableNavmesh = false;

@@ -162,8 +162,7 @@ TVoxelSharedRef<FVoxelSimpleCollisionHandle> UVoxelWorldRootComponent::CreateHan
 }
 
 void UVoxelWorldRootComponent::RebuildConvexCollision()
-{	
-#if WITH_PHYSX && PHYSICS_INTERFACE_PHYSX
+{
 	VOXEL_FUNCTION_COUNTER();
 	ensure(CollisionTraceFlag != CTF_UseComplexAsSimple);
 
@@ -196,7 +195,7 @@ void UVoxelWorldRootComponent::RebuildConvexCollision()
 		LocalBounds = LocalBox.IsValid ? FBoxSphereBounds(LocalBox) : FBoxSphereBounds(ForceInit); // fallback to reset box sphere bounds
 		UpdateBounds();
 	}
-	
+
 	// Create body setup
 	GetBodySetup();
 
@@ -242,27 +241,20 @@ void UVoxelWorldRootComponent::RebuildConvexCollision()
 		BoxElems.Reserve(NumBoxElements);
 		ConvexElems.Reserve(NumConvexElements);
 	}
-	
+
 	{
         VOXEL_SCOPE_COUNTER("Create");
         for (const TVoxelSharedRef<FVoxelSimpleCollisionData>& Data : SimpleCollisionDatas)
         {
 			BoxElems.Append(Data->BoxElems);
-
-            for (int32 Index = 0; Index < Data->ConvexMeshes.Num(); Index++)
-            {
-                FKConvexElem& NewElement = ConvexElems.Emplace_GetRef();
-                // No need to copy the vertices
-                NewElement.ElemBox = Data->ConvexElems[Index].ElemBox;
-                NewElement.SetConvexMesh(Data->ConvexMeshes[Index].Get());
-            }
+			ConvexElems.Append(Data->ConvexElems);
         }
     }
 	{
 		VOXEL_SCOPE_COUNTER("Unlock");
 		BodySetupLock.Unlock();
 	}
-	
+
 	{
 		// Must not be locked!
 		VOXEL_SCOPE_COUNTER("FreeRenderInfo");
@@ -283,9 +275,9 @@ void UVoxelWorldRootComponent::RebuildConvexCollision()
 		});
 		BodyInstance.TermBody();
 	}
-	
+
 	BodyInstance.InitBody(BodySetup, GetComponentTransform(), this, GetWorld()->GetPhysicsScene());
-	
+
 	if (bHasVelocity)
 	{
 		// Restore velocity
@@ -295,29 +287,7 @@ void UVoxelWorldRootComponent::RebuildConvexCollision()
 			FPhysicsInterface::SetAngularVelocity_AssumesLocked(Actor, AngularVelocity);
 		});
 	}
-#endif
 }
-
-#if WITH_PHYSX && PHYSICS_INTERFACE_PHYSX
-class UMRMeshComponent
-{
-public:
-	static void FinishCreatingPhysicsMeshes(UBodySetup* Body, const TArray<physx::PxConvexMesh*>& ConvexMeshes, const TArray<physx::PxConvexMesh*>& ConvexMeshesNegX, const TArray<physx::PxTriangleMesh*>& TriMeshes)
-	{
-		Body->FinishCreatingPhysicsMeshes_PhysX(ConvexMeshes, ConvexMeshesNegX, TriMeshes);
-	}
-};
-
-void UVoxelWorldRootComponent::SetCookedTriMeshes(const TArray<physx::PxTriangleMesh*>& TriMeshes)
-{
-	VOXEL_FUNCTION_COUNTER();
-
-	// Create body setup
-	GetBodySetup();
-
-	UMRMeshComponent::FinishCreatingPhysicsMeshes(BodySetup, {}, {}, TriMeshes);
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

@@ -62,7 +62,6 @@ IVoxelAsyncPhysicsCooker::IVoxelAsyncPhysicsCooker(UVoxelProceduralMeshComponent
 		Component->CollisionTraceFlag == ECollisionTraceFlag::CTF_UseDefault
 		? ECollisionTraceFlag(UPhysicsSettings::Get()->DefaultShapeComplexity)
 		: Component->CollisionTraceFlag)
-	, bCleanCollisionMesh(Component->bCleanCollisionMesh)
     , bSimpleCubicCollision(Component->bSimpleCubicCollision)
 	, NumConvexHullsPerAxis(Component->NumConvexHullsPerAxis)
 	, Buffers([&]()
