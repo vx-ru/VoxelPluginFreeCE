@@ -183,64 +183,176 @@ void FVoxelAsyncPhysicsCooker_Chaos::CreateSimpleCollision()
 	SimpleCollisionData = MakeVoxelShared<FVoxelSimpleCollisionData>();
 	SimpleCollisionData->Bounds = MeshBounds;
 
-	if (bSimpleCubicCollision)
+	UE_LOG(LogVoxel, Verbose, TEXT("CreateSimpleCollision LOD %d: MeshBounds=%s Size=%s, LocalToRoot Scale=%s"),
+		LOD, *MeshBounds.ToString(), *MeshBounds.GetSize().ToString(), *LocalToRoot.GetScale3D().ToString());
+
+	// Check if mesh is too thin for convex hull generation (e.g., a flat plane)
+	// Convex hulls don't work well for flat/thin meshes - use box collision instead
+	const FVector MeshSize = MeshBounds.GetSize();
+	const float MinThickness = 1.0f; // Minimum thickness in voxel units
+	const bool bMeshTooThin = MeshSize.X < MinThickness || MeshSize.Y < MinThickness || MeshSize.Z < MinThickness;
+
+	if (bSimpleCubicCollision || bMeshTooThin)
 	{
 		// Option 1: Single box collision (simplest and fastest)
 		// This is the recommended option for voxel terrain as it provides good performance
+		// Also used automatically for flat/thin meshes where convex hulls would create gaps
 		FKBoxElem BoxElem;
 		BoxElem.Center = MeshBounds.GetCenter();
 		const FVector BoxSize = MeshBounds.GetSize();
-		BoxElem.X = BoxSize.X;
-		BoxElem.Y = BoxSize.Y;
-		BoxElem.Z = BoxSize.Z;
+		BoxElem.X = FMath::Max(BoxSize.X, MinThickness);
+		BoxElem.Y = FMath::Max(BoxSize.Y, MinThickness);
+		BoxElem.Z = FMath::Max(BoxSize.Z, MinThickness);
 
-		UE_LOG(LogVoxel, Verbose, TEXT("Created simple box collision for LOD %d: Center=%s, Size=%s, Vertices=%d"),
-			LOD, *BoxElem.Center.ToString(), *BoxSize.ToString(), TotalVertices);
+		// only in non-shipping builds
+#if !UE_BUILD_SHIPPING
+		if (bMeshTooThin)
+		{
+			UE_LOG(LogVoxel, Verbose, TEXT("Created simple box collision for LOD %d (mesh too thin for convex hulls): Center=%s, Size=%s, Vertices=%d"),
+				LOD, *BoxElem.Center.ToString(), *BoxSize.ToString(), TotalVertices);
+		}
+		else
+		{
+			UE_LOG(LogVoxel, Verbose, TEXT("Created simple box collision for LOD %d: Center=%s, Size=%s, Vertices=%d"),
+				LOD, *BoxElem.Center.ToString(), *BoxSize.ToString(), TotalVertices);
+		}
+#endif
 
 		SimpleCollisionData->BoxElems.Add(BoxElem);
 	}
 	else
 	{
 		// Option 2: Convex hull collision using actual convex mesh generation
-		// Subdivide the mesh spatially and create convex hulls from vertex data
 		VOXEL_ASYNC_SCOPE_COUNTER("Generate Convex Hulls");
 
-		const int32 NumHullsPerAxis = FMath::Max(1, NumConvexHullsPerAxis);
-		const FVector BoundsExtent = MeshBounds.GetExtent();
-		const FVector BoundsMin = MeshBounds.Min;
-		const FVector SubDivisionSize = BoundsExtent * 2.0 / NumHullsPerAxis;
-
-		// Create convex hull for each subdivision that contains vertices
-		for (int32 X = 0; X < NumHullsPerAxis; X++)
+		// Fast path: Use pre-computed CollisionCubes from Greedy Cubic Mesher if available
+		// CollisionCubes are optimally merged boxes created during mesh generation
+		bool bUsedCollisionCubes = false;
+		for (auto& Buffer : Buffers)
 		{
-			for (int32 Y = 0; Y < NumHullsPerAxis; Y++)
+			if (Buffer->CollisionCubes.Num() > 0)
 			{
-				for (int32 Z = 0; Z < NumHullsPerAxis; Z++)
-				{
-					// Calculate the search bounds for this subdivision
-					FVector SubMin = BoundsMin + FVector(X, Y, Z) * SubDivisionSize;
-					FVector SubMax = SubMin + SubDivisionSize;
-					FBox SearchBounds(SubMin, SubMax);
+				VOXEL_ASYNC_SCOPE_COUNTER("Generate Convex Hulls from CollisionCubes");
 
-					// Collect vertices in this subdivision
+				// Build spatial hash of vertices for fast lookup
+				TMap<FIntVector, TArray<FVector>> VertexHash;
+				{
+					auto& PositionBuffer = Buffer->VertexBuffers.PositionVertexBuffer;
+					const uint32 NumVerts = PositionBuffer.GetNumVertices();
+
+					// Hash vertices into 8-unit grid cells for fast spatial queries
+					for (uint32 Index = 0; Index < NumVerts; Index++)
+					{
+						const FVector Vertex = FVector(PositionBuffer.VertexPosition(Index));
+						const FIntVector Cell = FIntVector(Vertex / 8.0);
+						VertexHash.FindOrAdd(Cell).Add(Vertex);
+					}
+				}
+
+				// Use the pre-computed optimal collision boxes
+				for (const FBox& Cube : Buffer->CollisionCubes)
+				{
 					TArray<FVector> HullVertices;
 
-					for (auto& Buffer : Buffers)
-					{
-						auto& PositionBuffer = Buffer->VertexBuffers.PositionVertexBuffer;
-						const uint32 NumVerts = PositionBuffer.GetNumVertices();
+					// Query hash for cells that overlap this cube
+					const FIntVector MinCell = FIntVector(Cube.Min / 8.0) - FIntVector(1);
+					const FIntVector MaxCell = FIntVector(Cube.Max / 8.0) + FIntVector(1);
 
-						for (uint32 Index = 0; Index < NumVerts; Index++)
+					for (int32 X = MinCell.X; X <= MaxCell.X; X++)
+					{
+						for (int32 Y = MinCell.Y; Y <= MaxCell.Y; Y++)
 						{
-							FVector Vertex = FVector(PositionBuffer.VertexPosition(Index));
-							if (SearchBounds.IsInside(Vertex))
+							for (int32 Z = MinCell.Z; Z <= MaxCell.Z; Z++)
 							{
-								HullVertices.Add(Vertex);
+								if (const TArray<FVector>* CellVerts = VertexHash.Find(FIntVector(X, Y, Z)))
+								{
+									for (const FVector& Vertex : *CellVerts)
+									{
+										if (Cube.IsInside(Vertex))
+										{
+											HullVertices.Add(Vertex);
+										}
+									}
+								}
 							}
 						}
 					}
 
-					// Create a convex element if we have enough vertices
+					if (HullVertices.Num() >= 4)
+					{
+						// Calculate bounds of vertices we collected for debugging
+						FBox VertexBounds(ForceInit);
+						for (const FVector& V : HullVertices)
+						{
+							VertexBounds += V;
+						}
+
+						UE_LOG(LogVoxel, Verbose, TEXT("  CollisionCube: Min=%s Max=%s Size=%s | VertexBounds: Min=%s Max=%s Size=%s | NumVerts=%d"),
+							*Cube.Min.ToString(), *Cube.Max.ToString(), *Cube.GetSize().ToString(),
+							*VertexBounds.Min.ToString(), *VertexBounds.Max.ToString(), *VertexBounds.GetSize().ToString(),
+							HullVertices.Num());
+
+						FKConvexElem& ConvexElem = SimpleCollisionData->ConvexElems.Emplace_GetRef();
+						ConvexElem.VertexData = MoveTemp(HullVertices);
+						ConvexElem.UpdateElemBox();
+					}
+				}
+
+				bUsedCollisionCubes = true;
+				UE_LOG(LogVoxel, Verbose, TEXT("Generated %d convex hulls for LOD %d from %d CollisionCubes (optimized path)"),
+					SimpleCollisionData->ConvexElems.Num(), LOD, Buffer->CollisionCubes.Num());
+				break;
+			}
+		}
+
+		// Standard path: Use spatial hash grid for general meshers
+		if (!bUsedCollisionCubes)
+		{
+			VOXEL_ASYNC_SCOPE_COUNTER("Generate Convex Hulls via Spatial Hash");
+
+			const int32 NumHullsPerAxis = FMath::Max(1, NumConvexHullsPerAxis);
+			const FVector BoundsMin = MeshBounds.Min;
+			const FVector CellSize = MeshBounds.GetSize() / NumHullsPerAxis;
+
+			// Phase 1: Build spatial hash (O(N) - single pass over all vertices)
+			TMap<FIntVector, TArray<FVector>> SpatialHash;
+			{
+				VOXEL_ASYNC_SCOPE_COUNTER("Build Spatial Hash");
+
+				for (auto& Buffer : Buffers)
+				{
+					auto& PositionBuffer = Buffer->VertexBuffers.PositionVertexBuffer;
+					const uint32 NumVerts = PositionBuffer.GetNumVertices();
+
+					for (uint32 Index = 0; Index < NumVerts; Index++)
+					{
+						const FVector Vertex = FVector(PositionBuffer.VertexPosition(Index));
+
+						// Compute cell coordinates via direct division (no bounds checking needed)
+						FIntVector Cell(
+							FMath::FloorToInt((Vertex.X - BoundsMin.X) / CellSize.X),
+							FMath::FloorToInt((Vertex.Y - BoundsMin.Y) / CellSize.Y),
+							FMath::FloorToInt((Vertex.Z - BoundsMin.Z) / CellSize.Z)
+						);
+
+						// Clamp to valid range
+						Cell.X = FMath::Clamp(Cell.X, 0, NumHullsPerAxis - 1);
+						Cell.Y = FMath::Clamp(Cell.Y, 0, NumHullsPerAxis - 1);
+						Cell.Z = FMath::Clamp(Cell.Z, 0, NumHullsPerAxis - 1);
+
+						SpatialHash.FindOrAdd(Cell).Add(Vertex);
+					}
+				}
+			}
+
+			// Phase 2: Create convex hulls from spatial buckets (O(NumCells))
+			{
+				VOXEL_ASYNC_SCOPE_COUNTER("Create Convex Elements");
+
+				for (auto& Pair : SpatialHash)
+				{
+					TArray<FVector>& HullVertices = Pair.Value;
+
 					if (HullVertices.Num() >= 4)
 					{
 						FKConvexElem& ConvexElem = SimpleCollisionData->ConvexElems.Emplace_GetRef();
@@ -249,10 +361,10 @@ void FVoxelAsyncPhysicsCooker_Chaos::CreateSimpleCollision()
 					}
 				}
 			}
-		}
 
-		UE_LOG(LogVoxel, Verbose, TEXT("Generated %d convex hulls for LOD %d with %d total vertices"),
-			SimpleCollisionData->ConvexElems.Num(), LOD, TotalVertices);
+			UE_LOG(LogVoxel, Verbose, TEXT("Generated %d convex hulls for LOD %d with %d total vertices (spatial hash optimization)"),
+				SimpleCollisionData->ConvexElems.Num(), LOD, TotalVertices);
+		}
 
 		// If no convex hulls were created, fall back to a single box
 		// This can happen for example for a flat surface
