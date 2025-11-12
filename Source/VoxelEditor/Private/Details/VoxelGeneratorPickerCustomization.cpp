@@ -10,6 +10,18 @@
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+// Forward declare helper functions
+static bool CanResolveParameterType(const FVoxelGeneratorParameterTerminalType& ParameterType);
+static bool CanResolveParameter(const FVoxelGeneratorParameter& Parameter);
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 void FVoxelGeneratorPickerCustomization::CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
 	const auto ClassHandle = PropertyHandle->GetChildHandle(GET_MEMBER_NAME_STATIC(FVoxelGeneratorPicker, Class));
@@ -137,9 +149,15 @@ public:
 		
 		for (auto& PropertyName : PropertyNames)
 		{
-			if (ensure(Object->GetClass()->FindPropertyByName(PropertyName)))
+			if (Object->GetClass()->FindPropertyByName(PropertyName))
 			{
 				ChildrenBuilder.AddExternalObjectProperty({ Object.Get() }, PropertyName, FAddPropertyParams());
+			}
+			else
+			{
+				// Property may not exist if it references VoxelGraph types that are not loaded
+				UE_LOG(LogVoxel, Warning, TEXT("Failed to find property %s on object %s. This may be because VoxelGraph is not loaded."),
+					*PropertyName.ToString(), *Object->GetClass()->GetName());
 			}
 		}
 	}
@@ -184,6 +202,17 @@ void FVoxelGeneratorPickerCustomization::CustomizeChildren(TSharedRef<IPropertyH
 	});
 
 	Parameters.RemoveAll([](const FVoxelGeneratorParameter& Parameter) { return Parameter.MetaData.Contains("HideInGenerator"); });
+
+	// Remove parameters that reference VoxelGraph types that can't be resolved
+	Parameters.RemoveAll([](const FVoxelGeneratorParameter& Parameter)
+	{
+		if (!CanResolveParameter(Parameter))
+		{
+			UE_LOG(LogVoxel, Warning, TEXT("Hiding generator parameter '%s' because its type cannot be resolved."), *Parameter.Id.ToString());
+			return true;
+		}
+		return false;
+	});
 
 	TMap<FName, TArray<FVoxelGeneratorParameter>> CategoriesToParameters;
 	for (auto& Parameter : Parameters)
@@ -541,6 +570,51 @@ FEdGraphPinType FVoxelGeneratorPickerCustomization::GetParameterPinType(const FV
 	}
 }
 
+static bool CanResolveParameterType(const FVoxelGeneratorParameterTerminalType& ParameterType)
+{
+	switch (ParameterType.PropertyType)
+	{
+	case EVoxelGeneratorParameterPropertyType::Float:
+	case EVoxelGeneratorParameterPropertyType::Int:
+	case EVoxelGeneratorParameterPropertyType::Bool:
+	case EVoxelGeneratorParameterPropertyType::Name:
+		return true;
+	case EVoxelGeneratorParameterPropertyType::Object:
+	{
+		auto* Class = FindObject<UClass>(nullptr, *ParameterType.PropertyClass.ToString());
+		return Class != nullptr;
+	}
+	case EVoxelGeneratorParameterPropertyType::Struct:
+	{
+		auto* Struct = FindObject<UScriptStruct>(nullptr, *ParameterType.PropertyClass.ToString());
+		return Struct != nullptr;
+	}
+	default:
+		return false;
+	}
+}
+
+static bool CanResolveParameter(const FVoxelGeneratorParameter& Parameter)
+{
+	// FVoxelGeneratorParameterType inherits from FVoxelGeneratorParameterTerminalType
+	// So we can check it directly as a terminal type
+	if (!CanResolveParameterType(Parameter.Type))
+	{
+		return false;
+	}
+
+	// Check map value type if it's a map
+	if (Parameter.Type.ContainerType == EVoxelGeneratorParameterContainerType::Map)
+	{
+		if (!CanResolveParameterType(Parameter.Type.ValueType))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 FEdGraphTerminalType FVoxelGeneratorPickerCustomization::GetParameterTerminalPinType(const FVoxelGeneratorParameterTerminalType& ParameterType)
 {
 	const auto Make = [](FName TerminalCategory, FName TerminalSubCategory, TWeakObjectPtr<UObject> TerminalSubCategoryObject)
@@ -580,7 +654,12 @@ FEdGraphTerminalType FVoxelGeneratorPickerCustomization::GetParameterTerminalPin
 	case EVoxelGeneratorParameterPropertyType::Struct:
 	{
 		auto* Struct = FindObject<UScriptStruct>(nullptr, *ParameterType.PropertyClass.ToString());
-		ensure(Struct);
+		if (!Struct)
+		{
+			// VoxelGraph structs may not be available if VoxelGraph module is not loaded
+			UE_LOG(LogVoxel, Warning, TEXT("Failed to find struct %s for generator parameter."), *ParameterType.PropertyClass.ToString());
+			return Make(UEdGraphSchema_K2::PC_Struct, NAME_None, nullptr);
+		}
 		return Make(UEdGraphSchema_K2::PC_Struct, ParameterType.PropertyClass, Struct);
 	}
 	}
