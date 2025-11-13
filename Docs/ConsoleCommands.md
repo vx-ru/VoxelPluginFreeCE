@@ -1,4 +1,4 @@
-# Voxel Plugin Console Commands Reference
+# Voxel Plugin (CE) Console Commands Reference
 
 This document lists all console commands and console variables (CVars) available in the Voxel Plugin.
 
@@ -483,17 +483,3 @@ voxel.data.ShowMaterialsState 1
 voxel.data.ShowDirtyValues 1
 voxel.data.ShowDirtyVoxels 1
 ```
-
----
-
-## Related Documentation
-
-- See `CLAUDE.md` for overall project architecture
-- See [Voxel Plugin Wiki](https://wiki.voxelplugin.com/) for detailed feature documentation
-- Join [Discord](https://discord.voxelplugin.com) for community support
-
----
-
-**Plugin Version**: Beta-415230fff-2021-06-08 (Voxel Plugin Free)
-**Engine Version**: UE 5.6
-**Last Updated**: 2025-06-10
