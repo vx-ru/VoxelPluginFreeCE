@@ -54,7 +54,7 @@ class VOXEL_API UVoxelDynamicSubsystemProxy : public UVoxelSubsystemProxy
 #define DEFINE_VOXEL_SUBSYSTEM_PROXY(Class) \
 	TVoxelSharedRef<IVoxelSubsystem> Class::GetSubsystem(FVoxelRuntime& Runtime, const FVoxelRuntimeSettings& Settings) const \
 	{ \
-		static_assert(TIsSame<Class, SubsystemClass::ProxyClass>::Value, ""); \
+		static_assert(std::is_same_v<Class, SubsystemClass::ProxyClass>, ""); \
 		return FVoxelUtilities::MakeGameThreadTickableDeleterPtr<SubsystemClass>(Runtime, Settings); \
 	}
 
@@ -67,7 +67,7 @@ class VOXEL_API UVoxelDynamicSubsystemProxy : public UVoxelSubsystemProxy
 	using Super = InProxyClass::Super::SubsystemClass; \
 	using ProxyClass = InProxyClass; \
 	using Super::Super; \
-	virtual UClass* GetProxyClass() const override { static_assert(TIsSame<VOXEL_THIS_TYPE, ProxyClass::SubsystemClass>::Value, ""); return ProxyClass::StaticClass(); } \
+	virtual UClass* GetProxyClass() const override { static_assert(std::is_same_v<VOXEL_THIS_TYPE, ProxyClass::SubsystemClass>, ""); return ProxyClass::StaticClass(); } \
 	FORCEINLINE auto AsShared() { return StaticCastSharedRef<VOXEL_THIS_TYPE>(this->Super::AsShared()); } \
 	FORCEINLINE auto AsShared() const { return StaticCastSharedRef<const VOXEL_THIS_TYPE>(this->Super::AsShared()); } \
 	FORCEINLINE static UClass* StaticClass() { return ProxyClass::StaticClass(); }

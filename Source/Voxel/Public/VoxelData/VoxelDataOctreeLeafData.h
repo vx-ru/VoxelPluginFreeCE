@@ -17,7 +17,7 @@ DECLARE_VOXEL_MEMORY_STAT(TEXT("Voxel Cached Materials Memory"), STAT_VoxelDataO
 template<typename T>
 struct TVoxelDataOctreeLeafMemoryUsage
 {
-	static_assert(TIsSame<T, FVoxelValue>::Value || TIsSame<T, FVoxelMaterial>::Value, "");
+	static_assert(std::is_same_v<T, FVoxelValue> || std::is_same_v<T, FVoxelMaterial>, "");
 	
 	static void Increase(int32 MemorySize, bool bDirty, const IVoxelDataOctreeMemory& Memory)
 	{
@@ -25,15 +25,15 @@ struct TVoxelDataOctreeLeafMemoryUsage
 		{
 			FVoxelUtilities::TValuesMaterialsSelector<T>::Get(Memory.DirtyMemory).Add(MemorySize);
 			
-			if (TIsSame<T, FVoxelValue   >::Value) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyValuesMemory   , MemorySize); }
-			if (TIsSame<T, FVoxelMaterial>::Value) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyMaterialsMemory, MemorySize); }
+			if (std::is_same_v<T, FVoxelValue   >) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyValuesMemory   , MemorySize); }
+			if (std::is_same_v<T, FVoxelMaterial>) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyMaterialsMemory, MemorySize); }
 		}
 		else
 		{
 			FVoxelUtilities::TValuesMaterialsSelector<T>::Get(Memory.CachedMemory).Add(MemorySize);
 
-			if (TIsSame<T, FVoxelValue   >::Value) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedValuesMemory   , MemorySize); }
-			if (TIsSame<T, FVoxelMaterial>::Value) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedMaterialsMemory, MemorySize); }
+			if (std::is_same_v<T, FVoxelValue   >) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedValuesMemory   , MemorySize); }
+			if (std::is_same_v<T, FVoxelMaterial>) { INC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedMaterialsMemory, MemorySize); }
 		}
 	}
 	static void Decrease(int32 MemorySize, bool bDirty, const IVoxelDataOctreeMemory& Memory)
@@ -43,16 +43,16 @@ struct TVoxelDataOctreeLeafMemoryUsage
 			FVoxelUtilities::TValuesMaterialsSelector<T>::Get(Memory.DirtyMemory).Subtract(MemorySize);
 			ensureVoxelSlowNoSideEffects(FVoxelUtilities::TValuesMaterialsSelector<T>::Get(Memory.DirtyMemory).GetValue() >= 0);
 			
-			if (TIsSame<T, FVoxelValue   >::Value) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyValuesMemory   , MemorySize); }
-			if (TIsSame<T, FVoxelMaterial>::Value) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyMaterialsMemory, MemorySize); }
+			if (std::is_same_v<T, FVoxelValue   >) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyValuesMemory   , MemorySize); }
+			if (std::is_same_v<T, FVoxelMaterial>) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeDirtyMaterialsMemory, MemorySize); }
 		}
 		else
 		{
 			FVoxelUtilities::TValuesMaterialsSelector<T>::Get(Memory.CachedMemory).Subtract(MemorySize);
 			ensureVoxelSlowNoSideEffects(FVoxelUtilities::TValuesMaterialsSelector<T>::Get(Memory.CachedMemory).GetValue() >= 0);
 			
-			if (TIsSame<T, FVoxelValue   >::Value) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedValuesMemory   , MemorySize); }
-			if (TIsSame<T, FVoxelMaterial>::Value) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedMaterialsMemory, MemorySize); }
+			if (std::is_same_v<T, FVoxelValue   >) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedValuesMemory   , MemorySize); }
+			if (std::is_same_v<T, FVoxelMaterial>) { DEC_VOXEL_MEMORY_STAT_BY(STAT_VoxelDataOctreeCachedMaterialsMemory, MemorySize); }
 		}
 	}
 };

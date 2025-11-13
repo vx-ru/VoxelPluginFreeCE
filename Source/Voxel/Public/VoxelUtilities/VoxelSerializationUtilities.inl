@@ -85,7 +85,7 @@ void FVoxelSerializationUtilities::SerializeValues(FArchive& Archive, Array& Val
 		SizeType ValuesSize = Values.Num();
 		Archive << ValuesSize;
 #if ONE_BIT_VOXEL_VALUE
-		const bool bIsCorrectType = TIsSame<FVoxelBitArray64, Array>::Value;
+		const bool bIsCorrectType = std::is_same_v<FVoxelBitArray64, Array>;
 		ensure(bIsCorrectType);
 		
 		Archive << Values;

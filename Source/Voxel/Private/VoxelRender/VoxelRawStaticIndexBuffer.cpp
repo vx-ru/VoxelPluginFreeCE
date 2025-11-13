@@ -167,6 +167,7 @@ namespace
 		return RHICmdList.CreateBuffer(
 			FRHIBufferCreateDesc::CreateIndex<IndexType>(TEXT("INDEX"), NumIndices)
 			.AddUsage(BUF_Static)
+			.SetInitialState(ERHIAccess::VertexOrIndexBuffer)
 			.SetInitActionResourceArray(ResourceArray));
 	}
 }

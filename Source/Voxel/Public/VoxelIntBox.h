@@ -18,7 +18,7 @@ enum class EInverseTransform : uint8
 /**
  * A Box with int32 coordinates
  */
-USTRUCT(BlueprintType, meta=(HasNativeMake="Voxel.VoxelIntBoxLibrary.MakeIntBox", HasNativeBreak="Voxel.VoxelIntBoxLibrary.BreakIntBox"))
+USTRUCT(BlueprintType, meta=(HasNativeMake="/Script/Voxel.VoxelIntBoxLibrary.MakeIntBox", HasNativeBreak="/Script/Voxel.VoxelIntBoxLibrary.BreakIntBox"))
 struct VOXEL_API FVoxelIntBox
 {
 	GENERATED_BODY()
@@ -183,12 +183,12 @@ struct VOXEL_API FVoxelIntBox
 		return ((X >= Min.X) && (X < Max.X) && (Y >= Min.Y) && (Y < Max.Y) && (Z >= Min.Z) && (Z < Max.Z));
 	}
 	template<typename T>
-	FORCEINLINE typename TEnableIf<TOr<TIsSame<T, FVector>, TIsSame<T, FVoxelDoubleVector>, TIsSame<T, FIntVector>>::Value, bool>::Type ContainsTemplate(const T& V) const
+	FORCEINLINE typename std::enable_if_t<std::disjunction_v<std::is_same<T, FVector>, std::is_same<T, FVoxelDoubleVector>, std::is_same<T, FIntVector>>, bool> ContainsTemplate(const T& V) const
 	{
 		return ContainsTemplate(V.X, V.Y, V.Z);
 	}
 	template<typename T>
-	FORCEINLINE typename TEnableIf<TOr<TIsSame<T, FBox>, TIsSame<T, FVoxelIntBox>>::Value, bool>::Type ContainsTemplate(const T& Other) const
+	FORCEINLINE typename std::enable_if_t<std::disjunction_v<std::is_same<T, FBox>, std::is_same<T, FVoxelIntBox>>, bool> ContainsTemplate(const T& Other) const
 	{
 		return Min.X <= Other.Min.X && Min.Y <= Other.Min.Y && Min.Z <= Other.Min.Z &&
 			   Max.X >= Other.Max.X && Max.Y >= Other.Max.Y && Max.Z >= Other.Max.Z;
@@ -668,7 +668,7 @@ FORCEINLINE FArchive& operator<<(FArchive& Ar, FVoxelIntBox& Box)
 }
 
 // Voxel Int Box with a IsValid flag
-USTRUCT(BlueprintType, meta=(HasNativeMake="Voxel.VoxelIntBoxLibrary.MakeIntBoxWithValidity", HasNativeBreak="Voxel.VoxelIntBoxLibrary.BreakIntBoxWithValidity"))
+USTRUCT(BlueprintType, meta=(HasNativeMake="/Script/Voxel.VoxelIntBoxLibrary.MakeIntBoxWithValidity", HasNativeBreak="/Script/Voxel.VoxelIntBoxLibrary.BreakIntBoxWithValidity"))
 struct FVoxelIntBoxWithValidity
 {
 	GENERATED_BODY()

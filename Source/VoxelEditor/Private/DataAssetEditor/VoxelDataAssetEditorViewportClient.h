@@ -29,8 +29,9 @@ public:
 	virtual bool InputKey(const FInputKeyEventArgs& EventArgs) override;
 	virtual bool InputAxis(const FInputKeyEventArgs& Args) override;
 	virtual void ProcessClick(class FSceneView& View, class HHitProxy* HitProxy, FKey Key, EInputEvent Event, uint32 HitX, uint32 HitY) override;
-	virtual int32 GetCameraSpeedSetting() const override;
-	virtual void SetCameraSpeedSetting(int32 SpeedSetting) override;
+	// UE 5.7: GetCameraSpeedSetting and SetCameraSpeedSetting are now final in FEditorViewportClient
+	// virtual int32 GetCameraSpeedSetting() const override;
+	// virtual void SetCameraSpeedSetting(int32 SpeedSetting) override;
 	virtual void MouseMove(FViewport* Viewport, int32 x, int32 y) override;
 	virtual void UpdateMouseDelta() override;
 	//~ End FEditorViewportClient interface

@@ -60,7 +60,7 @@ public:
 	bool bPaint = true;
 
 	// Use to restrict editing on some channels
-	UPROPERTY(Category = "Paint Settings", AdvancedDisplay, EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bPaint", Bitmask, BitmaskEnum = EVoxelMaterialMask_BP))
+	UPROPERTY(Category = "Paint Settings", AdvancedDisplay, EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bPaint", Bitmask, BitmaskEnum = "/Script/Voxel.EVoxelMaterialMask_BP"))
 	int32 PaintMask = EVoxelMaterialMask::All;
 	
 	UPROPERTY(Category = "Paint Settings", EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bPaint", ShowForMaterialConfigs = "RGB, SingleIndex"))

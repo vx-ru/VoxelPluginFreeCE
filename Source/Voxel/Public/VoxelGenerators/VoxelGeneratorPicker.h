@@ -22,7 +22,7 @@ template<typename TGenerator, bool bWeakPtr>
 struct TVoxelGeneratorPicker
 {
 public:
-	static constexpr bool bIsTransformable = TIsSame<TGenerator, UVoxelTransformableGenerator>::Value;
+	static constexpr bool bIsTransformable = std::is_same_v<TGenerator, UVoxelTransformableGenerator>;
 	
 	using UGenerator = TGenerator;
 	using FInstance = std::conditional_t<bIsTransformable, FVoxelTransformableGeneratorInstance, FVoxelGeneratorInstance>;
@@ -135,7 +135,7 @@ struct FVoxelWeakTransformableGeneratorPicker : TVoxelGeneratorPicker<UVoxelTran
 	using TVoxelGeneratorPicker<UVoxelTransformableGenerator, true>::TVoxelGeneratorPicker;
 };
 
-USTRUCT(BlueprintType, meta=(HasNativeMake="Voxel.VoxelGeneratorTools.MakeGeneratorPickerFromObject"))
+USTRUCT(BlueprintType, meta=(HasNativeMake="/Script/Voxel.VoxelGeneratorTools.MakeGeneratorPickerFromObject"))
 struct VOXEL_API FVoxelGeneratorPicker
 #if CPP
 	: TVoxelGeneratorPicker<UVoxelGenerator, false>
@@ -155,7 +155,7 @@ struct VOXEL_API FVoxelGeneratorPicker
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel")
 	TSubclassOf<UVoxelGenerator> Class;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel", meta = (DisallowedClasses = "VoxelGraphMacro"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel", meta = (DisallowedClasses = "/Script/VoxelGraph.VoxelGraphMacro"))
 	UVoxelGenerator* Object = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel")
@@ -168,7 +168,7 @@ struct VOXEL_API FVoxelGeneratorPicker
 #endif
 };
 
-USTRUCT(BlueprintType, meta=(HasNativeMake="Voxel.VoxelGeneratorTools.MakeTransformableGeneratorPickerFromObject"))
+USTRUCT(BlueprintType, meta=(HasNativeMake="/Script/Voxel.VoxelGeneratorTools.MakeTransformableGeneratorPickerFromObject"))
 struct FVoxelTransformableGeneratorPicker
 #if CPP
 	: TVoxelGeneratorPicker<UVoxelTransformableGenerator, false>
@@ -188,7 +188,7 @@ struct FVoxelTransformableGeneratorPicker
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel")
 	TSubclassOf<UVoxelTransformableGenerator> Class;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel", meta = (DisallowedClasses = "VoxelGraphMacro"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel", meta = (DisallowedClasses = "/Script/VoxelGraph.VoxelGraphMacro"))
 	UVoxelTransformableGenerator* Object = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel")

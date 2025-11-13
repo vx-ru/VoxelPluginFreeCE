@@ -33,7 +33,7 @@ struct FVoxelDataItemConstructionInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel")
 	TArray<float> Parameters;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel", meta = (Bitmask, BitmaskEnum = EVoxel32BitMask))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel", meta = (Bitmask, BitmaskEnum = "/Script/Voxel.EVoxel32BitMask"))
 	int32 Mask = uint32(-1);
 
 	bool operator==(const FVoxelDataItemConstructionInfo& Other) const

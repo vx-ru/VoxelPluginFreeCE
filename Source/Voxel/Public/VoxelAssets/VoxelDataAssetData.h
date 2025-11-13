@@ -97,14 +97,14 @@ public:
 	template<typename T>
 	FORCEINLINE FVoxelValue GetValueUnsafe(T X, T Y, T Z) const
 	{
-		static_assert(TIsSame<T, int32>::Value, "should be int32");
+		static_assert(std::is_same_v<T, int32>, "should be int32");
 		checkVoxelSlow(Values.IsValidIndex(GetIndex(X, Y, Z)));
 		return FVoxelUtilities::Get(Values, GetIndex(X, Y, Z));
 	}
 	template<typename T>
 	FORCEINLINE FVoxelMaterial GetMaterialUnsafe(T X, T Y, T Z) const
 	{
-		static_assert(TIsSame<T, int32>::Value, "should be int32");
+		static_assert(std::is_same_v<T, int32>, "should be int32");
 		checkVoxelSlow(Materials.IsValidIndex(GetIndex(X, Y, Z)));
 		return FVoxelUtilities::Get(Materials, GetIndex(X, Y, Z));
 	}

@@ -25,7 +25,7 @@ struct FVoxelToolAxes
 	static constexpr const TCHAR* Strength = TEXT("Strength");
 };
 
-USTRUCT(BlueprintType, meta=(HasNativeMake="Voxel.VoxelTool.MakeVoxelToolTickData"))
+USTRUCT(BlueprintType, meta=(HasNativeMake="/Script/Voxel.VoxelTool.MakeVoxelToolTickData"))
 struct FVoxelToolTickData
 {
 	GENERATED_BODY()

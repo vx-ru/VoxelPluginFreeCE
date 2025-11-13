@@ -173,15 +173,16 @@ void FVoxelDataAssetEditorViewportClient::ProcessClick(class FSceneView& View, c
 	Panel.HandleClick(this, HitProxy, Click);
 }
 
-int32 FVoxelDataAssetEditorViewportClient::GetCameraSpeedSetting() const
-{
-	return GetDefault<UEditorPerProjectUserSettings>()->SCSViewportCameraSpeed;
-}
-
-void FVoxelDataAssetEditorViewportClient::SetCameraSpeedSetting(int32 SpeedSetting)
-{
-	GetMutableDefault<UEditorPerProjectUserSettings>()->SCSViewportCameraSpeed = SpeedSetting;
-}
+// UE 5.7: GetCameraSpeedSetting and SetCameraSpeedSetting are now final in FEditorViewportClient
+// int32 FVoxelDataAssetEditorViewportClient::GetCameraSpeedSetting() const
+// {
+// 	return GetDefault<UEditorPerProjectUserSettings>()->SCSViewportCameraSpeed;
+// }
+//
+// void FVoxelDataAssetEditorViewportClient::SetCameraSpeedSetting(int32 SpeedSetting)
+// {
+// 	GetMutableDefault<UEditorPerProjectUserSettings>()->SCSViewportCameraSpeed = SpeedSetting;
+// }
 
 void FVoxelDataAssetEditorViewportClient::MouseMove(FViewport* InViewport, int32 x, int32 y)
 {

@@ -11,7 +11,7 @@
 
 class AVoxelWorld;
 
-USTRUCT(BlueprintType, meta = (HasNativeMake="Voxel.VoxelProjectionTools.MakeVoxelLineTraceParameters"))
+USTRUCT(BlueprintType, meta = (HasNativeMake="/Script/Voxel.VoxelProjectionTools.MakeVoxelLineTraceParameters"))
 struct FVoxelLineTraceParameters
 {
 	GENERATED_BODY()

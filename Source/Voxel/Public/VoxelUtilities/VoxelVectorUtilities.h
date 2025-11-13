@@ -54,9 +54,9 @@ namespace FVoxelUtilities
 	}
 
 	template<typename TVector, typename TResult = TVector>
-	using TEnableIfVector2 = typename TEnableIf<TOr<TIsSame<TVector, FVector2D>, TIsSame<TVector, FVoxelVector2D>>::Value, TResult>::Type;
+	using TEnableIfVector2 = typename std::enable_if_t<std::disjunction_v<std::is_same<TVector, FVector2D>, std::is_same<TVector, FVoxelVector2D>>, TResult>;
 	template<typename TVector, typename TResult = TVector>
-	using TEnableIfVector3 = typename TEnableIf<TOr<TIsSame<TVector, FVector>, TIsSame<TVector, FVoxelVector>>::Value, TResult>::Type;
+	using TEnableIfVector3 = typename std::enable_if_t<std::disjunction_v<std::is_same<TVector, FVector>, std::is_same<TVector, FVoxelVector>>, TResult>;
 	
 	template<typename TVector>
 	FORCEINLINE TEnableIfVector2<TVector, FIntPoint> RoundToInt(const TVector& Vector)

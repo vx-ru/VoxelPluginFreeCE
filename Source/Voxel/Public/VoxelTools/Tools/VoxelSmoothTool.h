@@ -26,7 +26,7 @@ public:
 
 	// Which channels to smooth
 	// In Single Index Alpha will be automatically disabled
-	UPROPERTY(Category = "Tool Settings", EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bPaint", Bitmask, BitmaskEnum = EVoxelMaterialMask_BP))
+	UPROPERTY(Category = "Tool Settings", EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bPaint", Bitmask, BitmaskEnum = "/Script/Voxel.EVoxelMaterialMask_BP"))
 	int32 PaintMask = EVoxelMaterialMask::All;
 
 	// NumIterations also affects strength

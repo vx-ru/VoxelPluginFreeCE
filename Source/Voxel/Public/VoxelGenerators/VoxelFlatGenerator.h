@@ -19,7 +19,7 @@ struct FVoxelFlatGeneratorDataItemConfig
 	float Smoothness = 10;
 
 	// Only items matching this mask will be added
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config", meta = (Bitmask, BitmaskEnum = EVoxel32BitMask))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config", meta = (Bitmask, BitmaskEnum = "/Script/Voxel.EVoxel32BitMask"))
 	int32 Mask = 0;
 
 	// If true, will subtract the items from the world and will invert their values

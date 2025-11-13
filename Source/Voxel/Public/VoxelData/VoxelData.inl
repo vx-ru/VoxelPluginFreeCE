@@ -240,7 +240,7 @@ namespace FVoxelDataItemsUtilities
 		FVoxelDataOctreeLeaf& Leaf,
 		const T& Item)
 	{
-		if (!TIsSame<T, FVoxelAssetItem>::Value && !TIsSame<T, FVoxelDataItem>::Value)
+		if (!std::is_same_v<T, FVoxelAssetItem> && !std::is_same_v<T, FVoxelDataItem>)
 		{
 			return;
 		}
@@ -363,9 +363,9 @@ TVoxelWeakPtr<TVoxelDataItemWrapper<T>> FVoxelData::AddItem(TArgs&&... Args)
 		}
 	});
 	
-	if (TIsSame<T, FVoxelAssetItem>::Value) { INC_DWORD_STAT(STAT_NumVoxelAssetItems); }
-	if (TIsSame<T, FVoxelDisableEditsBoxItem>::Value) { INC_DWORD_STAT(STAT_NumVoxelDisableEditsItems); }
-	if (TIsSame<T, FVoxelDataItem>::Value) { INC_DWORD_STAT(STAT_NumVoxelDataItems); }
+	if (std::is_same_v<T, FVoxelAssetItem>) { INC_DWORD_STAT(STAT_NumVoxelAssetItems); }
+	if (std::is_same_v<T, FVoxelDisableEditsBoxItem>) { INC_DWORD_STAT(STAT_NumVoxelDisableEditsItems); }
+	if (std::is_same_v<T, FVoxelDataItem>) { INC_DWORD_STAT(STAT_NumVoxelDataItems); }
 
 	TItemData<T>& ItemsData = GetItemsData<T>();
 	
@@ -420,9 +420,9 @@ bool FVoxelData::RemoveItem(TVoxelWeakPtr<TVoxelDataItemWrapper<T>>& InItem, FSt
 		}
 	});
 	
-	if (TIsSame<T, FVoxelAssetItem>::Value) { DEC_DWORD_STAT(STAT_NumVoxelAssetItems); }
-	if (TIsSame<T, FVoxelDisableEditsBoxItem>::Value) { DEC_DWORD_STAT(STAT_NumVoxelDisableEditsItems); }
-	if (TIsSame<T, FVoxelDataItem>::Value) { DEC_DWORD_STAT(STAT_NumVoxelDataItems); }
+	if (std::is_same_v<T, FVoxelAssetItem>) { DEC_DWORD_STAT(STAT_NumVoxelAssetItems); }
+	if (std::is_same_v<T, FVoxelDisableEditsBoxItem>) { DEC_DWORD_STAT(STAT_NumVoxelDisableEditsItems); }
+	if (std::is_same_v<T, FVoxelDataItem>) { DEC_DWORD_STAT(STAT_NumVoxelDataItems); }
 	
 	FScopeLock Lock(&ItemsData.Section);
 	// Make sure our item is the last one

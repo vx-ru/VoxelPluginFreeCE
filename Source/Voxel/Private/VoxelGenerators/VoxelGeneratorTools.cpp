@@ -124,7 +124,7 @@ TVoxelTexture<T> UVoxelGeneratorTools::CreateTextureFromGeneratorImpl(
 	VOXEL_TOOL_FUNCTION_COUNTER(Size.X * Size.Y);
 	check(Size.X > 0 && Size.Y > 0);
 
-	using TGeneratorType = std::conditional_t<TIsSame<T, float>::Value, v_flt, T>;
+	using TGeneratorType = std::conditional_t<std::is_same_v<T, float>, v_flt, T>;
 	
 	const auto FunctionPtr = Generator.GetOutputsPtrMap<TGeneratorType>().FindRef(OutputName);
 	if (!ensure(FunctionPtr)) return {};
@@ -181,7 +181,7 @@ TVoxelSharedPtr<FVoxelGeneratorInstance> SetupGenerator(
 		return {};
 	}
 
-	using TGeneratorType = std::conditional_t<TIsSame<T, float>::Value, v_flt, T>;
+	using TGeneratorType = std::conditional_t<std::is_same_v<T, float>, v_flt, T>;
 
 	if (!Generator->Instance->GetOutputsPtrMap<TGeneratorType>().Contains(OutputName))
 	{

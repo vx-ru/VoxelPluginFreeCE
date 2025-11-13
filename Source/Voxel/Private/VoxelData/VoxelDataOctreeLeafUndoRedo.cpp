@@ -120,8 +120,8 @@ void FVoxelDataOctreeLeafUndoRedo::UndoRedo(const IVoxelData& Data, FVoxelDataOc
 			DataHolder.Set(ModifiedValue.Index, ModifiedValue.Value);
 		}
 
-		if (TIsSame<T, FVoxelValue>::Value) DataHolder.SetIsDirty(Frame->bValuesDirty, Data);
-		if (TIsSame<T, FVoxelMaterial>::Value) DataHolder.SetIsDirty(Frame->bMaterialsDirty, Data);
+		if (std::is_same_v<T, FVoxelValue>) DataHolder.SetIsDirty(Frame->bValuesDirty, Data);
+		if (std::is_same_v<T, FVoxelMaterial>) DataHolder.SetIsDirty(Frame->bMaterialsDirty, Data);
 	};
 
 	Apply(FVoxelValue());
