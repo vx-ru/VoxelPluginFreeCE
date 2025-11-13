@@ -1,26 +1,20 @@
 ﻿# Voxel Plugin
 
 **Voxel Plugin** allows to create fully volumetric, entirely destructible, infinite worlds in **Unreal Engine**.
-It is compatible with 4.24, 4.25, 4.26, 4.27 and Unreal 5.
+It is compatible with Unreal 5.
 
-**TRAILER**: https://youtu.be/LKg9rU1dXEk
+## Why this fork?
 
-## Installation 
+I have created a fork of the original repository to keep it updated with the latest Unreal Engine versions.
 
-The recommended way to install the plugin beta is to use pre-built binaries.
+## Legal Notice
 
-- Download the plugin for your engine version here: https://drive.google.com/drive/folders/1qzTSk_vdp-niSOmi3syL0yOAGiftvx3x
-- Create a `Plugins` folder under your project folder
-- Copy the plugin to it, so you have `YourProject/Plugins/VoxelFree/`
+### Licenses
 
-## Links
+This repository is derived from Voxel Plugin Free, originally distributed under the MIT License. See `LICENSE.txt`.
+Portions of the Voxel Plugin Free code have been modified solely for compatibility with newer Unreal Engine APIs and updated C++ standards. These changes are mechanically dictated and do not constitute original creative work. All modifications are distributed under the same MIT License as the original Voxel Plugin Free project.
 
-- Unreal Marketplace: https://www.unrealengine.com/marketplace/product/voxel-plugin-free
-- Docs: http://wiki.voxelplugin.com
-- Discord: https://discord.voxelplugin.com
-- Website: https://voxelplugin.com
-- Twitter: https://twitter.com/voxelplugin
-- Youtube: http://youtube.com/voxelplugin
-- UE Forums: https://forums.unrealengine.com/community/released-projects/125045-voxel-plugin
+### Affiliation
 
-![](https://i.imgur.com/ZLNNTBQ.jpg)
+This fork is not endorsed by or associated with Phyronnaz, Voxel Plugin, or any related entities.
+This project is an independent community fork intended solely to preserve and maintain compatibility of the original open-source version.
