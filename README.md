@@ -1,11 +1,11 @@
-﻿# Voxel Plugin
+﻿# Voxel Plugin Community Edition
 
-**Voxel Plugin** allows to create fully volumetric, entirely destructible, infinite worlds in **Unreal Engine**.
-It is compatible with Unreal 5.
+**Voxel Plugin Community Edition** allows to create fully volumetric, entirely destructible, infinite worlds in **Unreal Engine** using C++.
+It is compatible with Unreal Engine 5.6 and Unreal Engine 5.7. 
 
 ## Why this fork?
 
-I have created a fork of the original repository to keep it updated with the latest Unreal Engine versions.
+I have created a fork of the [original repository](https://github.com/VoxelPlugin/VoxelPluginFreeLegacy) to keep it updated with the latest Unreal Engine versions.
 
 ## Legal Notice
 
