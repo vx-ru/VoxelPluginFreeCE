@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelTools/VoxelBlueprintLibrary.h"
 #include "VoxelTools/VoxelToolHelpers.h"
@@ -537,7 +537,7 @@ FVector UVoxelBlueprintLibrary::GetNormal(AVoxelWorld* World, FIntVector Positio
 	CHECK_VOXELWORLD_IS_CREATED();
 	
 	const auto& Data = World->GetSubsystemChecked<FVoxelData>();
-	FVoxelReadScopeLock Lock(Data, FVoxelIntBox(Position - FIntVector(1), Position + FIntVector(2)), "GetNormal");
+	FVoxelReadScopeLock Lock(Data, FVoxelIntBox(Position).Extend(1), "GetNormal");
 	return FVoxelDataUtilities::GetGradientFromGetValue<int32>(FVoxelDataUtilities::MakeFloatData(Data), Position.X, Position.Y, Position.Z, 0);
 }
 
@@ -554,6 +554,7 @@ float UVoxelBlueprintLibrary::GetFloatOutput(AVoxelWorld* World, FName Name, flo
 		return 0;
 	}
 
+	FVoxelReadScopeLock Lock(Data, FVoxelIntBox(FIntVector(X, Y, Z)).Extend(1), FUNCTION_FNAME);
 	return Data.GetCustomOutput<v_flt>(DefaultValue, Name, X, Y, Z, 0);
 }
 
@@ -570,6 +571,7 @@ int32 UVoxelBlueprintLibrary::GetIntOutput(AVoxelWorld* World, FName Name, float
 		return 0;
 	}
 
+	FVoxelReadScopeLock Lock(Data, FVoxelIntBox(FIntVector(X, Y, Z)).Extend(1), FUNCTION_FNAME);
 	return Data.GetCustomOutput<int32>(DefaultValue, Name, X, Y, Z, 0);
 }
 
