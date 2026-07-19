@@ -461,7 +461,16 @@ TUniquePtr<FVoxelProcMeshBuffers> FVoxelRenderUtilities::MergeSections_AnyThread
 	{
 		PositionBuffer.VertexPosition(Index) *= RendererSettings.VoxelSize;
 	}
-	
+
+	// The collision cubes are still in voxel space, and the physics cooker tests them
+	// against these vertices with FBox::IsInside. Scale them too, else no vertex ever
+	// falls inside a cube and no convex hull is generated
+	for (FBox& Cube : CollisionCubes)
+	{
+		Cube.Min *= RendererSettings.VoxelSize;
+		Cube.Max *= RendererSettings.VoxelSize;
+	}
+
 	ProcMeshBuffers.LocalBounds = ProcMeshBuffers.LocalBounds.TransformBy(FScaleMatrix(RendererSettings.VoxelSize)).ExpandBy(RendererSettings.BoundsExtension);
 
 #if VOXEL_DEBUG
