@@ -2,6 +2,8 @@
 
 #include "VoxelGenerators/VoxelGeneratorInit.h"
 #include "VoxelGenerators/VoxelGeneratorCache.h"
+// AddReferencedObject needs the complete type
+#include "VoxelRender/MaterialCollections/VoxelMaterialCollectionBase.h"
 
 FVoxelGeneratorInit::FVoxelGeneratorInit(
 	float VoxelSize, 

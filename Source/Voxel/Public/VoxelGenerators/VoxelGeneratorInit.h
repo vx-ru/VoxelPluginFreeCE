@@ -30,8 +30,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Init")
 	EVoxelMaterialConfig MaterialConfig = EVoxelMaterialConfig::RGB;
 
+	// TObjectPtr, not a raw pointer: AddReferencedObject only accepts TObjectPtr since 5.3,
+	// raw pointers randomly crash with incremental GC enabled
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Init")
-	const UVoxelMaterialCollectionBase* MaterialCollection = nullptr;
+	TObjectPtr<const UVoxelMaterialCollectionBase> MaterialCollection = nullptr;
 
 	// Can be null. Needs to be a weak pointer, else the GC freaks out when exiting the map with an alive generator cache pointing to this 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Init")

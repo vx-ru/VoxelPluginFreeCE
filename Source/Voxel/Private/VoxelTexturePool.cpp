@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelRender/VoxelTexturePool.h"
 #include "VoxelRender/VoxelMaterialInterface.h"
@@ -475,7 +475,7 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 				
 				VOXEL_RENDER_SCOPE_COUNTER("RHIUpdateTexture2D");
 				INC_DWORD_STAT(STAT_VoxelTexturePool_NumRHIUpdateTexture2D);
-				RHIUpdateTexture2D(TextureRHI, 0, Region, Num * ColorData->GetStride(), Data);
+				RHICmdList.UpdateTexture2D(TextureRHI, 0, Region, Num * ColorData->GetStride(), Data);
 
 				FirstIndex += Num;
 				Data += Region.Width * Region.Height * ColorData->GetStride();
@@ -504,7 +504,7 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 				
 				VOXEL_RENDER_SCOPE_COUNTER("RHIUpdateTexture2D");
 				INC_DWORD_STAT(STAT_VoxelTexturePool_NumRHIUpdateTexture2D);
-				RHIUpdateTexture2D(TextureRHI, 0, Region, RowSize * ColorData->GetStride(), Data);
+				RHICmdList.UpdateTexture2D(TextureRHI, 0, Region, RowSize * ColorData->GetStride(), Data);
 
 				Data += Region.Width * Region.Height * ColorData->GetStride();
 				check(Data <= EndData);
@@ -526,7 +526,7 @@ void FVoxelTexturePool::FEntry::CopyDataToTexture(bool bJustClearData) const
 				
 				VOXEL_RENDER_SCOPE_COUNTER("RHIUpdateTexture2D");
 				INC_DWORD_STAT(STAT_VoxelTexturePool_NumRHIUpdateTexture2D);
-				RHIUpdateTexture2D(TextureRHI, 0, Region, Num * ColorData->GetStride(), Data);
+				RHICmdList.UpdateTexture2D(TextureRHI, 0, Region, Num * ColorData->GetStride(), Data);
 				
 				Data += Region.Width * Region.Height * ColorData->GetStride();
 			}
