@@ -34,5 +34,5 @@ struct FVoxelScopedStat
 	}
 };
 
-#define VOXEL_SCOPED_STAT(Time, Count) FVoxelScopedStat PREPROCESSOR_JOIN(__VoxelScopedTime, __LINE__)(Time, Count)
+#define VOXEL_SCOPED_STAT(Time, Count) FVoxelScopedStat UE_JOIN(__VoxelScopedTime, __LINE__)(Time, Count)
 #define VOXEL_INLINE_STAT(Time, Count, Expr) [&]() { FVoxelScopedStat LocalScope(Time, Count); return Expr; }()

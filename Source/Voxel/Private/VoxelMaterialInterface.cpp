@@ -39,7 +39,7 @@ TVoxelSharedRef<FVoxelMaterialInterface> FVoxelMaterialInterfaceManager::CreateM
 }
 
 // To access SetParentInternal
-class FMaterialInstanceResource
+class FMaterialInstanceRenderProxy
 {
 public:
 	static void SetParent(UMaterialInstanceDynamic& Instance, UMaterialInterface* Parent)
@@ -64,12 +64,12 @@ TVoxelSharedRef<FVoxelMaterialInterface> FVoxelMaterialInterfaceManager::CreateM
 
 	if (auto* ParentInstance = Cast<UMaterialInstanceDynamic>(Parent))
 	{
-		FMaterialInstanceResource::SetParent(*Instance, ParentInstance->Parent);
+		FMaterialInstanceRenderProxy::SetParent(*Instance, ParentInstance->Parent);
 		Instance->CopyParameterOverrides(ParentInstance);
 	}
 	else
 	{
-		FMaterialInstanceResource::SetParent(*Instance, Parent);
+		FMaterialInstanceRenderProxy::SetParent(*Instance, Parent);
 	}
 
 	return CreateMaterialImpl(Instance, true);

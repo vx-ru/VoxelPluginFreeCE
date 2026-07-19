@@ -254,7 +254,7 @@ void UVoxelErosion::Init_RenderThread(FRHICommandList& RHICmdList)
 			.SetInitialState(ERHIAccess::Unknown);
 
 		Texture = RHICreateTexture(Desc);
-		UAV = RHICmdList.CreateUnorderedAccessView(Texture, 0);
+		UAV = RHICmdList.CreateUnorderedAccessView(Texture, FRHIViewDesc::CreateTextureUAV().SetDimensionFromTexture(Texture));
 	};
 
 	// Create all textures and UAVs

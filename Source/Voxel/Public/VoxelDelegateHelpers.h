@@ -70,19 +70,9 @@ namespace Private
 		}
 
 		// IBaseDelegateInstance interface
-		virtual void CreateCopy(TDelegateBase<FThreadSafeDelegateMode>& Base) const final override
+		virtual void CreateCopy(const FPrivateDelegateAllocation& Target) const final override
 		{
-			CreateDelegateInstanceImpl<ThisType>(Base, *this);
-		}
-
-		virtual void CreateCopy(TDelegateBase<FNotThreadSafeDelegateMode>& Base) const override
-		{
-			CreateDelegateInstanceImpl<ThisType>(Base, *this);
-		}
-
-		virtual void CreateCopy(TDelegateBase<FNotThreadSafeNotCheckedDelegateMode>& Base) const override
-		{
-			CreateDelegateInstanceImpl<ThisType>(Base, *this);
+			new (Target) ThisType(*this);
 		}
 
 		virtual RetValType Execute(ParamTypes... Params) const final override

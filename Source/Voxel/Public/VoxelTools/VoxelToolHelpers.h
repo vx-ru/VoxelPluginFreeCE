@@ -337,7 +337,7 @@ if (!World->IsCreated()) \
 	return ReturnValue; \
 }
 #define CHECK_VOXELWORLD_IS_CREATED() CHECK_VOXELWORLD_IS_CREATED_IMPL(World, {});
-#define CHECK_VOXELWORLD_IS_CREATED_VOID() CHECK_VOXELWORLD_IS_CREATED_IMPL(World, PREPROCESSOR_NOTHING);
+#define CHECK_VOXELWORLD_IS_CREATED_VOID() CHECK_VOXELWORLD_IS_CREATED_IMPL(World, UE_EMPTY);
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ if (!Object) \
 	return ReturnValue; \
 }
 #define CHECK_OBJECT_PARAMETER(Object) CHECK_OBJECT_PARAMETER_IMPL(Object, {});
-#define CHECK_OBJECT_PARAMETER_VOID(Object) CHECK_OBJECT_PARAMETER_IMPL(Object, PREPROCESSOR_NOTHING);
+#define CHECK_OBJECT_PARAMETER_VOID(Object) CHECK_OBJECT_PARAMETER_IMPL(Object, UE_EMPTY);
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -363,7 +363,7 @@ if (!World && bConvertToVoxelSpace) \
 	return ReturnValue; \
 }
 #define CHECK_VOXELWORLD_FOR_CONVERT_TO_VOXEL_SPACE() CHECK_VOXELWORLD_FOR_CONVERT_TO_VOXEL_SPACE_IMPL({});
-#define CHECK_VOXELWORLD_FOR_CONVERT_TO_VOXEL_SPACE_VOID() CHECK_VOXELWORLD_FOR_CONVERT_TO_VOXEL_SPACE_IMPL(PREPROCESSOR_NOTHING);
+#define CHECK_VOXELWORLD_FOR_CONVERT_TO_VOXEL_SPACE_VOID() CHECK_VOXELWORLD_FOR_CONVERT_TO_VOXEL_SPACE_IMPL(UE_EMPTY);
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -376,7 +376,7 @@ if (!Bounds.IsValid()) \
 	return ReturnValue; \
 }
 #define CHECK_BOUNDS_ARE_VALID() CHECK_BOUNDS_ARE_VALID_IMPL({});
-#define CHECK_BOUNDS_ARE_VALID_VOID() CHECK_BOUNDS_ARE_VALID_IMPL(PREPROCESSOR_NOTHING);
+#define CHECK_BOUNDS_ARE_VALID_VOID() CHECK_BOUNDS_ARE_VALID_IMPL(UE_EMPTY);
 
 #define CHECK_BOUNDS_ARE_32BITS_IMPL(ReturnValue) \
 if (!FVoxelUtilities::CountIs32Bits(Bounds.Size())) \
@@ -385,7 +385,7 @@ if (!FVoxelUtilities::CountIs32Bits(Bounds.Size())) \
 	return ReturnValue; \
 }
 #define CHECK_BOUNDS_ARE_32BITS() CHECK_BOUNDS_ARE_32BITS_IMPL({});
-#define CHECK_BOUNDS_ARE_32BITS_VOID() CHECK_BOUNDS_ARE_32BITS_IMPL(PREPROCESSOR_NOTHING);
+#define CHECK_BOUNDS_ARE_32BITS_VOID() CHECK_BOUNDS_ARE_32BITS_IMPL(UE_EMPTY);
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
