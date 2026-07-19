@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #pragma once
 
@@ -81,7 +81,7 @@ public:
 	// However, it can lead to delays in foliage spawning.
 	// To disable this feature entirely, set it to 0
 	UPROPERTY(EditAnywhere, AdvancedDisplay, BlueprintReadWrite, Category = "Instance Settings", meta = (ClampMin = 0, DisplayName = "Culling Tree Build Delay"))
-	float BuildDelay = 0.1;
+	float BuildDelay = 0.1f;
 
 	// If you want to edit the HISM properties create a BP inheriting from HierarchicalInstancedStaticMeshComponent and set it here
 	UPROPERTY(EditAnywhere, AdvancedDisplay, BlueprintReadWrite, Category = "Instance Settings", AdvancedDisplay, meta = (DisplayName = "HISM Template"))

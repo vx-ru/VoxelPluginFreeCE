@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #pragma once
 
@@ -29,12 +29,14 @@ public:
 #endif
 
 	static TVoxelSharedRef<FVoxelProcMeshBuffersRenderData> GetRenderData(
+		FRHICommandListBase& RHICmdList,
 		const TVoxelSharedRef<const FVoxelProcMeshBuffers>& Buffers,
 		ERHIFeatureLevel::Type FeatureLevel);
 	~FVoxelProcMeshBuffersRenderData();
 
 private:
 	explicit FVoxelProcMeshBuffersRenderData(
+		FRHICommandListBase& RHICmdList,
 		const TVoxelSharedRef<const FVoxelProcMeshBuffers>& Buffers,
 		ERHIFeatureLevel::Type FeatureLevel);
 };

@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #pragma once
 
@@ -20,7 +20,7 @@ public:
 
 public:
 	UPROPERTY(Category = "Tool Settings", EditAnywhere, BlueprintReadWrite, meta = (UIMin = "0", UIMax = "1"))
-	float Falloff = 0.1;
+	float Falloff = 0.1f;
 
 	UPROPERTY(Category = "Tool Settings", EditAnywhere, BlueprintReadWrite, meta = (UIMin = "0", UIMax = "10000"))
 	float Height = 1000.f;

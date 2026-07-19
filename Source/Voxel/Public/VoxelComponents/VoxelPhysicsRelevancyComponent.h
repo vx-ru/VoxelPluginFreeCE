@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #pragma once
 
@@ -29,7 +29,7 @@ public:
 	float TimeToWaitBeforeActivating = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Voxel")
-	float TickInterval = 0.1;
+	float TickInterval = 0.1f;
 
 protected:
 	//~ Begin UActorComponent Interface

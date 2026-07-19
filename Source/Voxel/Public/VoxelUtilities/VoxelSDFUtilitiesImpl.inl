@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #if defined(__INTELLISENSE__) || defined(__RSCPP_VERSION)
 #include "CoreMinimal.h"
@@ -243,7 +243,7 @@ FORCEINLINE flt sdPlane(vec3 p, vec3 n)
 // Hexagonal Prism - exact
 FORCEINLINE flt sdHexPrism(vec3 p, vec2 h)
 {
-	const vec3 k = vec3(-0.8660254, 0.5, 0.57735);
+	const vec3 k = vec3(v_flt(-0.8660254), v_flt(0.5), v_flt(0.57735));
 	p = abs(p);
 	p.set_xy(p.xy() - 2.0 * min(dot(k.xy(), p.xy()), 0.0) * k.xy());
 	vec2 d = vec2(

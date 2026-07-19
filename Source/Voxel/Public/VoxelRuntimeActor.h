@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #pragma once
 
@@ -105,7 +105,7 @@ public:
 	
 	// Min delay between two LOD updates, in seconds
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = "Voxel - LOD Settings", meta = (RecreateRender, ClampMin = 0), DisplayName = "Min Delay Between LOD Updates")
-	float MinDelayBetweenLODUpdates = 0.1;
+	float MinDelayBetweenLODUpdates = 0.1f;
 
 	// If true, the LODs will be updated only once at start
 	// LODs can still be updated using ForceLODsUpdate or ApplyLODSettings

@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelRender/VoxelProceduralMeshSceneProxy.h"
 #include "VoxelRender/VoxelProceduralMeshComponent.h"
@@ -57,6 +57,7 @@ DECLARE_DWORD_COUNTER_STAT(TEXT("Num Voxel Triangles Drawn  For Tools"), STAT_Nu
 ///////////////////////////////////////////////////////////////////////////////
 
 FVoxelProcMeshBuffersRenderData::FVoxelProcMeshBuffersRenderData(
+	FRHICommandListBase& RHICmdList,
 	const TVoxelSharedRef<const FVoxelProcMeshBuffers>& Buffers,
 	ERHIFeatureLevel::Type FeatureLevel)
 	: Buffers(Buffers)
@@ -83,7 +84,7 @@ FVoxelProcMeshBuffersRenderData::FVoxelProcMeshBuffersRenderData(
 	VertexBuffers.StaticMeshVertexBuffer.BindTangentVertexBuffer(&VertexFactory, Data);
 	VertexBuffers.StaticMeshVertexBuffer.BindPackedTexCoordVertexBuffer(&VertexFactory, Data);
 	VertexBuffers.ColorVertexBuffer.BindColorVertexBuffer(&VertexFactory, Data);
-	VertexFactory.SetData(Data);
+	VertexFactory.SetData(RHICmdList, Data);
 	BeginInitResource(&VertexFactory);
 
 #if RHI_RAYTRACING
@@ -109,13 +110,14 @@ FVoxelProcMeshBuffersRenderData::FVoxelProcMeshBuffersRenderData(
 }
 
 TVoxelSharedRef<FVoxelProcMeshBuffersRenderData> FVoxelProcMeshBuffersRenderData::GetRenderData(
+	FRHICommandListBase& RHICmdList,
 	const TVoxelSharedRef<const FVoxelProcMeshBuffers>& Buffers,
 	ERHIFeatureLevel::Type FeatureLevel)
 {
 	check(IsInRenderingThread());
 	if (!Buffers->RenderData.IsValid())
 	{
-		auto Result = TVoxelSharedRef<FVoxelProcMeshBuffersRenderData>(new FVoxelProcMeshBuffersRenderData(Buffers, FeatureLevel));
+		auto Result = TVoxelSharedRef<FVoxelProcMeshBuffersRenderData>(new FVoxelProcMeshBuffersRenderData(RHICmdList, Buffers, FeatureLevel));
 		Buffers->RenderData = Result;
 		return Result;
 	}
@@ -261,7 +263,7 @@ void FVoxelProceduralMeshSceneProxy::CreateRenderThreadResources(FRHICommandList
 		check(Section.Buffers.IsValid());
 		if (Section.bSectionVisible || NOT_SHIPPING_NOR_TEST) // Need to init for debug
 		{
-			Section.RenderData = FVoxelProcMeshBuffersRenderData::GetRenderData(Section.Buffers.ToSharedRef(), GetScene().GetFeatureLevel());
+			Section.RenderData = FVoxelProcMeshBuffersRenderData::GetRenderData(RHICmdList, Section.Buffers.ToSharedRef(), GetScene().GetFeatureLevel());
 		}
 	}
 }
@@ -574,7 +576,7 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingIn
 			auto& RenderData = *Section.RenderData;
 			if (RenderData.RayTracingGeometry.GetRHI())
 			{
-				check(RenderData.RayTracingGeometry.Initializer.IndexBuffer.IsValid());
+				check(RenderData.RayTracingGeometry.GetInitializer().IndexBuffer.IsValid());
 
 				FRayTracingInstance RayTracingInstance;
 				RayTracingInstance.Geometry = &RenderData.RayTracingGeometry;

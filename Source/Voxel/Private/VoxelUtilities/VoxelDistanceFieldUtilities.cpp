@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelUtilities/VoxelDistanceFieldUtilities.h"
 #include "VoxelUtilities/VoxelDistanceFieldUtilities.inl"
@@ -11,7 +11,7 @@ FColor FVoxelDistanceFieldUtilities::GetDistanceFieldColor(float Value)
 {
 	// Credit for this snippet goes to Inigo Quilez
 	
-	FLinearColor Color = FLinearColor::White - FMath::Sign(Value) * FLinearColor(0.1, 0.4, 0.7, 0.f);
+	FLinearColor Color = FLinearColor::White - FMath::Sign(Value) * FLinearColor(0.1f, 0.4f, 0.7f, 0.f);
 	Color *= 1.0 - FMath::Exp(-3.0 * FMath::Abs(Value));
 	Color *= 0.8 + 0.2 * FMath::Cos(150.0 * Value);
 	Color = FMath::Lerp(Color, FLinearColor::White, 1.0 - FMath::SmoothStep(0.0, 0.01, FMath::Abs<double>(Value)));

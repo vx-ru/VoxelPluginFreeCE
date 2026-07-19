@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #pragma once
 
@@ -17,7 +17,7 @@ public:
 
 public:
 	UPROPERTY(Category = "Tool Settings", EditAnywhere, BlueprintReadWrite, meta = (UIMin = "0", UIMax = "1"))
-	float Strength = 0.1;
+	float Strength = 0.1f;
 
 	// If true, the plane used for flatten will be the same while clicking
 	UPROPERTY(Category = "Tool Settings", EditAnywhere, BlueprintReadWrite)

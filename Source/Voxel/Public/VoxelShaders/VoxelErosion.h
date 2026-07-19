@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #pragma once
 
@@ -23,7 +23,7 @@ public:
 
 	// Time elapsed between each simulation step. Smaller = more stable, but slower
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Erosion Parameters")
-    float DeltaTime = 0.005;
+    float DeltaTime = 0.005f;
 
 	// The scale of the simulation. Should leave to default
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Erosion Parameters")
@@ -35,17 +35,17 @@ public:
 
 	// How much sediment a volume of water can carry
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Erosion Parameters")
-    float SedimentCapacity = 0.05;
+    float SedimentCapacity = 0.05f;
 
 	// How much sediment is removed from height by the water in each step
 	// This controls the "strength" of the erosion
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Erosion Parameters")
-    float SedimentDissolving = 0.001;
+    float SedimentDissolving = 0.001f;
 
 	// How much sediment can go from the water to the height
 	// This controls how far the sediments are carried
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Erosion Parameters")
-    float SedimentDeposition = 0.0001;
+    float SedimentDeposition = 0.0001f;
 
 	// Amount of water added per step
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Erosion Parameters")
