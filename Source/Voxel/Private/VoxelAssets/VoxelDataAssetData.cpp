@@ -1,7 +1,8 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelAssets/VoxelDataAssetData.h"
 #include "VoxelUtilities/VoxelSerializationUtilities.h"
+#include "VoxelUtilities/VoxelSerializationUtilities.inl"
 #include "VoxelFeedbackContext.h"
 
 DEFINE_VOXEL_MEMORY_STAT(STAT_VoxelDataAssetMemory);

@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelAssets/VoxelHeightmapAsset.h"
 #include "VoxelAssets/VoxelHeightmapAssetInstance.h"
@@ -6,6 +6,7 @@
 #include "VoxelMessages.h"
 #include "VoxelFeedbackContext.h"
 #include "VoxelUtilities/VoxelSerializationUtilities.h"
+#include "VoxelUtilities/VoxelSerializationUtilities.inl"
 #include "VoxelGenerators/VoxelEmptyGenerator.h"
 #include "VoxelGenerators/VoxelTransformableGeneratorHelper.h"
 

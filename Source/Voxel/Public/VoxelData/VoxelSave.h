@@ -33,7 +33,10 @@ namespace FVoxelSaveVersion
 		StoreMaterialChannelsIndividuallyAndRemoveFoliage,
 		ProperlySerializePlaceableItemsObjects,
 		Use64BitArrays,
-		
+		// Buffer indices are int64 and single materials are stored as negative indices.
+		// Saves older than this cannot be loaded
+		Use64BitIndices,
+
 		// -----<new versions can be added above this line>-------------------------------------------------
 		VersionPlusOne,
 		LatestVersion = VersionPlusOne - 1
@@ -122,9 +125,9 @@ private:
 	{
 		FIntVector Position;
 
-		int32 ValuesIndex = -1;
-		// Index into MaterialsIndices. MaterialsIndices are indices to single materials if they have MaterialIndexSingleValueFlag
-		int32 MaterialsIndex = -1;
+		int64 ValuesIndex = -1;
+		// Index into MaterialsIndices
+		int64 MaterialsIndex = -1;
 
 		bool bSingleValue = false;
 
@@ -141,9 +144,23 @@ private:
 		}
 	};
 
-	// In theory shouldn't overlap with actual data, as array nums are int32
-	static constexpr uint32 MaterialIndexSingleValueFlag = 1u << 31;
-	
+	// A material channel index is either an index into MaterialBuffers64, or, when negative,
+	// the bitwise complement of an index into SingleMaterials64. Encoding it in the sign
+	// keeps the full positive range usable, unlike stealing a high bit
+	static constexpr int64 EncodeSingleMaterialIndex(int64 Index)
+	{
+		return ~Index;
+	}
+	static constexpr bool IsSingleMaterialIndex(int64 Index)
+	{
+		return Index < 0;
+	}
+	static constexpr int64 DecodeSingleMaterialIndex(int64 Index)
+	{
+		return ~Index;
+	}
+
+
 	int32 Version = -1;
 	FGuid Guid;
 	int32 Depth = -1;
@@ -152,7 +169,7 @@ private:
 	FVoxelValueArray64 ValueBuffers64;
 	FVoxelValueArray64 SingleValues64;
 	
-	TNoGrowArray64<TVoxelMaterialStorage<uint32>> MaterialsIndices64;
+	TNoGrowArray64<TVoxelMaterialStorage<int64>> MaterialsIndices64;
 	TNoGrowArray64<uint8> MaterialBuffers64;
 	TNoGrowArray64<uint8> SingleMaterials64;
 	

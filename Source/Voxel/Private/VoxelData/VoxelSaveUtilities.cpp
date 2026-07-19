@@ -1,4 +1,4 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelData/VoxelSaveUtilities.h"
 #include "VoxelData/VoxelDataOctreeLeafData.h"
@@ -26,12 +26,13 @@ void FVoxelSaveBuilder::Save(FVoxelUncompressedWorldSaveImpl& OutSave, TArray<FV
 	OutSave.Chunks64.Empty(ChunksToSave.Num());
 
 	{
-		uint32 NumValueBuffers = 0;
-		uint32 NumSingleValues = 0;
-		
-		uint32 NumMaterialsIndices = 0;
-		uint32 NumMaterialBuffers = 0;
-		uint32 NumSingleMaterials = 0;
+		// int64: NumX * VOXELS_PER_DATA_CHUNK overflows 32 bit arithmetic at 1M chunks
+		int64 NumValueBuffers = 0;
+		int64 NumSingleValues = 0;
+
+		int64 NumMaterialsIndices = 0;
+		int64 NumMaterialBuffers = 0;
+		int64 NumSingleMaterials = 0;
 		
 		for (auto& Chunk : ChunksToSave)
 		{
@@ -97,7 +98,7 @@ void FVoxelSaveBuilder::Save(FVoxelUncompressedWorldSaveImpl& OutSave, TArray<FV
 		
 		if (Chunk.Materials->IsDirty())
 		{
-			TVoxelMaterialStorage<uint32> MaterialIndices;
+			TVoxelMaterialStorage<int64> MaterialIndices;
 			
 			if (Chunk.Materials->bUseChannels)
 			{
@@ -105,15 +106,15 @@ void FVoxelSaveBuilder::Save(FVoxelUncompressedWorldSaveImpl& OutSave, TArray<FV
 				{
 					if (auto& DataPtr = Chunk.Materials->Channels_DataPtr[Channel])
 					{
-						const int32 Index = OutSave.MaterialBuffers64.AddUninitialized(VOXELS_PER_DATA_CHUNK);
+						const int64 Index = OutSave.MaterialBuffers64.AddUninitialized(VOXELS_PER_DATA_CHUNK);
 						FMemory::Memcpy(&OutSave.MaterialBuffers64[Index], DataPtr, sizeof(uint8) * VOXELS_PER_DATA_CHUNK);
 
 						MaterialIndices.GetRaw(Channel) = Index;
 					}
 					else
 					{
-						MaterialIndices.GetRaw(Channel) = OutSave.SingleMaterials64.Add(Chunk.Materials->Channels_SingleValue[Channel]);
-						MaterialIndices.GetRaw(Channel) |= FVoxelUncompressedWorldSaveImpl::MaterialIndexSingleValueFlag;
+						MaterialIndices.GetRaw(Channel) = FVoxelUncompressedWorldSaveImpl::EncodeSingleMaterialIndex(
+							OutSave.SingleMaterials64.Add(Chunk.Materials->Channels_SingleValue[Channel]));
 					}
 				}
 			}
@@ -211,7 +212,7 @@ void FVoxelSaveLoader::ExtractChunk(
 		bool bHasAnySingleValue = false;
 		for (int32 Channel = 0; Channel < FVoxelMaterial::NumChannels; Channel++)
 		{
-			if (MaterialIndices.GetRaw(Channel) & FVoxelUncompressedWorldSaveImpl::MaterialIndexSingleValueFlag)
+			if (FVoxelUncompressedWorldSaveImpl::IsSingleMaterialIndex(MaterialIndices.GetRaw(Channel)))
 			{
 				bHasAnySingleValue = true;
 				break;
@@ -223,10 +224,10 @@ void FVoxelSaveLoader::ExtractChunk(
 			OutMaterials.bUseChannels = true;
 			for (int32 Channel = 0; Channel < FVoxelMaterial::NumChannels; Channel++)
 			{
-				const int32 ChannelIndex = MaterialIndices.GetRaw(Channel);
-				if (ChannelIndex & FVoxelUncompressedWorldSaveImpl::MaterialIndexSingleValueFlag)
+				const int64 ChannelIndex = MaterialIndices.GetRaw(Channel);
+				if (FVoxelUncompressedWorldSaveImpl::IsSingleMaterialIndex(ChannelIndex))
 				{
-					OutMaterials.Channels_SingleValue[Channel] = Save.SingleMaterials64[ChannelIndex & (~FVoxelUncompressedWorldSaveImpl::MaterialIndexSingleValueFlag)];
+					OutMaterials.Channels_SingleValue[Channel] = Save.SingleMaterials64[FVoxelUncompressedWorldSaveImpl::DecodeSingleMaterialIndex(ChannelIndex)];
 				}
 				else
 				{
