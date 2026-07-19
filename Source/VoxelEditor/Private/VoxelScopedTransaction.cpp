@@ -5,6 +5,9 @@
 #include "VoxelData/VoxelData.h"
 #include "VoxelWorld.h"
 #include "Editor.h"
+// UE 5.8 no longer pulls the full ITransaction definition in through Editor.h,
+// and GUndo->StoreUndo needs the complete type.
+#include "Misc/ITransaction.h"
 
 FVoxelChangeBase::FVoxelChangeBase(FName Name)
 {
