@@ -30,7 +30,7 @@ void FVoxelErosionCS::ModifyCompilationEnvironment(const FGlobalShaderPermutatio
 }
 
 void FVoxelErosionCS::SetSurfaces(
-	FRHICommandList& RHICmdList,
+	FRHIBatchedShaderParameters& BatchedParameters,
 	FUnorderedAccessViewRHIRef RainMapUAV,
 	FUnorderedAccessViewRHIRef TerrainHeightUAV,
 	FUnorderedAccessViewRHIRef TerrainHeight1UAV,
@@ -42,7 +42,7 @@ void FVoxelErosionCS::SetSurfaces(
 	FUnorderedAccessViewRHIRef OutflowUAV,
 	FUnorderedAccessViewRHIRef VelocityUAV)
 {
-#define PROCESS_SURFACE(Name) SetUAVParameter(RHICmdList.GetScratchShaderParameters(), Name, Name##UAV);
+#define PROCESS_SURFACE(Name) SetUAVParameter(BatchedParameters, Name, Name##UAV);
 	PROCESS_SURFACE(RainMap);
 	PROCESS_SURFACE(TerrainHeight);
 	PROCESS_SURFACE(TerrainHeight1);
@@ -56,16 +56,16 @@ void FVoxelErosionCS::SetSurfaces(
 #undef PROCESS_SURFACE
 }
 
-void FVoxelErosionCS::SetUniformBuffers(FRHICommandList& RHICmdList, const FVoxelErosionParameters& Parameters)
+void FVoxelErosionCS::SetUniformBuffers(FRHIBatchedShaderParameters& BatchedParameters, const FVoxelErosionParameters& Parameters)
 {
 	const FVoxelErosionParametersRef ParametersBuffer = FVoxelErosionParametersRef::CreateUniformBufferImmediate(Parameters, UniformBuffer_MultiFrame);
-	SetUniformBufferParameter(RHICmdList.GetScratchShaderParameters(), GetUniformBufferParameter<FVoxelErosionParameters>(), ParametersBuffer);
+	SetUniformBufferParameter(BatchedParameters, GetUniformBufferParameter<FVoxelErosionParameters>(), ParametersBuffer);
 }
 
 /* Unbinds buffers that will be used elsewhere */
-void FVoxelErosionCS::UnbindBuffers(FRHICommandList& RHICmdList)
+void FVoxelErosionCS::UnbindBuffers(FRHIBatchedShaderParameters& BatchedParameters)
 {
-#define PROCESS_SURFACE(Name) SetUAVParameter(RHICmdList.GetScratchShaderParameters(), Name, FUnorderedAccessViewRHIRef());
+#define PROCESS_SURFACE(Name) SetUAVParameter(BatchedParameters, Name, FUnorderedAccessViewRHIRef());
 	PROCESS_SURFACE(RainMap);
 	PROCESS_SURFACE(TerrainHeight);
 	PROCESS_SURFACE(TerrainHeight1);

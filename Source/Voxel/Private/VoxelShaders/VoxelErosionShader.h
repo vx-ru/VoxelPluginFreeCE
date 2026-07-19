@@ -6,6 +6,7 @@
 #include "UniformBuffer.h"
 #include "VoxelMinimal.h"
 #include "ShaderParameterMacros.h"
+#include "RHIShaderParameters.h"
 
 #define VOXEL_EROSION_NUM_THREADS_CS 32
 
@@ -53,8 +54,10 @@ public:
 	}
 	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 
+	// Note: these only stage the parameters into BatchedParameters.
+	// The caller must submit them with RHICmdList.SetBatchedShaderParameters before dispatching.
 	void SetSurfaces(
-		FRHICommandList& RHICmdList,
+		FRHIBatchedShaderParameters& BatchedParameters,
 		FUnorderedAccessViewRHIRef RainMapUAV,
 		FUnorderedAccessViewRHIRef TerrainHeightUAV,
 		FUnorderedAccessViewRHIRef TerrainHeight1UAV,
@@ -66,8 +69,8 @@ public:
 		FUnorderedAccessViewRHIRef OutflowUAV,
 		FUnorderedAccessViewRHIRef VelocityUAV);
 		
-	void SetUniformBuffers(FRHICommandList& RHICmdList, const FVoxelErosionParameters& Parameters);
-	void UnbindBuffers(FRHICommandList& RHICmdList);
+	void SetUniformBuffers(FRHIBatchedShaderParameters& BatchedParameters, const FVoxelErosionParameters& Parameters);
+	void UnbindBuffers(FRHIBatchedShaderParameters& BatchedParameters);
 
 private:
 	LAYOUT_FIELD(FShaderResourceParameter, RainMap);

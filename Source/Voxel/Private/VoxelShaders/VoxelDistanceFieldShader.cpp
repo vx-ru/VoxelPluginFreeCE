@@ -21,19 +21,18 @@ void FVoxelDistanceFieldBaseCS::ModifyCompilationEnvironment(const FGlobalShader
 }
 
 void FVoxelDistanceFieldBaseCS::SetBuffers(
-		FRHICommandList& RHICmdList,
+		FRHIBatchedShaderParameters& BatchedParameters,
 		const FRWBuffer& SrcBuffer,
 		const FRWBuffer& DstBuffer) const
 {
-	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
 	SetUAVParameter(BatchedParameters, Src, SrcBuffer.UAV);
 	SetUAVParameter(BatchedParameters, Dst, DstBuffer.UAV);
 }
 
-void FVoxelDistanceFieldBaseCS::SetUniformBuffers(FRHICommandList& RHICmdList, const FVoxelDistanceFieldParameters& Parameters) const
+void FVoxelDistanceFieldBaseCS::SetUniformBuffers(FRHIBatchedShaderParameters& BatchedParameters, const FVoxelDistanceFieldParameters& Parameters) const
 {
 	const FVoxelDistanceFieldParametersRef ParametersBuffer = FVoxelDistanceFieldParametersRef::CreateUniformBufferImmediate(Parameters, UniformBuffer_MultiFrame);
-	SetUniformBufferParameter(RHICmdList.GetScratchShaderParameters(), GetUniformBufferParameter<FVoxelDistanceFieldParameters>(), ParametersBuffer);
+	SetUniformBufferParameter(BatchedParameters, GetUniformBufferParameter<FVoxelDistanceFieldParameters>(), ParametersBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,22 +145,29 @@ void FVoxelDistanceFieldShaderHelper::ApplyComputeShader(
 	check(IsInRenderingThread());
 
 	const TShaderMapRef<T> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	SetComputePipelineState(RHICmdList, ComputeShader.GetComputeShader());
+	FRHIComputeShader* ShaderRHI = ComputeShader.GetComputeShader();
+	SetComputePipelineState(RHICmdList, ShaderRHI);
 
 	FVoxelDistanceFieldParameters Parameters;
 	Parameters.SizeX = Size.X;
 	Parameters.SizeY = Size.Y;
 	Parameters.SizeZ = Size.Z;
 	Parameters.Step = Step;
-	ComputeShader->SetUniformBuffers(RHICmdList, Parameters);
-	
+
 	const FIntVector NumThreads = FVoxelUtilities::DivideCeil(Size, VOXEL_DISTANCE_FIELD_NUM_THREADS_CS);
 	check(NumThreads.X > 0 && NumThreads.Y > 0 && NumThreads.Z > 0);
 
 	RHICmdList.Transition(FRHITransitionInfo(SrcBuffer.UAV, ERHIAccess::UAVCompute, ERHIAccess::UAVCompute));
 	RHICmdList.Transition(FRHITransitionInfo(DstBuffer.UAV, ERHIAccess::UAVCompute, ERHIAccess::UAVCompute));
 
-	ComputeShader->SetBuffers(RHICmdList, SrcBuffer, DstBuffer);
+	// Stage the uniform buffer & UAVs into a single batch, then submit it.
+	// Without the SetBatchedShaderParameters call nothing is actually bound, and D3D12 asserts
+	// with "Missing uniform buffer at slot 0, stage SF_Compute" when the dispatch executes.
+	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
+	ComputeShader->SetUniformBuffers(BatchedParameters, Parameters);
+	ComputeShader->SetBuffers(BatchedParameters, SrcBuffer, DstBuffer);
+	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
+
 	RHICmdList.DispatchComputeShader(NumThreads.X, NumThreads.Y, NumThreads.Z);
 	Swap(SrcBuffer, DstBuffer);
 }

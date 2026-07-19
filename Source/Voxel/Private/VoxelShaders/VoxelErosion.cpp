@@ -153,11 +153,15 @@ void UVoxelErosion::RunShader(const FVoxelErosionParameters& Parameters)
 	FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
 	
 	TShaderMapRef<T> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	SetComputePipelineState(RHICmdList, ComputeShader.GetComputeShader());
+	FRHIComputeShader* ShaderRHI = ComputeShader.GetComputeShader();
+	SetComputePipelineState(RHICmdList, ShaderRHI);
 
+	// The parameters are only staged into the batch - they must be submitted with
+	// SetBatchedShaderParameters, else nothing is bound and D3D12 asserts on dispatch
+	FRHIBatchedShaderParameters& BatchedParameters = RHICmdList.GetScratchShaderParameters();
 	ComputeShader->SetSurfaces(
-		RHICmdList, 
-		RainMapUAV, 
+		BatchedParameters,
+		RainMapUAV,
 		TerrainHeightUAV, 
 		TerrainHeight1UAV, 
 		WaterHeightUAV, 
@@ -167,11 +171,13 @@ void UVoxelErosion::RunShader(const FVoxelErosionParameters& Parameters)
 		Sediment1UAV, 
 		OutflowUAV, 
 		VelocityUAV);
-	ComputeShader->SetUniformBuffers(RHICmdList, Parameters);
-	
+	ComputeShader->SetUniformBuffers(BatchedParameters, Parameters);
+	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
+
 	RHICmdList.DispatchComputeShader(RealSize / VOXEL_EROSION_NUM_THREADS_CS, RealSize / VOXEL_EROSION_NUM_THREADS_CS, 1);
 
-	ComputeShader->UnbindBuffers(RHICmdList);
+	ComputeShader->UnbindBuffers(BatchedParameters);
+	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
 }
 
 void UVoxelErosion::CopyTextureToRHI(const TVoxelTexture<float>& Texture, const FTextureRHIRef& RHITexture)

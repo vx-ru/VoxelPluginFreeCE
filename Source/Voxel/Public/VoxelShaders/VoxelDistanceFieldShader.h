@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "VoxelMinimal.h"
 #include "ShaderParameterMacros.h"
+#include "RHIShaderParameters.h"
 #include "RenderCommandFence.h"
 #include "GlobalShader.h"
 #include "RHIFeatureLevel.h"
@@ -40,13 +41,15 @@ public:
 	}
 	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment);
 
+	// Note: these only stage the parameters into BatchedParameters.
+	// The caller must submit them with RHICmdList.SetBatchedShaderParameters before dispatching.
 	void SetBuffers(
-		FRHICommandList& RHICmdList,
+		FRHIBatchedShaderParameters& BatchedParameters,
 		const FRWBuffer& SrcBuffer,
 		const FRWBuffer& DstBuffer) const;
-		
+
 	void SetUniformBuffers(
-		FRHICommandList& RHICmdList,
+		FRHIBatchedShaderParameters& BatchedParameters,
 		const FVoxelDistanceFieldParameters& Parameters) const;
 
 private:
