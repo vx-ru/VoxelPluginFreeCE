@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2024-2025 vxru
 
 #include "VoxelTools/VoxelToolManager.h"
 #include "VoxelTools/Tools/VoxelTool.h"

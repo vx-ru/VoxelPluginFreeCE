@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2024 vxru
 
 #include "VoxelPlaceableItems/Actors/VoxelPlaceableItemActorHelper.h"
 #include "VoxelPlaceableItems/Actors/VoxelDataItemActor.h"

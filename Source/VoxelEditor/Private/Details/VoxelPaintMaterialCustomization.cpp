@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2024 vxru
 
 #include "Details/VoxelPaintMaterialCustomization.h"
 #include "VoxelTools/VoxelPaintMaterial.h"

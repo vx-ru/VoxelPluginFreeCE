@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2025 vxru
 
 #include "VoxelRendererMeshHandler.h"
 #include "VoxelUtilities/VoxelMathUtilities.h"

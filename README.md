@@ -1,7 +1,7 @@
 ﻿# Voxel Plugin Free Community Edition
 
 **Voxel Plugin Free Community Edition** allows to create voxel worlds in Unreal Engine using C++.
-It is compatible with Unreal Engine 5.6 and Unreal Engine 5.7. 
+It is compatible with Unreal Engine 5.8. 
 
 ## About this fork
 
@@ -12,7 +12,10 @@ It is compatible with Unreal Engine 5.6 and Unreal Engine 5.7.
 ### Licenses
 
 This repository is derived from Voxel Plugin Free, originally distributed under the MIT License. See `LICENSE.txt`.
-Portions of the Voxel Plugin Free code have been modified solely for compatibility with newer Unreal Engine APIs and updated C++ standards. These changes are mechanically dictated and do not constitute original creative work. All modifications are distributed under the same MIT License as the original Voxel Plugin Free project.
+
+Much of the modification work is compatibility porting to newer Unreal Engine APIs and updated C++ standards. Some of it goes further — bug fixes and new functionality. Copyright in the modifications is held by vxru; copyright in the original work remains with Phyronnaz, and the original notice is retained in every file. Modified files carry a second `// Modifications Copyright` line stating the years that file was worked on.
+
+All modifications are distributed under the same MIT License as the original Voxel Plugin Free project.
 
 ### Affiliation
 

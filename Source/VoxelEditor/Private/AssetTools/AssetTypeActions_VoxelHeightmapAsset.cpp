@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2025 vxru
 
 #include "AssetTools/AssetTypeActions_VoxelHeightmapAsset.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"

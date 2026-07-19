@@ -1,4 +1,5 @@
 ﻿// Copyright 2021 Phyronnaz
+// Modifications Copyright 2026 vxru
 
 #include "VoxelData/VoxelSaveUtilities.h"
 #include "VoxelData/VoxelDataOctreeLeafData.h"

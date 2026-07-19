@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2024 vxru
 
 #include "VoxelAssetActorDetails.h"
 #include "VoxelPlaceableItems/Actors/VoxelAssetActor.h"

@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2025 vxru
 
 #include "VoxelImporters/VoxelLandscapeImporter.h"
 #include "Landscape.h"

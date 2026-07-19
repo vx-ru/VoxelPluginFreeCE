@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2024-2026 vxru
 
 #include "VoxelConvertLandscapeMaterial.h"
 

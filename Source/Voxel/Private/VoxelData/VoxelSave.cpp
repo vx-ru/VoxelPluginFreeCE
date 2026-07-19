@@ -1,4 +1,5 @@
 ﻿// Copyright 2021 Phyronnaz
+// Modifications Copyright 2026 vxru
 
 #include "VoxelData/VoxelSave.h"
 #include "VoxelUtilities/VoxelSerializationUtilities.inl"

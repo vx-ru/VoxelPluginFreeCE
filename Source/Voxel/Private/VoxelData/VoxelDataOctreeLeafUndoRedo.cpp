@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2025 vxru
 
 #include "VoxelData/VoxelDataOctreeLeafUndoRedo.h"
 #include "VoxelData/VoxelDataOctree.h"

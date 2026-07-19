@@ -1,4 +1,5 @@
 ﻿// Copyright 2021 Phyronnaz
+// Modifications Copyright 2025-2026 vxru
 
 #include "VoxelGenerators/VoxelGeneratorParameters.h"
 #include "UObject/Package.h"

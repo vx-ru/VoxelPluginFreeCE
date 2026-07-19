@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2024 vxru
 
 #include "VoxelRender/Meshers/VoxelMarchingCubeMesher.h"
 #include "VoxelRender/Meshers/VoxelMesherUtilities.h"

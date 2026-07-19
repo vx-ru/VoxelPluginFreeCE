@@ -1,4 +1,5 @@
 ﻿// Copyright 2021 Phyronnaz
+// Modifications Copyright 2026 vxru
 
 #if defined(__INTELLISENSE__) || defined(__RSCPP_VERSION)
 #include "CoreMinimal.h"

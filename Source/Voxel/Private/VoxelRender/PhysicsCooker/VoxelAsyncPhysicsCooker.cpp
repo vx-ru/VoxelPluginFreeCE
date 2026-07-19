@@ -1,4 +1,5 @@
 // Copyright 2021 Phyronnaz
+// Modifications Copyright 2024-2025 vxru
 
 #include "VoxelRender/PhysicsCooker/VoxelAsyncPhysicsCooker.h"
 #include "VoxelRender/PhysicsCooker/VoxelAsyncPhysicsCooker_Chaos.h"
