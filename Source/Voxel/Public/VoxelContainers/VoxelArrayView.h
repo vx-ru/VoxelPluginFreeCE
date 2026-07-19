@@ -16,7 +16,7 @@ struct TVoxelArrayView
 	{
 	}
 	template<typename = typename TEnableIf<std::is_const_v<T>>::Type>
-	TVoxelArrayView(const TArray<typename TRemoveConst<T>::Type>& Other)
+	TVoxelArrayView(const TArray<std::remove_const_t<T>>& Other)
 		: DataPtr(Other.GetData())
 		, ArrayNum(Other.Num())
 	{

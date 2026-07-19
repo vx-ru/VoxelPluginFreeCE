@@ -597,12 +597,13 @@ void UVoxelProceduralMeshComponent::GetUsedMaterials(TArray<UMaterialInterface*>
 FMaterialRelevance UVoxelProceduralMeshComponent::GetMaterialRelevance(ERHIFeatureLevel::Type InFeatureLevel) const
 {
 	FMaterialRelevance Result;
+	const EShaderPlatform ShaderPlatform = GetFeatureLevelShaderPlatform_Checked(InFeatureLevel);
 	const auto Apply = [&](auto* MaterialInterface)
 	{
 		if (MaterialInterface)
 		{
 			// MaterialInterface will be null in force delete
-			Result |= MaterialInterface->GetRelevance_Concurrent(InFeatureLevel);
+			Result |= MaterialInterface->GetRelevance_Concurrent(ShaderPlatform);
 		}
 	};
 	for (auto& Section : ProcMeshSections)

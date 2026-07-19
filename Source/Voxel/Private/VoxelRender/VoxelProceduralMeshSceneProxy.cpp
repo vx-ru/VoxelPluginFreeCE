@@ -173,6 +173,9 @@ FVoxelProceduralMeshSceneProxy::FVoxelProceduralMeshSceneProxy(UVoxelProceduralM
 	
 	// Proxy settings
 	bVerifyUsedMaterials = false; // Fails with tool rendering
+	// GetDynamicMeshElements rewrites MaterialRelevance in place for tool rendering,
+	// so it cannot run on the parallel gather tasks
+	bSupportsParallelGDME = false;
 
 	FinishSectionsUpdatesTime = Component->LastFinishSectionsUpdatesTime;
 	CreateSceneProxyTime = FPlatformTime::Seconds();
@@ -527,7 +530,7 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicMeshElements(const TArray<const F
 				auto* MaterialProxy = Material->GetRenderProxy();
 
 				// Hack to fix translucent rendering when the tool material was changed but the mesh wasn't updated
-				const_cast<FMaterialRelevance&>(MaterialRelevance) |= Material->GetMaterial()->GetRelevance_Concurrent(GetScene().GetFeatureLevel());
+				const_cast<FMaterialRelevance&>(MaterialRelevance) |= Material->GetMaterial()->GetRelevance_Concurrent(GetFeatureLevelShaderPlatform_Checked(GetScene().GetFeatureLevel()));
 
 				if (CVarShowToolRendering.GetValueOnRenderThread() != 0)
 				{
@@ -597,7 +600,15 @@ void FVoxelProceduralMeshSceneProxy::GetDynamicRayTracingInstances(FRayTracingIn
 
 				RayTracingInstance.Materials.Add(MeshBatch);
 
-				Collector.AddRayTracingInstance(RayTracingInstance);
+				// The single argument overload only registers the instance for view 0,
+				// which is wrong for split screen, stereo and scene captures
+				for (int32 ViewIndex = 0; ViewIndex < Collector.GetViews().Num(); ViewIndex++)
+				{
+					if (Collector.GetVisibilityMap() & (1 << ViewIndex))
+					{
+						Collector.AddRayTracingInstance(ViewIndex, RayTracingInstance);
+					}
+				}
 			}
 		}
 	}

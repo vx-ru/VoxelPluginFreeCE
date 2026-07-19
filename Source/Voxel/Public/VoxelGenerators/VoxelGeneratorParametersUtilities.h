@@ -165,7 +165,7 @@ public:
 	};
 
 	template<typename T>
-	struct TChooseParameter<T, typename TEnableIf<TOr<TIsFundamentalType<T>, TIsSame<T, FName>>::Value>::Type>
+	struct TChooseParameter<T, typename TEnableIf<TIsFundamentalType<T>::Value || std::is_same_v<T, FName>>::Type>
 	{
 		static T GetParameter(FProperty& Property, const UObject* This, const FString* Override)
 		{

@@ -403,7 +403,7 @@ void FVoxelEditorToolsPanel::Tick(FEditorViewportClient* ViewportClient, float D
 					MousePosition *= ViewportClient->GetDPIScale();
 					
 					TickData.MousePosition = FVector2D(MousePosition);
-					TickData.CameraViewDirection = SceneView->ViewMatrices.GetInvViewMatrix().TransformVector(FVector(0, 0, 1));
+					TickData.CameraViewDirection = SceneView->ViewMatrices.GetViewToWorld().TransformVector(FVector(0, 0, 1));
 					TickData.bEdit = bClick;
 					TickData.Keys = Keys;
 					

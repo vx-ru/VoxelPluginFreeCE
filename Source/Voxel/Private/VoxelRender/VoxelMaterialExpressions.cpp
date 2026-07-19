@@ -64,7 +64,7 @@ public:
 			{
 				VoxelIndices.Add(WeightmapIndex);
 
-				if (Parameter.ParameterInfo_DEPRECATED.Name == ParameterName)
+				if (Parameter.LayerName == ParameterName)
 				{
 					ParameterVoxelIndex = WeightmapIndex;
 				}

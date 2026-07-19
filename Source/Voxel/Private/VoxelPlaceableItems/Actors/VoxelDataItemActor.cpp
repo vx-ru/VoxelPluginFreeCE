@@ -12,6 +12,8 @@ AVoxelDataItemActor::AVoxelDataItemActor()
 	static bool bAddedDelegate = false;
 	if (!bAddedDelegate)
 	{
+		bAddedDelegate = true;
+
 		FCoreUObjectDelegates::OnObjectPropertyChanged.AddLambda([](UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
 		{
 			if (!PropertyChangedEvent.Property ||

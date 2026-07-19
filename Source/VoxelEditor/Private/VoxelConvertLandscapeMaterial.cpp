@@ -138,9 +138,10 @@ void FVoxelConvertLandscapeMaterial::ConvertExpression(UObject* Owner, UMaterial
 	{
 		if (OtherExpression != Expression)
 		{
-			for (FExpressionInput* Input : OtherExpression->GetInputsView())
+			for (int32 InputIndex = 0; InputIndex < OtherExpression->CountInputs(); InputIndex++)
 			{
-				if (Input->Expression == Expression)
+				FExpressionInput* Input = OtherExpression->GetInput(InputIndex);
+				if (Input && Input->Expression == Expression)
 				{
 					OtherExpression->Modify();
 					Input->Expression = NewExpression;
