@@ -176,6 +176,20 @@ void UVoxelErosion::RunShader(const FVoxelErosionParameters& Parameters)
 
 	RHICmdList.DispatchComputeShader(RealSize / VOXEL_EROSION_NUM_THREADS_CS, RealSize / VOXEL_EROSION_NUM_THREADS_CS, 1);
 
+	// The passes are chained, each one reads what the previous wrote. Nothing inserts a
+	// UAV barrier for us, so without these the next dispatch can start on stale data
+	const FRHIUnorderedAccessView* const UAVs[] =
+	{
+		RainMapUAV, TerrainHeightUAV, TerrainHeight1UAV, WaterHeightUAV, WaterHeight1UAV,
+		WaterHeight2UAV, SedimentUAV, Sediment1UAV, OutflowUAV, VelocityUAV
+	};
+	TArray<FRHITransitionInfo, TFixedAllocator<UE_ARRAY_COUNT(UAVs)>> Transitions;
+	for (const FRHIUnorderedAccessView* UAV : UAVs)
+	{
+		Transitions.Emplace(const_cast<FRHIUnorderedAccessView*>(UAV), ERHIAccess::UAVCompute, ERHIAccess::UAVCompute);
+	}
+	RHICmdList.Transition(Transitions);
+
 	ComputeShader->UnbindBuffers(BatchedParameters);
 	RHICmdList.SetBatchedShaderParameters(ShaderRHI, BatchedParameters);
 }
@@ -216,7 +230,15 @@ void UVoxelErosion::CopyTextureToRHI_RenderThread(const TVoxelTexture<float>& Te
 	if (!ensureAlways(RHIData)) return;
 
 	check(Texture.GetTextureData().Num() == Size * Size);
-	FMemory::Memcpy(RHIData, Texture.GetTextureData().GetData(), Size * Size * sizeof(float));
+
+	// Rows are padded to the platform pitch alignment, they are not tightly packed
+	const float* RESTRICT Src = Texture.GetTextureData().GetData();
+	uint8* RESTRICT Dst = reinterpret_cast<uint8*>(RHIData);
+	for (int32 Y = 0; Y < Size; Y++)
+	{
+		FMemory::Memcpy(Dst, Src + Y * Size, Size * sizeof(float));
+		Dst += MappedStride;
+	}
 
 	RHIUnlockTexture2D(RHITexture, 0, false);
 }
@@ -234,10 +256,16 @@ void UVoxelErosion::CopyRHIToTexture_RenderThread(const FTextureRHIRef& RHITextu
 	if (!ensureAlways(RHIData)) return;
 
 	Texture.SetSize(Size, Size);
-	
-	for (int32 Index = 0; Index < Size * Size; Index++)
+
+	// Rows are padded to the platform pitch alignment, they are not tightly packed
+	const uint8* RESTRICT Src = reinterpret_cast<const uint8*>(RHIData);
+	for (int32 Y = 0; Y < Size; Y++)
 	{
-		Texture.SetValue(Index, RHIData[Index]);
+		const float* RESTRICT Row = reinterpret_cast<const float*>(Src + Y * MappedStride);
+		for (int32 X = 0; X < Size; X++)
+		{
+			Texture.SetValue(X + Y * Size, Row[X]);
+		}
 	}
 
 	RHIUnlockTexture2D(RHITexture, 0, false);
