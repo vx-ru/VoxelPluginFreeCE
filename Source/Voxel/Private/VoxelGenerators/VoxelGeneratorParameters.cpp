@@ -1,7 +1,24 @@
-// Copyright 2021 Phyronnaz
+﻿// Copyright 2021 Phyronnaz
 
 #include "VoxelGenerators/VoxelGeneratorParameters.h"
 #include "UObject/Package.h"
+
+namespace
+{
+	// PropertyClass has to hold the full path of the type, not its short name:
+	// FindObject with a null outer cannot resolve a short name since ANY_PACKAGE was
+	// removed, and short names are ambiguous across modules anyway
+	FName GetTypePath(const UStruct& Type)
+	{
+		return FName(*Type.GetPathName());
+	}
+
+	template<typename T>
+	T* FindTypeFromPath(FName Path)
+	{
+		return FindObject<T>(nullptr, *Path.ToString());
+	}
+}
 
 FString FVoxelGeneratorParameterTerminalType::ToString_Terminal() const
 {
@@ -61,8 +78,8 @@ bool FVoxelGeneratorParameterTerminalType::CanBeAssignedFrom_Terminal(const FVox
 		{
 		case EVoxelGeneratorParameterPropertyType::Object:
 		{
-			auto* ThisClass = FindObject<UClass>(nullptr, *PropertyClass.ToString());
-			auto* OtherClass = FindObject<UClass>(nullptr, *Other.PropertyClass.ToString());
+			auto* ThisClass = FindTypeFromPath<UClass>(PropertyClass);
+			auto* OtherClass = FindTypeFromPath<UClass>(Other.PropertyClass);
 
 			if (!ThisClass || !OtherClass)
 			{
@@ -81,8 +98,8 @@ bool FVoxelGeneratorParameterTerminalType::CanBeAssignedFrom_Terminal(const FVox
 		{
 		case EVoxelGeneratorParameterPropertyType::Struct:
 		{
-			auto* ThisStruct = FindObject<UScriptStruct>(nullptr, *PropertyClass.ToString());
-			auto* OtherStruct = FindObject<UScriptStruct>(nullptr, *Other.PropertyClass.ToString());
+			auto* ThisStruct = FindTypeFromPath<UScriptStruct>(PropertyClass);
+			auto* OtherStruct = FindTypeFromPath<UScriptStruct>(Other.PropertyClass);
 
 			if (!ThisStruct || !OtherStruct)
 			{
@@ -125,21 +142,21 @@ FVoxelGeneratorParameterType::FVoxelGeneratorParameterType(FProperty& Property)
 		PropertyType = EVoxelGeneratorParameterPropertyType::Object;
 
 		auto* ObjectProperty = CastField<FObjectProperty>(&Property);
-		PropertyClass = ObjectProperty->PropertyClass->GetFName();
+		PropertyClass = GetTypePath(*ObjectProperty->PropertyClass);
 	}
 	else if (Property.IsA<FSoftObjectProperty>())
 	{
 		PropertyType = EVoxelGeneratorParameterPropertyType::Object;
 
 		auto* ObjectProperty = CastField<FSoftObjectProperty>(&Property);
-		PropertyClass = ObjectProperty->PropertyClass->GetFName();
+		PropertyClass = GetTypePath(*ObjectProperty->PropertyClass);
 	}
 	else if (Property.IsA<FStructProperty>())
 	{
 		PropertyType = EVoxelGeneratorParameterPropertyType::Struct;
 
 		auto* ObjectProperty = CastField<FStructProperty>(&Property);
-		PropertyClass = ObjectProperty->Struct->GetFName();
+		PropertyClass = GetTypePath(*ObjectProperty->Struct);
 	}
 	else if (Property.IsA<FArrayProperty>())
 	{

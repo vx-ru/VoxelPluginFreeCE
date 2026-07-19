@@ -168,7 +168,6 @@ void FVoxelThreadPool::AbandonAllTasks()
 	check(!IsAbandoningAllTasks);
 	IsAbandoningAllTasks = true;
 	{
-		// It's safe to lock because we have IsAbandoningAllTasks set to true, so threads can't lock
 		FVoxelScopeLockWithStats Lock(CriticalSection);
 
 		// Clean up all queued objects
@@ -178,12 +177,15 @@ void FVoxelThreadPool::AbandonAllTasks()
 		}
 		QueuedWorks.Reset();
 		QueuedThreads.Reset();
-
-		// Wait for all threads to finish up
-		// Safe because the thread destructor will wait on the runnable
-		// Due to IsAbandoningAllTasks, they can't pick another job either
-		AllThreads.Reset();
 	}
+
+	// Destroying a thread blocks until its runnable returns. A worker that tested
+	// IsAbandoningAllTasks just before we set it is already on its way into
+	// CriticalSection, so doing this under the lock would deadlock against it. It is
+	// still safe to let go of the lock: the queues are empty and the workers test the
+	// flag again once they hold it, so none of them can pick up another job
+	AllThreads.Reset();
+
 	check(IsAbandoningAllTasks);
 	IsAbandoningAllTasks = false;
 }
@@ -226,7 +228,7 @@ IVoxelQueuedWork* FVoxelThreadPool::ReturnToPoolOrGetNextJob(FVoxelThread* InQue
 		// Just exit now, to avoid deadlock
 		return nullptr;
 	}
-	
+
 	const double StartTime = FPlatformTime::Seconds();
 	ON_SCOPE_EXIT
 	{
@@ -236,6 +238,14 @@ IVoxelQueuedWork* FVoxelThreadPool::ReturnToPoolOrGetNextJob(FVoxelThread* InQue
 	};
 
 	FVoxelScopeLockWithStats Lock(CriticalSection);
+
+	// Re-check under the lock: the test above can pass just before AbandonAllTasks sets
+	// the flag, in which case we are already committed to waiting on CriticalSection.
+	// Without this we would put ourselves back in QueuedThreads as it is being torn down
+	if (IsAbandoningAllTasks)
+	{
+		return nullptr;
+	}
 
 	const double Time = FPlatformTime::Seconds();
 	if (Time > LastPriorityComputeTime + CVarVoxelThreadingPriorityDuration.GetValueOnAnyThread())

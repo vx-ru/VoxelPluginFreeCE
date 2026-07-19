@@ -87,7 +87,9 @@ public:
 		}
 
 		VOXEL_SCOPE_COUNTER("Wakeup threads");
-		const int32 WantedActiveThreads = CVarVoxelThreadingNumThreads.GetValueOnGameThread();
+		// Clamp: with 0 threads nothing is ever created or woken up, so queued works
+		// are neither run nor abandoned and anything waiting on them hangs forever
+		const int32 WantedActiveThreads = FMath::Max(1, CVarVoxelThreadingNumThreads.GetValueOnGameThread());
 		while (AllThreads.Num() - QueuedThreads.Num() < WantedActiveThreads)
 		{
 			if (QueuedThreads.Num() > 0)
