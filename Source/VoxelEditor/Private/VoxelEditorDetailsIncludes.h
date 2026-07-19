@@ -18,8 +18,6 @@
 #include "Widgets/Input/SComboBox.h"
 #include "Widgets/Input/SNumericEntryBox.h"
 
-#include "UserInterface/PropertyEditor/PropertyEditorConstants.h"
-
 namespace FVoxelEditorUtilities
 {
 	FSimpleDelegate MakeRefreshDelegate(const IPropertyTypeCustomizationUtils& CustomizationUtils);

@@ -1,7 +1,6 @@
 // Copyright 2021 Phyronnaz
 
 #include "VoxelEditorDetailsIncludes.h"
-#include "UserInterface/PropertyEditor/PropertyEditorConstants.cpp"
 
 FSimpleDelegate FVoxelEditorUtilities::MakeRefreshDelegate(const IPropertyTypeCustomizationUtils& CustomizationUtils)
 {

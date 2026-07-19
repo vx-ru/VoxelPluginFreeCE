@@ -140,7 +140,7 @@ public:
 		[
 			SNew(STextBlock)
 			.Text(FText::FromString(Name))
-			.Font(FAppStyle::GetFontStyle(PropertyEditorConstants::CategoryFontStyle))
+			.Font(FAppStyle::GetFontStyle("DetailsView.CategoryFontStyle"))
 		];
 	}
 	virtual void GenerateChildContent(IDetailChildrenBuilder& ChildrenBuilder) override
